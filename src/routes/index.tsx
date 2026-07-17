@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import logoSvg from "~/assets/flexora-logo.svg";
 import iconSvg from "~/assets/flexora-icon.svg";
+import { getFeaturedPTs, type FeaturedPT } from "~/lib/pt-ratings-actions";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -137,6 +139,9 @@ function Home() {
 
       {/* --- CTA --- */}
       <CTA />
+
+      {/* --- Featured Trainers --- */}
+      <FeaturedTrainers />
 
       {/* --- Footer --- */}
       <Footer />
@@ -470,5 +475,160 @@ function Footer() {
         </p>
       </div>
     </footer>
+  );
+}
+
+// --- Placeholder PTs for fallback ---
+const placeholderPTs = [
+  { name: "Maria Jensen", country: "Norway", yearsOfExperience: 8, ratingPct: 96 },
+  { name: "John Smith", country: "United Kingdom", yearsOfExperience: 12, ratingPct: 92 },
+  { name: "Elena Rossi", country: "Italy", yearsOfExperience: 5, ratingPct: 88 },
+  { name: "Carlos Mendez", country: "Spain", yearsOfExperience: 10, ratingPct: 94 },
+];
+
+// --- SVG Avatar Placeholder ---
+function AvatarPlaceholder({ name }: { name: string }) {
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+  return (
+    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#1A56DB] to-[#3B82F6] text-xl font-bold text-white shadow-inner">
+      {initials}
+    </div>
+  );
+}
+
+// --- Star Rating Helper ---
+function StarRating({ pct }: { pct: number }) {
+  const stars = Math.round(pct / 20); // 0-5 stars
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <svg
+          key={i}
+          className={`h-4 w-4 ${i <= stars ? "text-amber-400" : "text-gray-300"}`}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+      <span className="ml-1 text-sm font-semibold text-gray-600">{pct}%</span>
+    </div>
+  );
+}
+
+function FeaturedTrainers() {
+  const [trainers, setTrainers] = useState<FeaturedPT[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getFeaturedPTs()
+      .then((data) => setTrainers(data))
+      .catch(() => setTrainers([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const displayTrainers: FeaturedPT[] = trainers.length > 0 ? trainers : [];
+
+  return (
+    <section className="bg-white py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        <SectionHeading
+          title="Våre PT-er"
+          subtitle="Meet our top-rated verified personal trainers from around the world."
+        />
+
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="animate-pulse rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
+              >
+                <div className="mb-4 flex justify-center">
+                  <div className="h-20 w-20 rounded-full bg-gray-200" />
+                </div>
+                <div className="space-y-3 text-center">
+                  <div className="mx-auto h-5 w-32 rounded bg-gray-200" />
+                  <div className="mx-auto h-4 w-24 rounded bg-gray-100" />
+                  <div className="mx-auto h-4 w-20 rounded bg-gray-100" />
+                  <div className="mx-auto h-4 w-28 rounded bg-gray-100" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : displayTrainers.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {displayTrainers.slice(0, 6).map((pt) => (
+              <a
+                key={pt.id}
+                href={`/app/pt/${pt.id}`}
+                className="group rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-[#3B82F6]/40 hover:-translate-y-1"
+              >
+                <div className="mb-4 flex justify-center">
+                  {pt.profilePicture ? (
+                    <img
+                      src={pt.profilePicture}
+                      alt={pt.name}
+                      className="h-20 w-20 rounded-full object-cover ring-2 ring-[#1A56DB]/20"
+                    />
+                  ) : (
+                    <AvatarPlaceholder name={pt.name} />
+                  )}
+                </div>
+                <div className="text-center">
+                  <h4 className="mb-1 font-semibold text-gray-900 group-hover:text-[#1A56DB] transition-colors">
+                    {pt.name}
+                  </h4>
+                  <p className="mb-2 text-sm text-gray-500">
+                    {pt.country || "Worldwide"}
+                  </p>
+                  <p className="mb-2 text-xs text-gray-400">
+                    {pt.yearsOfExperience}{" "}
+                    {pt.yearsOfExperience === 1 ? "year" : "years"} experience
+                  </p>
+                  <div className="flex justify-center">
+                    <StarRating pct={pt.ratingPct} />
+                  </div>
+                  {pt.totalRatings > 0 && (
+                    <p className="mt-1 text-xs text-gray-400">
+                      ({pt.totalRatings} {pt.totalRatings === 1 ? "rating" : "ratings"})
+                    </p>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          /* Fallback: 4 placeholder cards using static data */
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {placeholderPTs.map((pt, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
+              >
+                <div className="mb-4 flex justify-center">
+                  <AvatarPlaceholder name={pt.name} />
+                </div>
+                <div className="text-center">
+                  <h4 className="mb-1 font-semibold text-gray-900">{pt.name}</h4>
+                  <p className="mb-2 text-sm text-gray-500">{pt.country}</p>
+                  <p className="mb-2 text-xs text-gray-400">
+                    {pt.yearsOfExperience} years experience
+                  </p>
+                  <div className="flex justify-center">
+                    <StarRating pct={pt.ratingPct} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

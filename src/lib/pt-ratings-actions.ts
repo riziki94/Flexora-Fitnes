@@ -205,3 +205,62 @@ export const getPtLeaderboardCountries = createServerFn()
     ).all() as any[];
     return rows.map((r: any) => r.country);
   });
+
+// ── Get featured PTs for landing page ─────────────────────
+export type FeaturedPT = {
+  id: number;
+  name: string;
+  country: string;
+  profilePicture: string;
+  yearsOfExperience: number;
+  ratingPct: number;
+  totalRatings: number;
+};
+
+export const getFeaturedPTs = createServerFn()
+  .handler(async (): Promise<FeaturedPT[]> => {
+    const db = getDb();
+
+    const rows = db.query(`
+      SELECT
+        u.id,
+        u.name,
+        u.country,
+        u.profile_picture,
+        p.years_of_experience,
+        COUNT(r.id) as total_ratings,
+        SUM(CASE WHEN r.rating = 'good' THEN 1 ELSE 0 END) as good_count,
+        SUM(CASE WHEN r.rating = 'okay' THEN 1 ELSE 0 END) as okay_count
+      FROM users u
+      JOIN pt_profiles p ON u.id = p.user_id
+      LEFT JOIN pt_ratings r ON r.pt_user_id = u.id
+      WHERE u.role = 'pt' AND p.verification_status = 'approved'
+      GROUP BY u.id
+      ORDER BY
+        CASE WHEN COUNT(r.id) > 0
+          THEN (SUM(CASE WHEN r.rating = 'good' THEN 1.0 ELSE 0 END) + SUM(CASE WHEN r.rating = 'okay' THEN 0.5 ELSE 0 END)) * 1.0 / COUNT(r.id)
+          ELSE 0
+        END DESC,
+        COUNT(r.id) DESC
+      LIMIT 6
+    `).all() as any[];
+
+    return rows.map((row: any) => {
+      const total = row.total_ratings || 0;
+      const good = row.good_count || 0;
+      const okay = row.okay_count || 0;
+      const ratingPct = total > 0
+        ? Math.round(((good * 1.0 + okay * 0.5) / total) * 100)
+        : 0;
+
+      return {
+        id: row.id,
+        name: row.name,
+        country: row.country || '',
+        profilePicture: row.profile_picture || '',
+        yearsOfExperience: row.years_of_experience || 0,
+        ratingPct,
+        totalRatings: total,
+      };
+    });
+  });
