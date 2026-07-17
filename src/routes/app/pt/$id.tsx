@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getPtDetail } from "~/lib/booking-actions";
+import { getPtSatisfaction } from "~/lib/pt-ratings-actions";
 
 export const Route = createFileRoute("/app/pt/$id")({
   component: PtProfilePage,
@@ -13,6 +14,7 @@ function PtProfilePage() {
 
   const [user, setUser] = useState<any>(null);
   const [pt, setPt] = useState<any>(null);
+  const [satisfaction, setSatisfaction] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -25,6 +27,9 @@ function PtProfilePage() {
       .then(setPt)
       .catch((e) => setError(e.message || "PT not found"))
       .finally(() => setLoading(false));
+    getPtSatisfaction({ ptUserId: ptId })
+      .then(setSatisfaction)
+      .catch(() => {});
   }, [ptId]);
 
   function handleLogout() {
@@ -116,6 +121,49 @@ function PtProfilePage() {
             <p className="mt-1 text-sm font-medium text-gray-900">{pt.education_location || "\u2014"}</p>
           </div>
         </div>
+
+        {satisfaction && satisfaction.allTimeTotal > 0 && (
+          <div className="mb-8 rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-400">
+              Customer Satisfaction
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-3xl font-bold ${
+                    satisfaction.color === "green" ? "text-green-600" :
+                    satisfaction.color === "yellow" ? "text-yellow-600" :
+                    "text-red-600"
+                  }`}>
+                    {satisfaction.satisfactionPct}%
+                  </span>
+                  <span className="text-sm text-gray-500">fornøyde kunder denne måneden</span>
+                </div>
+                <div className="mt-2 h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      satisfaction.color === "green" ? "bg-green-500" :
+                      satisfaction.color === "yellow" ? "bg-yellow-500" :
+                      "bg-red-500"
+                    }`}
+                    style={{ width: `${satisfaction.satisfactionPct}%` }}
+                  />
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gray-900">{satisfaction.allTimeTotal}</p>
+                <p className="text-xs text-gray-400">total ratings</p>
+              </div>
+            </div>
+            {satisfaction.monthly.total > 0 && (
+              <div className="mt-3 flex gap-3 text-xs text-gray-500">
+                <span className="text-green-600">👍 {satisfaction.monthly.good} godt</span>
+                <span className="text-yellow-600">👌 {satisfaction.monthly.okay} okay</span>
+                <span className="text-red-600">👎 {satisfaction.monthly.bad} ikke godt</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {user?.role === "client" && (
           <div className="mb-8">

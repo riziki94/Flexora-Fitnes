@@ -184,6 +184,25 @@ function SessionSummaryPage() {
           })}
         </div>
 
+        {/* Rate your PT prompt */}
+        <div className="mt-6 rounded-xl bg-amber-50 p-5 shadow-sm ring-1 ring-amber-100">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">⭐</span>
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-amber-800">Did you work with a PT?</h3>
+              <p className="mt-1 text-sm text-amber-600">
+                Rate your personal trainer and help others find the best fit.
+              </p>
+              <a
+                href="/app/bookings"
+                className="mt-3 inline-block rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+              >
+                Rate Your PT →
+              </a>
+            </div>
+          </div>
+        </div>
+
         {/* Actions */}
         <div className="mt-6 flex gap-3">
           <a

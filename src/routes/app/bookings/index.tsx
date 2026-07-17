@@ -1,10 +1,104 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getMyBookings, cancelBooking, markNoShow } from "~/lib/booking-actions";
+import { ratePtSession, hasUserRatedBooking } from "~/lib/pt-ratings-actions";
 
 export const Route = createFileRoute("/app/bookings/")({
   component: MyBookingsPage,
 });
+
+function RatingWidget({ bookingId, ptUserId, ptName, onRated }: {
+  bookingId: number;
+  ptUserId: number;
+  ptName: string;
+  onRated: () => void;
+}) {
+  const [rating, setRating] = useState<"good" | "okay" | "bad" | null>(null);
+  const [comment, setComment] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [existingRating, setExistingRating] = useState<string | null>(null);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    hasUserRatedBooking({ bookingId, ptUserId }).then((r: any) => {
+      if (r.rated) {
+        setExistingRating(r.rating);
+        setSubmitted(true);
+      }
+      setChecked(true);
+    }).catch(() => setChecked(true));
+  }, []);
+
+  async function handleSubmit() {
+    if (!rating) return;
+    setSubmitting(true);
+    try {
+      await ratePtSession({ ptUserId, sessionId: bookingId, rating, comment });
+      setSubmitted(true);
+      onRated();
+    } catch (e: any) {
+      // already rated or error - still show submitted
+      setSubmitted(true);
+    }
+    setSubmitting(false);
+  }
+
+  if (!checked) return null;
+  if (submitted || existingRating) {
+    const displayRating = existingRating || rating;
+    const labels: Record<string, string> = { good: "Godt", okay: "Nokså godt", bad: "Ikke godt" };
+    const colors: Record<string, string> = { good: "text-green-600", okay: "text-yellow-600", bad: "text-red-600" };
+    return (
+      <div className="mt-3 rounded-lg bg-gray-50 px-4 py-2.5">
+        <p className="text-xs text-gray-500">Your rating: <span className={`font-semibold ${colors[displayRating || "good"]}`}>{labels[displayRating || "good"]}</span></p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+      <p className="mb-2 text-xs font-medium text-amber-800">Rate {ptName}:</p>
+      <div className="flex gap-2 mb-2">
+        {(["good", "okay", "bad"] as const).map((r) => {
+          const labels: Record<string, string> = { good: "Godt", okay: "Nokså godt", bad: "Ikke godt" };
+          const activeColors: Record<string, string> = { good: "bg-green-500 text-white border-green-500", okay: "bg-yellow-500 text-white border-yellow-500", bad: "bg-red-500 text-white border-red-500" };
+          return (
+            <button
+              key={r}
+              onClick={() => setRating(r)}
+              className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+                rating === r
+                  ? activeColors[r]
+                  : "border-gray-300 text-gray-600 hover:border-gray-400"
+              }`}
+            >
+              {labels[r]}
+            </button>
+          );
+        })}
+      </div>
+      {rating && (
+        <>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Optional comment..."
+            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-amber-400 mb-2"
+            rows={2}
+          />
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="rounded-lg bg-amber-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-50 transition-colors"
+          >
+            {submitting ? "Submitting..." : "Submit Rating"}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
 
 function MyBookingsPage() {
   const navigate = useNavigate();
@@ -253,6 +347,14 @@ function MyBookingsPage() {
                       >
                         View PT
                       </a>
+                    )}
+                    {!isPt && b.status === "completed" && b.pt_id && (
+                      <RatingWidget
+                        bookingId={b.id}
+                        ptUserId={b.pt_id}
+                        ptName={b.pt_name}
+                        onRated={() => loadBookings()}
+                      />
                     )}
                   </div>
                 </div>
