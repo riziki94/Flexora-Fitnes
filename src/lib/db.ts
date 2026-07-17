@@ -197,7 +197,50 @@ function runMigrations(db: Database) {
     CREATE INDEX IF NOT EXISTS idx_workout_sessions_user ON workout_sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_workout_sessions_plan ON workout_sessions(plan_id);
     CREATE INDEX IF NOT EXISTS idx_session_exercises_session ON session_exercises(session_id);
+
+    -- PT Booking & Speed Date tables
+
+    CREATE TABLE IF NOT EXISTS pt_availability (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pt_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      day_of_week INTEGER NOT NULL CHECK(day_of_week BETWEEN 0 AND 6),
+      start_time TEXT NOT NULL,
+      end_time TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS speed_date_slots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pt_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      datetime TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'booked', 'completed', 'cancelled')),
+      client_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      booking_id INTEGER NOT NULL REFERENCES pt_bookings(id) ON DELETE CASCADE,
+      client_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      pt_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+      comment TEXT DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pt_availability_pt ON pt_availability(pt_user_id);
+    CREATE INDEX IF NOT EXISTS idx_speed_date_slots_pt ON speed_date_slots(pt_user_id);
+    CREATE INDEX IF NOT EXISTS idx_speed_date_slots_status ON speed_date_slots(status);
+    CREATE INDEX IF NOT EXISTS idx_reviews_pt ON reviews(pt_id);
+    CREATE INDEX IF NOT EXISTS idx_reviews_booking ON reviews(booking_id);
   `);
+
+  // Add new columns to existing tables if they don't exist (safe ALTER)
+  try { db.exec("ALTER TABLE pt_bookings ADD COLUMN session_type TEXT NOT NULL DEFAULT '60min'"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE pt_bookings ADD COLUMN price REAL NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE pt_bookings ADD COLUMN cancellation_status TEXT NOT NULL DEFAULT 'none' CHECK(cancellation_status IN ('none','pt_cancelled','client_no_show','client_cancelled'))"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE pt_profiles ADD COLUMN specialties TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE pt_profiles ADD COLUMN hourly_rate REAL NOT NULL DEFAULT 500"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE pt_profiles ADD COLUMN speed_date_enabled INTEGER NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }
 }
 
 export function closeDb() {

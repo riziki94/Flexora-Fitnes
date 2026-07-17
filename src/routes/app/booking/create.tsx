@@ -1,0 +1,307 @@
+import { useState, useEffect } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createBooking, getPtDetail } from "~/lib/booking-actions";
+
+export const Route = createFileRoute("/app/booking/create")({
+  component: BookingCreatePage,
+});
+
+function BookingCreatePage() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [pt, setPt] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Form state
+  const [sessionType, setSessionType] = useState<"30min" | "60min">("60min");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [confirmation, setConfirmation] = useState<any>(null);
+
+  // Get ptId from query params
+  const ptId = typeof window !== "undefined"
+    ? Number(new URLSearchParams(window.location.search).get("ptId"))
+    : 0;
+
+  useEffect(() => {
+    const stored = localStorage.getItem("flexora_user");
+    if (!stored) { navigate({ to: "/login" }); return; }
+    try {
+      const u = JSON.parse(stored);
+      setUser(u);
+      if (u.role !== "client") {
+        setError("Only clients can book sessions.");
+        setLoading(false);
+        return;
+      }
+    } catch { navigate({ to: "/login" }); return; }
+
+    if (!ptId) {
+      setError("No PT selected. Please choose a trainer first.");
+      setLoading(false);
+      return;
+    }
+
+    getPtDetail({ ptId })
+      .then(setPt)
+      .catch((e) => setError(e.message || "PT not found"))
+      .finally(() => setLoading(false));
+  }, [ptId]);
+
+  function handleLogout() {
+    localStorage.removeItem("flexora_token");
+    localStorage.removeItem("flexora_user");
+    document.cookie = "flexora_token=; path=/; max-age=0";
+    navigate({ to: "/" });
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!date || !time || !ptId) return;
+
+    setSubmitting(true);
+    try {
+      const scheduledAt = `${date}T${time}:00`;
+      const result = await createBooking({ ptId, scheduledAt, sessionType });
+      setConfirmation(result);
+    } catch (e: any) {
+      setError(e.message || "Booking failed. Please try again.");
+    }
+    setSubmitting(false);
+  }
+
+  // Set default date to tomorrow
+  useEffect(() => {
+    if (!date) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setDate(tomorrow.toISOString().split("T")[0]);
+    }
+  }, []);
+
+  const hourlyRate = pt?.hourly_rate || 500;
+  const price = sessionType === "30min" ? hourlyRate / 2 : hourlyRate;
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+          <a href="/" className="flex items-center gap-2">
+            <span className="text-lg font-bold text-[#1A56DB]">Flexora</span>
+            <span className="text-lg font-light text-gray-400">Fitnes</span>
+          </a>
+          <div className="flex items-center gap-4">
+            <a href="/app/dashboard" className="text-sm text-gray-600 hover:text-[#1A56DB]">Dashboard</a>
+            <a href="/app/pt/discover" className="text-sm text-gray-600 hover:text-[#1A56DB]">Discover</a>
+            <a href="/app/bookings" className="text-sm text-gray-600 hover:text-[#1A56DB]">My Bookings</a>
+            <button onClick={handleLogout} className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <main className="mx-auto max-w-2xl px-6 py-8">
+        <div className="mb-6">
+          <a href={ptId ? `/app/pt/${ptId}` : "/app/pt/discover"} className="text-sm font-medium text-[#1A56DB] hover:underline">
+            ← Back
+          </a>
+        </div>
+
+        {error && !confirmation && (
+          <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        {confirmation ? (
+          <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-100 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-2xl">
+              ✓
+            </div>
+            <h1 className="text-xl font-bold text-gray-900">Booking Confirmed!</h1>
+            <div className="mt-4 space-y-2 text-sm text-gray-600">
+              <p>
+                <span className="font-medium">PT:</span> {pt?.name || "Trainer"}
+              </p>
+              <p>
+                <span className="font-medium">Date:</span>{" "}
+                {new Date(confirmation.scheduledAt).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+              <p>
+                <span className="font-medium">Time:</span>{" "}
+                {new Date(confirmation.scheduledAt).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+              <p>
+                <span className="font-medium">Duration:</span>{" "}
+                {confirmation.sessionType === "30min" ? "30 minutes" : "60 minutes"}
+              </p>
+              <p>
+                <span className="font-medium">Price:</span> {confirmation.price} kr
+              </p>
+            </div>
+            <div className="mt-6 flex gap-3 justify-center">
+              <a
+                href="/app/bookings"
+                className="rounded-lg bg-[#1A56DB] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#1E40AF] transition-colors"
+              >
+                View My Bookings
+              </a>
+              <a
+                href="/app/pt/discover"
+                className="rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Discover More PTs
+              </a>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-100 text-center">
+            <p className="text-gray-500">{error}</p>
+            <a
+              href="/app/pt/discover"
+              className="mt-4 inline-block text-sm font-medium text-[#1A56DB] hover:underline"
+            >
+              ← Browse Trainers
+            </a>
+          </div>
+        ) : (
+          <>
+            {/* PT Summary */}
+            {pt && (
+              <div className="mb-6 rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A56DB]/10 text-lg font-bold text-[#1A56DB]">
+                    {pt.name?.charAt(0)?.toUpperCase() || "P"}
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-gray-900">{pt.name}</h2>
+                    <p className="text-sm text-gray-500">
+                      {pt.specialties?.slice(0, 2).join(", ") || "Personal Trainer"}
+                      {" · "}{pt.hourly_rate || 500} kr/hr
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Booking Form */}
+            <form onSubmit={handleSubmit} className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
+              <h1 className="text-lg font-bold text-gray-900 mb-6">Book a Session</h1>
+
+              {/* Session Type */}
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Session Duration</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSessionType("30min")}
+                    className={`rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
+                      sessionType === "30min"
+                        ? "border-[#1A56DB] bg-blue-50 text-[#1A56DB]"
+                        : "border-gray-200 text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    30 Minutes
+                    <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                      {hourlyRate / 2} kr
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSessionType("60min")}
+                    className={`rounded-lg border px-4 py-3 text-sm font-medium transition-colors ${
+                      sessionType === "60min"
+                        ? "border-[#1A56DB] bg-blue-50 text-[#1A56DB]"
+                        : "border-gray-200 text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    60 Minutes
+                    <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                      {hourlyRate} kr
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Date */}
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                  required
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-[#1A56DB] focus:outline-none focus:ring-1 focus:ring-[#1A56DB]"
+                />
+              </div>
+
+              {/* Time */}
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  required
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-[#1A56DB] focus:outline-none focus:ring-1 focus:ring-[#1A56DB]"
+                />
+              </div>
+
+              {/* Price Summary */}
+              <div className="mb-6 rounded-lg bg-gray-50 p-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Session Price</span>
+                  <span className="font-semibold text-gray-900">{price} kr</span>
+                </div>
+                <div className="mt-1 flex items-center justify-between text-xs text-gray-400">
+                  <span>Platform fee included</span>
+                  <span>—</span>
+                </div>
+              </div>
+
+              {/* Cancellation Policy */}
+              <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <h3 className="text-sm font-medium text-amber-800">Cancellation Policy</h3>
+                <ul className="mt-2 space-y-1 text-xs text-amber-700">
+                  <li>• Free cancellation up to 24 hours before the session</li>
+                  <li>• Late cancellation (within 24h): 50% charge applies</li>
+                  <li>• No-show: full session price charged</li>
+                  <li>• Rescheduling is free up to 24 hours before</li>
+                </ul>
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={submitting || !date || !time}
+                className="w-full rounded-xl bg-[#1A56DB] px-6 py-3.5 text-sm font-semibold text-white hover:bg-[#1E40AF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {submitting ? "Confirming..." : `Confirm Booking — ${price} kr`}
+              </button>
+            </form>
+          </>
+        )}
+      </main>
+    </div>
+  );
+}
