@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getDashboardData } from "~/lib/user-actions";
+import { FREE_TRIAL_DAYS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
 
 export const Route = createFileRoute("/app/dashboard")({
   component: DashboardPage,
@@ -12,6 +13,7 @@ function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [dashData, setDashData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [trialDaysLeft, setTrialDaysLeft] = useState(0);
 
   useEffect(() => {
     // Get user from localStorage
@@ -23,6 +25,20 @@ function DashboardPage() {
     try {
       const parsed = JSON.parse(stored);
       setUser(parsed);
+
+      // Calculate trial days
+      const trialStart = localStorage.getItem("flexora_trial_start");
+      if (!trialStart) {
+        const now = new Date().toISOString();
+        localStorage.setItem("flexora_trial_start", now);
+      }
+      const start = new Date(trialStart || new Date().toISOString());
+      const now = new Date();
+      const daysElapsed = Math.floor(
+        (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const remaining = Math.max(0, FREE_TRIAL_DAYS - daysElapsed);
+      setTrialDaysLeft(remaining);
 
       // Load dashboard data
       getDashboardData().then(setDashData).catch(console.error).finally(() => setLoading(false));
@@ -59,6 +75,7 @@ function DashboardPage() {
           </a>
           <div className="flex items-center gap-4">
             <a href="/app/schedule" className="text-sm text-gray-600 hover:text-[#1A56DB]">Schedule</a>
+            <a href="/app/subscription" className="text-sm text-gray-600 hover:text-[#1A56DB]">Subscription</a>
             <a href="/app/profile" className="text-sm text-gray-600 hover:text-[#1A56DB]">Profile</a>
             {isPt && (
               <a href="/app/pt/verify" className="text-sm text-gray-600 hover:text-[#1A56DB]">Verification</a>
@@ -74,6 +91,26 @@ function DashboardPage() {
       </nav>
 
       <main className="mx-auto max-w-7xl px-6 py-8">
+        {/* Trial Banner — show when no active subscription */}
+        {!isPt && !dashData?.subscription && trialDaysLeft > 0 && (
+          <div className="mb-8 rounded-xl bg-gradient-to-r from-[#1A56DB] to-[#3B82F6] p-5 text-white shadow-md">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="font-semibold">
+                  Du har {trialDaysLeft} {trialDaysLeft === 1 ? "dag" : "dager"} igjen av prøveperioden
+                </p>
+                <p className="text-sm text-blue-100">{FREE_TRIAL_MESSAGE}</p>
+              </div>
+              <a
+                href="/app/subscription"
+                className="shrink-0 rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#1A56DB] hover:bg-blue-50 transition-colors text-center"
+              >
+                Velg Abonnement →
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">
@@ -107,7 +144,7 @@ function ClientDashboard({ data }: { data: any }) {
         ) : (
           <div>
             <p className="text-sm text-gray-500">No active subscription</p>
-            <a href="/#pricing" className="mt-2 inline-block text-sm font-medium text-[#1A56DB] hover:underline">
+            <a href="/app/subscription" className="mt-2 inline-block text-sm font-medium text-[#1A56DB] hover:underline">
               View Plans →
             </a>
           </div>
@@ -156,7 +193,7 @@ function ClientDashboard({ data }: { data: any }) {
           <ActionLink href="/app/schedule">Weekly Schedule</ActionLink>
           <ActionLink href="/app/workout/plans/create">Create Workout Plan</ActionLink>
           <ActionLink href="/app/profile">Edit Profile</ActionLink>
-          <ActionLink href="/#pricing">Upgrade Plan</ActionLink>
+          <ActionLink href="/app/subscription">Upgrade Plan</ActionLink>
           <ActionLink href="/app/dashboard">Browse PTs</ActionLink>
         </div>
       </DashboardCard>

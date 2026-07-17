@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { registerUser } from "~/lib/auth-actions";
+import { getPaymentLink, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    plan: (search.plan as string) || "",
+  }),
 });
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [role, setRole] = useState<"client" | "pt">("client");
+  const [plan, setPlan] = useState(search.plan || "");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,6 +30,16 @@ function RegisterPage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Sync plan from search params
+  useEffect(() => {
+    if (search.plan) {
+      setPlan(search.plan);
+      if (search.plan === "pt") {
+        setRole("pt");
+      }
+    }
+  }, [search.plan]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,6 +73,18 @@ function RegisterPage() {
         localStorage.setItem("flexora_token", result.token);
         localStorage.setItem("flexora_user", JSON.stringify(result.user));
         document.cookie = `flexora_token=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+
+        // Store selected plan for subscription setup
+        const effectivePlan = plan || (role === "pt" ? "pt" : "basis");
+        localStorage.setItem("flexora_pending_plan", effectivePlan);
+      }
+
+      // Redirect to Stripe payment link
+      const effectivePlan = plan || (role === "pt" ? "pt" : "basis");
+      const paymentLink = getPaymentLink(effectivePlan);
+
+      if (typeof window !== "undefined") {
+        window.open(paymentLink, "_blank", "noopener,noreferrer");
       }
 
       navigate({ to: "/app/dashboard" });
@@ -64,6 +92,15 @@ function RegisterPage() {
       setError(e.message || "Registration failed");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function handleRoleChange(newRole: "client" | "pt") {
+    setRole(newRole);
+    if (newRole === "pt") {
+      setPlan("pt");
+    } else if (plan === "pt") {
+      setPlan("");
     }
   }
 
@@ -77,7 +114,8 @@ function RegisterPage() {
           </a>
         </div>
         <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-100">
-          <h1 className="mb-6 text-2xl font-bold text-gray-900">Create Account</h1>
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">Create Account</h1>
+          <p className="mb-6 text-sm font-medium text-[#1A56DB]">{FREE_TRIAL_MESSAGE}</p>
 
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
@@ -89,7 +127,7 @@ function RegisterPage() {
           <div className="mb-6 flex gap-2">
             <button
               type="button"
-              onClick={() => setRole("client")}
+              onClick={() => handleRoleChange("client")}
               className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                 role === "client"
                   ? "bg-[#1A56DB] text-white"
@@ -100,7 +138,7 @@ function RegisterPage() {
             </button>
             <button
               type="button"
-              onClick={() => setRole("pt")}
+              onClick={() => handleRoleChange("pt")}
               className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                 role === "pt"
                   ? "bg-[#1A56DB] text-white"
@@ -110,6 +148,36 @@ function RegisterPage() {
               I'm a PT
             </button>
           </div>
+
+          {/* Plan selector (clients only) */}
+          {role === "client" && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Plan
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { key: "basis", label: "Basis", price: "149 kr" },
+                  { key: "hybrid", label: "Hybrid", price: "249 kr" },
+                  { key: "premium", label: "Premium", price: "399 kr" },
+                ].map((p) => (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setPlan(p.key)}
+                    className={`rounded-lg border px-3 py-3 text-center text-sm transition-colors ${
+                      plan === p.key
+                        ? "border-[#1A56DB] bg-blue-50 text-[#1A56DB] font-semibold"
+                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="font-semibold">{p.label}</div>
+                    <div className="text-xs mt-0.5">{p.price}/mnd</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -267,7 +335,7 @@ function RegisterPage() {
               disabled={loading}
               className="w-full rounded-full bg-[#1A56DB] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors disabled:opacity-50"
             >
-              {loading ? "Creating Account..." : `Sign Up as ${role === "pt" ? "PT" : "Client"}`}
+              {loading ? "Creating Account..." : `Start Free Trial — ${role === "pt" ? "PT Plan" : plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Select a Plan"}`}
             </button>
           </form>
 
