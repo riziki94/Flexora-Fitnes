@@ -164,6 +164,7 @@ export const getPtLeaderboard = createServerFn()
       JOIN pt_profiles p ON u.id = p.user_id
       LEFT JOIN pt_ratings r ON r.pt_user_id = u.id ${dateFilter}
       WHERE u.role = 'pt' AND p.verification_status = 'approved' ${countryFilter}
+        AND u.profile_picture IS NOT NULL AND u.profile_picture != ''
       GROUP BY u.id
       HAVING COUNT(r.id) > 0
       ORDER BY
@@ -202,6 +203,7 @@ export const getPtLeaderboardCountries = createServerFn()
        JOIN pt_profiles p ON u.id = p.user_id
        JOIN pt_ratings r ON r.pt_user_id = u.id
        WHERE u.role = 'pt' AND p.verification_status = 'approved' AND u.country != ''
+         AND u.profile_picture IS NOT NULL AND u.profile_picture != ''
        ORDER BY u.country`
     ).all() as any[];
     return rows.map((r: any) => r.country);
@@ -236,6 +238,7 @@ export const getFeaturedPTs = createServerFn()
       JOIN pt_profiles p ON u.id = p.user_id
       LEFT JOIN pt_ratings r ON r.pt_user_id = u.id
       WHERE u.role = 'pt' AND p.verification_status = 'approved'
+        AND u.profile_picture IS NOT NULL AND u.profile_picture != ''
       GROUP BY u.id
       ORDER BY
         CASE WHEN COUNT(r.id) > 0

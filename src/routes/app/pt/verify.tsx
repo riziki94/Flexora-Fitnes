@@ -77,6 +77,28 @@ function PtVerifyPage() {
       <main className="mx-auto max-w-3xl px-6 py-8">
         <h1 className="mb-8 text-2xl font-bold text-gray-900">PT Verification</h1>
 
+        {/* Profile Picture Warning */}
+        {(!user?.profile_picture || user.profile_picture === "") && (
+          <div className="mb-6 rounded-xl border-2 border-amber-300 bg-amber-50 p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <svg className="h-6 w-6 shrink-0 text-amber-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <div>
+                <h3 className="text-sm font-semibold text-amber-800">Profilbilde kreves</h3>
+                <p className="mt-1 text-sm text-amber-700">
+                  Du må laste opp et profilbilde før profilen din blir synlig for kunder. 
+                  Gå til{" "}
+                  <a href="/app/profile" className="font-medium text-[#1A56DB] underline hover:text-[#1E40AF]">
+                    profilsiden
+                  </a>{" "}
+                  for å laste opp.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Status Card */}
         <div className="mb-6 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <h2 className="mb-4 text-lg font-semibold text-gray-900">Verification Status</h2>

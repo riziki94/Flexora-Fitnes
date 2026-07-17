@@ -47,6 +47,7 @@ export const searchPTs = createServerFn()
       JOIN pt_profiles p ON u.id = p.user_id
       LEFT JOIN reviews r ON r.pt_id = u.id
       WHERE u.role = 'pt' AND p.verification_status = 'approved'
+        AND u.profile_picture IS NOT NULL AND u.profile_picture != ''
     `;
     const params: any[] = [];
 
@@ -434,6 +435,7 @@ export const getSpeedDateSlots = createServerFn()
       JOIN users u ON sds.pt_user_id = u.id
       JOIN pt_profiles p ON u.id = p.user_id
       WHERE sds.status = 'open' AND sds.datetime > datetime('now')
+        AND u.profile_picture IS NOT NULL AND u.profile_picture != ''
       ORDER BY sds.datetime ASC
       LIMIT 20
     `).all();
@@ -514,7 +516,7 @@ export const getAvailableCountries = createServerFn()
   .handler(async () => {
     const db = getDb();
     const rows = db.query(
-      "SELECT DISTINCT country FROM users WHERE role = 'pt' AND country != '' ORDER BY country"
+      "SELECT DISTINCT country FROM users WHERE role = 'pt' AND country != '' AND profile_picture IS NOT NULL AND profile_picture != '' ORDER BY country"
     ).all() as any[];
     return rows.map((r: any) => r.country);
   });
@@ -523,7 +525,7 @@ export const getAvailableSpecialties = createServerFn()
   .handler(async () => {
     const db = getDb();
     const rows = db.query(
-      "SELECT DISTINCT specialties FROM pt_profiles WHERE verification_status = 'approved' AND specialties != ''"
+      "SELECT DISTINCT p.specialties FROM pt_profiles p JOIN users u ON p.user_id = u.id WHERE p.verification_status = 'approved' AND p.specialties != '' AND u.profile_picture IS NOT NULL AND u.profile_picture != ''"
     ).all() as any[];
     const all = new Set<string>();
     for (const r of rows) {

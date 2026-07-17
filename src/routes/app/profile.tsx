@@ -226,6 +226,24 @@ function ProfilePage() {
       <main className="mx-auto max-w-3xl px-6 py-8">
         <h1 className="mb-8 text-2xl font-bold text-gray-900">My Profile</h1>
 
+        {/* PT Profile Picture Reminder */}
+        {isPt && (!profilePic || profilePic === "") && (
+          <div className="mb-6 rounded-xl border-2 border-red-300 bg-red-50 p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <svg className="h-6 w-6 shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <div>
+                <h3 className="text-sm font-semibold text-red-800">Profilbildet ditt er påkrevd for å bli synlig for kunder</h3>
+                <p className="mt-1 text-sm text-red-700">
+                  Uten profilbilde vil du ikke vises i søkeresultater, oppdagelsessiden eller forsiden. 
+                  Last opp et profilbilde nedenfor for å bli synlig.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Avatar Section */}
           <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
