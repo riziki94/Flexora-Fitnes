@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/app/nutrition")({
+export const Route = createFileRoute("/app/nutrition/")({
   component: NutritionLogPage,
 });
 
