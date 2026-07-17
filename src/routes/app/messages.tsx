@@ -19,6 +19,11 @@ interface Conversation {
   lastSenderId: number;
   unreadCount: number;
   lastActive: string;
+  sourceType: string;
+  matchStatus: string;
+  matchId: number;
+  slotDatetime: string;
+  chatCreated: boolean;
 }
 
 interface Message {
@@ -257,7 +262,7 @@ function MessagesPage() {
           ) : (
             conversations.map(conv => (
               <button
-                key={conv.partnerId}
+                key={`${conv.sourceType}-${conv.partnerId}`}
                 onClick={() => selectConversation(conv)}
                 className={`w-full border-b border-gray-50 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
                   activePartnerId === conv.partnerId ? "bg-blue-50 hover:bg-blue-50" : ""
@@ -276,17 +281,35 @@ function MessagesPage() {
                         {conv.partnerName}
                       </p>
                       <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
-                        {formatTime(conv.lastMessageAt)}
+                        {formatTime(conv.lastMessageAt || conv.slotDatetime)}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 capitalize">{conv.partnerRole === "pt" ? "PT" : "Klient"}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-xs text-gray-500 capitalize">{conv.partnerRole === "pt" ? "PT" : "Klient"}</p>
+                      {conv.sourceType === "speed_date_match" && (
+                        <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                          conv.matchStatus === "matched"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-amber-100 text-amber-700"
+                        }`}>
+                          ⚡ Speed date
+                          {conv.matchStatus !== "matched" && " (venter)"}
+                        </span>
+                      )}
+                    </div>
                     <p className={`text-sm truncate mt-0.5 ${
                       conv.unreadCount > 0 && conv.lastSenderId !== userId
                         ? "font-semibold text-gray-900"
                         : "text-gray-500"
                     }`}>
-                      {conv.lastSenderId === userId ? "Du: " : ""}
-                      {conv.lastMessage}
+                      {conv.sourceType === "speed_date_match" && !conv.lastMessage ? (
+                        <span className="text-[#1A56DB] font-medium">Start chat →</span>
+                      ) : (
+                        <>
+                          {conv.lastSenderId === userId ? "Du: " : ""}
+                          {conv.lastMessage}
+                        </>
+                      )}
                     </p>
                   </div>
                   {conv.unreadCount > 0 && (

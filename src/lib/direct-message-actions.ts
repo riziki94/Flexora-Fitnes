@@ -39,7 +39,16 @@ function canMessage(db: ReturnType<typeof getDb>, userId: number, otherId: numbe
      AND status IN ('confirmed', 'completed')
      LIMIT 1`
   ).get(userId, otherId, otherId, userId) as any;
-  return !!booking;
+  if (booking) return true;
+
+  // Check if there's a matched speed date
+  const match = db.query(
+    `SELECT id FROM speed_date_matches 
+     WHERE ((pt_user_id = ? AND client_user_id = ?) OR (pt_user_id = ? AND client_user_id = ?))
+     AND status = 'matched'
+     LIMIT 1`
+  ).get(userId, otherId, otherId, userId) as any;
+  return !!match;
 }
 
 function getRelationship(db: ReturnType<typeof getDb>, userId: number, otherId: number): {
@@ -81,6 +90,7 @@ export const getConversations = createServerFn()
     const db = getDb();
 
     // Get all unique conversation partners with last message and unread count
+    // Include both message-based conversations AND speed date matches
     const rows = db.query(`
       SELECT 
         partner.id as partner_id,
@@ -92,12 +102,44 @@ export const getConversations = createServerFn()
         last_msg.created_at as last_message_at,
         last_msg.sender_id as last_sender_id,
         unread.cnt as unread_count,
-        (SELECT last_active_at FROM user_presence WHERE user_id = partner.id) as last_active
+        (SELECT last_active_at FROM user_presence WHERE user_id = partner.id) as last_active,
+        conv.source_type,
+        conv.match_status,
+        conv.match_id,
+        conv.slot_datetime,
+        conv.chat_created
       FROM (
-        SELECT DISTINCT 
-          CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END as partner_id
-        FROM messages m
-        WHERE m.sender_id = ? OR m.receiver_id = ?
+        SELECT partner_id, MAX(source_type) as source_type, MAX(match_status) as match_status,
+               MAX(match_id) as match_id, MAX(slot_datetime) as slot_datetime,
+               MAX(chat_created) as chat_created
+        FROM (
+          -- Message-based conversations
+          SELECT DISTINCT 
+            CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END as partner_id,
+            'message' as source_type,
+            '' as match_status,
+            0 as match_id,
+            '' as slot_datetime,
+            1 as chat_created
+          FROM messages m
+          WHERE m.sender_id = ? OR m.receiver_id = ?
+          
+          UNION ALL
+          
+          -- Speed date matches
+          SELECT DISTINCT
+            CASE WHEN sdm.pt_user_id = ? THEN sdm.client_user_id ELSE sdm.pt_user_id END as partner_id,
+            'speed_date_match' as source_type,
+            sdm.status as match_status,
+            sdm.id as match_id,
+            COALESCE(sds.datetime, '') as slot_datetime,
+            sdm.chat_created as chat_created
+          FROM speed_date_matches sdm
+          LEFT JOIN speed_date_slots sds ON sdm.slot_id = sds.id
+          WHERE (sdm.pt_user_id = ? OR sdm.client_user_id = ?)
+            AND sdm.status IN ('client_accepted', 'pt_accepted', 'matched')
+        )
+        GROUP BY partner_id
       ) conv
       JOIN users partner ON partner.id = conv.partner_id
       LEFT JOIN (
@@ -113,8 +155,8 @@ export const getConversations = createServerFn()
         WHERE receiver_id = ? AND read = 0
         GROUP BY sender_id
       ) unread ON unread.sender_id = partner.id
-      ORDER BY last_message_at DESC NULLS LAST
-    `, userId, userId, userId, userId, userId, userId).all() as any[];
+      ORDER BY COALESCE(last_message_at, conv.slot_datetime) DESC NULLS LAST
+    `, userId, userId, userId, userId, userId, userId, userId, userId, userId).all() as any[];
 
     return rows.map(r => ({
       partnerId: r.partner_id,
@@ -127,6 +169,11 @@ export const getConversations = createServerFn()
       lastSenderId: r.last_sender_id || 0,
       unreadCount: r.unread_count || 0,
       lastActive: r.last_active || "",
+      sourceType: r.source_type || "message",
+      matchStatus: r.match_status || "",
+      matchId: r.match_id || 0,
+      slotDatetime: r.slot_datetime || "",
+      chatCreated: !!r.chat_created,
     }));
   });
 
@@ -233,18 +280,40 @@ export const markRead = createServerFn()
     return { success: true };
   });
 
-// Get total unread count (for badge)
+// Get total unread count (for badge) — includes new speed date matches
 export const getUnreadCount = createServerFn()
   .handler(async () => {
     const userId = getUserIdFromToken();
     if (!userId) return 0;
 
     const db = getDb();
+    
+    // Unread messages
     const row = db.query(
       "SELECT COUNT(*) as cnt FROM messages WHERE receiver_id = ? AND read = 0"
     ).get(userId) as { cnt: number } | undefined;
+    
+    let total = row?.cnt || 0;
 
-    return row?.cnt || 0;
+    // New speed date matches where the user hasn't sent a message yet
+    // (only the system message exists, no real conversation started)
+    const newMatches = db.query(`
+      SELECT COUNT(*) as cnt FROM speed_date_matches m
+      WHERE (m.pt_user_id = ? OR m.client_user_id = ?)
+        AND m.status = 'matched'
+        AND m.chat_created = 1
+        AND NOT EXISTS (
+          SELECT 1 FROM messages ms
+          WHERE ((ms.sender_id = ? AND ms.receiver_id = CASE WHEN m.pt_user_id = ? THEN m.client_user_id ELSE m.pt_user_id END)
+             OR (ms.receiver_id = ? AND ms.sender_id = CASE WHEN m.pt_user_id = ? THEN m.client_user_id ELSE m.pt_user_id END))
+            AND ms.sender_id != m.pt_user_id  -- exclude system message (which uses pt's id)
+            AND ms.content != 'Dere har matchet! 💪 Start en samtale for å bli bedre kjent.'
+        )
+    `, userId, userId, userId, userId, userId, userId).get() as { cnt: number } | undefined;
+
+    total += newMatches?.cnt || 0;
+
+    return total;
   });
 
 // Check relationship with another user
