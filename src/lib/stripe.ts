@@ -8,6 +8,15 @@ export const STRIPE_PAYMENT_LINKS: Record<string, string> = {
   pt: "https://buy.stripe.com/bJefZh2cg7kIez60021Fe03",
 };
 
+// Workout package (24h access) — $3.99 / 399 cents
+// Create a Stripe Product (one-time) and Payment Link in the dashboard:
+//   Product: "Workout Package — 24h Access" | Price: $3.99 (399 cents)
+// Then paste the payment link here.
+export const PACKAGE_PRICE_CENTS = 399;
+export const PACKAGE_PRICE_LABEL = "$3.99";
+export const PACKAGE_PAYMENT_LINK = "https://buy.stripe.com/package_399";
+export const PACKAGE_ACCESS_HOURS = 24;
+
 // PT session prepayment — one-time Stripe payment link
 // Price ID: price_1TuFi3DtaayjZYHTtyGeu8rR — 500 kr per session
 export const PT_SESSION_PRICE_ID = "price_1TuFi3DtaayjZYHTtyGeu8rR";
@@ -44,6 +53,14 @@ export function openPaymentLink(plan: string) {
   if (typeof window !== "undefined") {
     window.open(link, "_blank", "noopener,noreferrer");
   }
+}
+
+export function openPackagePaymentLink(packageId: number) {
+  if (typeof window === "undefined") return;
+  const successUrl = `${window.location.origin}/app/store?payment=success&packageId=${packageId}`;
+  const cancelUrl = `${window.location.origin}/app/store?payment=cancelled`;
+  const paymentUrl = `${PACKAGE_PAYMENT_LINK}?client_reference_id=package_${packageId}`;
+  window.open(paymentUrl, "_blank", "noopener,noreferrer");
 }
 
 export function openPtSessionPaymentLink(bookingId: number, forClientId: number) {

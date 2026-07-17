@@ -404,6 +404,48 @@ function runMigrations(db: any) {
       user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       last_active_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    -- Workout packages (pre-made plans for sale)
+    CREATE TABLE IF NOT EXISTS workout_packages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      goal TEXT NOT NULL CHECK(goal IN ('weight_loss','muscle_gain','cardio','strength','general')),
+      category TEXT NOT NULL DEFAULT 'general',
+      price_cents INTEGER NOT NULL DEFAULT 399,
+      stripe_payment_link TEXT NOT NULL DEFAULT '',
+      exercise_count INTEGER NOT NULL DEFAULT 0,
+      days_per_week INTEGER NOT NULL DEFAULT 3,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    -- Package exercises (pre-seeded with packages)
+    CREATE TABLE IF NOT EXISTS workout_package_exercises (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      package_id INTEGER NOT NULL REFERENCES workout_packages(id) ON DELETE CASCADE,
+      exercise_name TEXT NOT NULL,
+      phase TEXT NOT NULL CHECK(phase IN ('warmup','main','stretching')),
+      day_of_week INTEGER NOT NULL DEFAULT 1 CHECK(day_of_week BETWEEN 1 AND 7),
+      sets INTEGER NOT NULL DEFAULT 3,
+      reps TEXT NOT NULL DEFAULT '10',
+      rest_seconds INTEGER NOT NULL DEFAULT 60,
+      notes TEXT DEFAULT '',
+      sort_order INTEGER NOT NULL DEFAULT 0
+    );
+
+    -- Package purchases (track user access)
+    CREATE TABLE IF NOT EXISTS package_purchases (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      package_id INTEGER NOT NULL REFERENCES workout_packages(id) ON DELETE CASCADE,
+      plan_id INTEGER REFERENCES workout_plans(id) ON DELETE SET NULL,
+      purchased_at TEXT NOT NULL DEFAULT (datetime('now')),
+      expires_at TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','expired','cancelled'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_package_purchases_user ON package_purchases(user_id);
+    CREATE INDEX IF NOT EXISTS idx_package_purchases_status ON package_purchases(status);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
@@ -469,6 +511,205 @@ function runMigrations(db: any) {
           db.query("INSERT INTO competition_activity (competition_id, user_id, activity_type, description, score_delta) VALUES (1, ?, 'join', (SELECT name FROM users WHERE id = ?) || ' joined the competition', 0)").run(users[i].id, users[i].id);
         }
       }
+    }
+  } catch (_) { /* seed is best-effort */ }
+
+  // Seed workout packages (idempotent)
+  try {
+    const pkgCount = (db.query("SELECT COUNT(*) as cnt FROM workout_packages").get() as any)?.cnt || 0;
+    if (pkgCount === 0) {
+      // Package payment link placeholder — replace with real Stripe link
+      const STRIPE_PKG_LINK = "https://buy.stripe.com/package_399";
+
+      // 1. Muskelbygging (Muscle Building) — 4-day split, 25+ exercises
+      db.query(`INSERT INTO workout_packages (name, description, goal, category, price_cents, stripe_payment_link, exercise_count, days_per_week)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        "Muskelbygging",
+        "4-dagers splittprogram for maksimal muskelvekst. Fokuserer på progressive overload og isolasjonsøvelser for hver muskelgruppe. Perfekt for intermediate/avanserte utøvere.",
+        "muscle_gain", "muscle", 399, STRIPE_PKG_LINK, 28, 4
+      );
+
+      // 2. Vekttap (Weight Loss) — 3-day HIIT/cardio, 20+ exercises
+      db.query(`INSERT INTO workout_packages (name, description, goal, category, price_cents, stripe_payment_link, exercise_count, days_per_week)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        "Vekttap",
+        "3-dagers HIIT- og kondisjonsprogram for rask fettforbrenning. Kombinerer intervalltrening, kroppsvektøvelser og kondisjon for maksimal kaloriforbrenning.",
+        "weight_loss", "weight_loss", 399, STRIPE_PKG_LINK, 22, 3
+      );
+
+      // 3. Styrke (Strength) — 3-day powerlifting style, 15+ exercises
+      db.query(`INSERT INTO workout_packages (name, description, goal, category, price_cents, stripe_payment_link, exercise_count, days_per_week)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        "Styrke",
+        "3-dagers styrkeprogram i powerlifting-stil. Fokuserer på knebøy, benkpress og markløft med progressive vektøkninger. Bygg rå styrke med lav-rep, tung belastning.",
+        "strength", "strength", 399, STRIPE_PKG_LINK, 18, 3
+      );
+
+      // 4. Helkropp (Full Body) — 3-day full body, 18+ exercises
+      db.query(`INSERT INTO workout_packages (name, description, goal, category, price_cents, stripe_payment_link, exercise_count, days_per_week)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        "Helkropp",
+        "3-dagers helkroppsprogram for generell fitness. Dekker alle muskelgrupper hver økt med balanserte compound-øvelser. Perfekt for nybegynnere og travle personer.",
+        "general", "general", 399, STRIPE_PKG_LINK, 21, 3
+      );
+
+      // --- Seed exercises for Muskelbygging (pkg_id=1) ---
+      const muscleExercises = [
+        // Day 1: Chest & Triceps
+        ["Arm Circles", "warmup", 1, 2, "30 sec", 30, "Sirkelbevegelser med armene", 1],
+        ["Jumping Jacks", "warmup", 1, 2, "45 sec", 30, "Hoppende jekker for å få opp pulsen", 2],
+        ["Bench Press", "main", 1, 4, "8-10", 90, "Flat benk med vektstang", 3],
+        ["Incline Dumbbell Press", "main", 1, 3, "10-12", 75, "Skråbenk med manualer", 4],
+        ["Cable Flyes", "main", 1, 3, "12-15", 60, "Kabelkryss for bryst", 5],
+        ["Dips", "main", 1, 3, "8-12", 90, "Dips for nedre bryst og triceps", 6],
+        ["Tricep Pushdowns", "main", 1, 3, "12-15", 60, "Kabel pushdowns", 7],
+        ["Overhead Tricep Extension", "main", 1, 3, "10-12", 60, "Manual over hodet", 8],
+        ["Chest Stretch", "stretching", 1, 1, "30 sec", 0, "Strekk bryst mot dørkarm", 9],
+        // Day 2: Back & Biceps
+        ["Lat Pulldown Warmup", "warmup", 2, 2, "15", 45, "Lett nedtrekk for oppvarming", 1],
+        ["Band Pull-Aparts", "warmup", 2, 2, "15", 30, "Strikk-øvelse for skuldre", 2],
+        ["Deadlifts", "main", 2, 4, "6-8", 120, "Knebøy til markløft", 3],
+        ["Barbell Rows", "main", 2, 3, "8-10", 90, "Roing med vektstang", 4],
+        ["Lat Pulldowns", "main", 2, 3, "10-12", 75, "Nedtrekk bredt grep", 5],
+        ["Seated Cable Rows", "main", 2, 3, "10-12", 60, "Sittende kabelroing", 6],
+        ["Barbell Curls", "main", 2, 3, "8-12", 60, "Bicepscurl med stang", 7],
+        ["Hammer Curls", "main", 2, 3, "10-12", 60, "Hammercurl med manualer", 8],
+        ["Lat Stretch", "stretching", 2, 1, "30 sec", 0, "Strekk latissimus", 9],
+        // Day 3: Legs & Shoulders
+        ["Leg Swings", "warmup", 3, 2, "30 sec", 30, "Bensving foran/bak", 1],
+        ["Bodyweight Squats", "warmup", 3, 2, "15", 30, "Knebøy med kroppsvekt", 2],
+        ["Barbell Squats", "main", 3, 4, "8-10", 120, "Knebøy med vektstang", 3],
+        ["Leg Press", "main", 3, 3, "10-12", 90, "Beinpress i maskin", 4],
+        ["Romanian Deadlifts", "main", 3, 3, "10-12", 90, "Strake markløft", 5],
+        ["Overhead Press", "main", 3, 4, "8-10", 90, "Skulderpress med stang", 6],
+        ["Lateral Raises", "main", 3, 3, "12-15", 60, "Sidehev med manualer", 7],
+        ["Quad Stretch", "stretching", 3, 1, "30 sec", 0, "Strekk fremside lår", 8],
+        ["Hamstring Stretch", "stretching", 3, 1, "30 sec", 0, "Strekk bakside lår", 9],
+        // Day 4: Arms & Abs
+        ["Arm Swings", "warmup", 4, 2, "30 sec", 30, "Armsving foran/bak", 1],
+        ["Plank", "warmup", 4, 2, "45 sec", 30, "Planke for core", 2],
+        ["Close-Grip Bench Press", "main", 4, 3, "8-10", 90, "Smallt grep benkpress", 3],
+        ["Skull Crushers", "main", 4, 3, "10-12", 60, "French press med stang", 4],
+        ["Preacher Curls", "main", 4, 3, "10-12", 60, "Preachercurl", 5],
+        ["Concentration Curls", "main", 4, 3, "12-15", 45, "Konsentrasjonscurl", 6],
+        ["Hanging Leg Raises", "main", 4, 3, "15-20", 60, "Benhev i romersk stol", 7],
+        ["Cable Crunches", "main", 4, 3, "15-20", 45, "Kabel-crunches", 8],
+        ["Arm & Ab Stretch", "stretching", 4, 1, "30 sec", 0, "Strekk armer og mage", 9],
+      ];
+
+    for (const ex of muscleExercises) {
+      db.query(`INSERT INTO workout_package_exercises (package_id, exercise_name, phase, day_of_week, sets, reps, rest_seconds, notes, sort_order)
+        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)`).run(ex[0], ex[1], ex[2], ex[3], ex[4], ex[5], ex[6], ex[7]);
+    }
+
+      // --- Seed exercises for Vekttap (pkg_id=2) ---
+      const wlExercises = [
+        // Day 1: HIIT Cardio
+        ["Jumping Jacks", "warmup", 1, 1, "60 sec", 15, "Full kroppsoppvarming", 1],
+        ["High Knees", "warmup", 1, 1, "45 sec", 15, "Høye knær på stedet", 2],
+        ["Burpees", "main", 1, 3, "45 sec", 30, "Burpees med pushup", 3],
+        ["Mountain Climbers", "main", 1, 3, "45 sec", 30, "Fjellklatrere", 4],
+        ["Jump Squats", "main", 1, 3, "45 sec", 30, "Hoppende knebøy", 5],
+        ["Kettlebell Swings", "main", 1, 3, "45 sec", 30, "Sving med kettlebell", 6],
+        ["Box Jumps", "main", 1, 3, "30 sec", 45, "Hopp opp på boks", 7],
+        ["Battle Ropes", "main", 1, 3, "30 sec", 30, "Tau-slamming", 8],
+        ["Full Body Stretch", "stretching", 1, 1, "60 sec", 0, "Helkroppsstrekk", 9],
+        // Day 2: Cardio & Core
+        ["Jogging", "warmup", 2, 1, "5 min", 0, "Lett jogg på stedet/tredemølle", 1],
+        ["Dynamic Stretching", "warmup", 2, 1, "3 min", 0, "Dynamiske tøyninger", 2],
+        ["Treadmill Intervals", "main", 2, 1, "20 min", 0, "1 min sprint/2 min jogging, gjenta", 3],
+        ["Plank", "main", 2, 3, "60 sec", 30, "Hold planke", 4],
+        ["Russian Twists", "main", 2, 3, "20 reps", 30, "Russiske vridninger", 5],
+        ["Bicycle Crunches", "main", 2, 3, "20 reps", 30, "Sykling-crunches", 6],
+        ["Leg Raises", "main", 2, 3, "15", 30, "Benhev liggende", 7],
+        ["Cool Down Walk", "stretching", 2, 1, "5 min", 0, "Rolig nedtrapping", 8],
+        // Day 3: Full Body HIIT
+        ["Arm Circles", "warmup", 3, 1, "60 sec", 15, "Armrotasjon", 1],
+        ["Bodyweight Squats", "warmup", 3, 1, "20", 15, "Kroppsvekt knebøy", 2],
+        ["Burpee to Tuck Jump", "main", 3, 3, "40 sec", 30, "Burpee med tuck hopp", 3],
+        ["Dumbbell Thrusters", "main", 3, 3, "40 sec", 30, "Thrusters med manualer", 4],
+        ["Skipping Rope", "main", 3, 3, "60 sec", 30, "Hoppetau", 5],
+        ["Lunges", "main", 3, 3, "40 sec", 30, "Utfall vekselvis", 6],
+        ["Push-Ups", "main", 3, 3, "40 sec", 30, "Armhevinger", 7],
+        ["Cool Down & Stretch", "stretching", 3, 1, "5 min", 0, "Full nedtrapping og tøyning", 8],
+      ];
+
+    for (const ex of wlExercises) {
+      db.query(`INSERT INTO workout_package_exercises (package_id, exercise_name, phase, day_of_week, sets, reps, rest_seconds, notes, sort_order)
+        VALUES (2, ?, ?, ?, ?, ?, ?, ?, ?)`).run(ex[0], ex[1], ex[2], ex[3], ex[4], ex[5], ex[6], ex[7]);
+    }
+
+      // --- Seed exercises for Styrke (pkg_id=3) ---
+      const strExercises = [
+        // Day 1: Squat Focus
+        ["Light Cardio", "warmup", 1, 1, "5 min", 0, "Lett sykkel/roing", 1],
+        ["Dynamic Stretches", "warmup", 1, 1, "3 min", 0, "Bevegelighetsoppvarming", 2],
+        ["Barbell Squats", "main", 1, 5, "5", 180, "Knebøy — hovedløft", 3],
+        ["Pause Squats", "main", 1, 3, "3-5", 120, "Knebøy med pause i bunn", 4],
+        ["Leg Press", "main", 1, 3, "6-8", 90, "Tung beinpress", 5],
+        ["Walking Lunges", "main", 1, 3, "10 per leg", 60, "Gående utfall med manualer", 6],
+        ["Calf Raises", "main", 1, 4, "12-15", 45, "Stående tåhev", 7],
+        ["Hip Flexor Stretch", "stretching", 1, 1, "60 sec", 0, "Strekk hoftebøyere", 8],
+        // Day 2: Bench Focus
+        ["Band Pulls", "warmup", 2, 2, "15", 30, "Strikk for skuldre", 1],
+        ["Push-Ups", "warmup", 2, 2, "10", 30, "Lett armheving", 2],
+        ["Bench Press", "main", 2, 5, "5", 180, "Benkpress — hovedløft", 3],
+        ["Incline Bench Press", "main", 2, 3, "5-8", 120, "Skråbenk", 4],
+        ["Overhead Press", "main", 2, 4, "5-8", 120, "Skulderpress stående", 5],
+        ["Dips (weighted)", "main", 2, 3, "6-8", 90, "Dips med vektbelte", 6],
+        ["Tricep Extensions", "main", 2, 3, "8-10", 60, "Triceps extensions", 7],
+        ["Shoulder Stretch", "stretching", 2, 1, "60 sec", 0, "Strekk skuldre/bryst", 8],
+        // Day 3: Deadlift Focus
+        ["Foam Rolling", "warmup", 3, 1, "5 min", 0, "Foam rolling rygg/ben", 1],
+        ["Hip Circles", "warmup", 3, 1, "2 min", 0, "Hofte-sirkler", 2],
+        ["Deadlifts", "main", 3, 5, "5", 180, "Markløft — hovedløft", 3],
+        ["Deficit Deadlifts", "main", 3, 3, "3-5", 150, "Markløft fra underskudd", 4],
+        ["Barbell Rows", "main", 3, 4, "6-8", 90, "Roing med vektstang", 5],
+        ["Pull-Ups (weighted)", "main", 3, 3, "5-8", 90, "Pull-ups med vekt", 6],
+        ["Barbell Curls", "main", 3, 3, "8-10", 60, "Bicepscurl tung", 7],
+        ["Full Back Stretch", "stretching", 3, 1, "60 sec", 0, "Strekk rygg og bakside", 8],
+      ];
+
+    for (const ex of strExercises) {
+      db.query(`INSERT INTO workout_package_exercises (package_id, exercise_name, phase, day_of_week, sets, reps, rest_seconds, notes, sort_order)
+        VALUES (3, ?, ?, ?, ?, ?, ?, ?, ?)`).run(ex[0], ex[1], ex[2], ex[3], ex[4], ex[5], ex[6], ex[7]);
+    }
+
+      // --- Seed exercises for Helkropp (pkg_id=4) ---
+      const fbExercises = [
+        // Day 1: Full Body A
+        ["Light Jogging", "warmup", 1, 1, "5 min", 0, "Lett jogging på stedet", 1],
+        ["Arm & Leg Swings", "warmup", 1, 1, "2 min", 0, "Dynamisk oppvarming", 2],
+        ["Goblet Squats", "main", 1, 3, "12-15", 60, "Knebøy med kettlebell/manual", 3],
+        ["Push-Ups", "main", 1, 3, "12-15", 60, "Armhevinger", 4],
+        ["Dumbbell Rows", "main", 1, 3, "12 per arm", 60, "Enarms roing", 5],
+        ["Dumbbell Shoulder Press", "main", 1, 3, "10-12", 60, "Skulderpress med manualer", 6],
+        ["Plank", "main", 1, 3, "45 sec", 30, "Plankehold", 7],
+        ["Full Body Stretch", "stretching", 1, 1, "5 min", 0, "Helkropps tøyning", 8],
+        // Day 2: Full Body B
+        ["Jumping Jacks", "warmup", 2, 1, "3 min", 15, "Hoppende jekker", 1],
+        ["Hip Circles", "warmup", 2, 1, "2 min", 0, "Hofte-rotasjoner", 2],
+        ["Romanian Deadlifts", "main", 2, 3, "10-12", 75, "Strake markløft", 3],
+        ["Lat Pulldowns", "main", 2, 3, "10-12", 75, "Nedtrekk", 4],
+        ["Lunges", "main", 2, 3, "12 per leg", 60, "Utfall med manualer", 5],
+        ["Lateral Raises", "main", 2, 3, "12-15", 45, "Sidehev", 6],
+        ["Bicycle Crunches", "main", 2, 3, "20 per side", 30, "Sykling-crunches", 7],
+        ["Stretch Routine", "stretching", 2, 1, "5 min", 0, "Tøyningsrutine", 8],
+        // Day 3: Full Body C
+        ["Dynamic Warmup", "warmup", 3, 1, "5 min", 0, "Dynamisk helkropp", 1],
+        ["Bench Press", "main", 3, 3, "10-12", 75, "Benkpress med manualer", 2],
+        ["Kettlebell Swings", "main", 3, 3, "15", 60, "Sving med kettlebell", 3],
+        ["Pull-Ups / Assisted", "main", 3, 3, "8-10", 75, "Pull-ups eller assistanse", 4],
+        ["Bulgarian Split Squats", "main", 3, 3, "10 per leg", 60, "Bulgarsk utfall", 5],
+        ["Face Pulls", "main", 3, 3, "15", 45, "Face pulls for skuldre", 6],
+        ["Hanging Knee Raises", "main", 3, 3, "15", 45, "Knehev hengende", 7],
+        ["Cool Down & Stretch", "stretching", 3, 1, "5 min", 0, "Nedtrapping og tøyning", 8],
+      ];
+
+    for (const ex of fbExercises) {
+      db.query(`INSERT INTO workout_package_exercises (package_id, exercise_name, phase, day_of_week, sets, reps, rest_seconds, notes, sort_order)
+        VALUES (4, ?, ?, ?, ?, ?, ?, ?, ?)`).run(ex[0], ex[1], ex[2], ex[3], ex[4], ex[5], ex[6], ex[7]);
+    }
     }
   } catch (_) { /* seed is best-effort */ }
 }
