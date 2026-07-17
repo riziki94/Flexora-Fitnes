@@ -100,3 +100,4 @@ Server functions (TypeScript, type-safe, called from client):
 ## License
 
 Private — Flexora Fitnes
+
