@@ -3,6 +3,15 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { getWorkoutPlan } from "~/lib/workout-actions";
 import { startWorkoutSession, logSessionExercise, endWorkoutSession } from "~/lib/session-actions";
+import AiVoiceCoach, {
+  type AiVoiceCoachHandle,
+  getExerciseAnnouncement,
+  getCountdownPhrase,
+  getRestCountdown,
+  getEncouragement,
+  getPhaseTransition,
+  getSessionComplete,
+} from "~/components/AiVoiceCoach";
 
 export const Route = createFileRoute("/app/workout/session/$planId")({
   component: WorkoutSessionPage,
@@ -39,49 +48,10 @@ function playChime() {
   } catch {}
 }
 
-function useSpeech() {
-  const synthRef = useRef<SpeechSynthesis | null>(null);
-  const [muted, setMuted] = useState(false);
-  const [voiceGender, setVoiceGender] = useState<"male" | "female">("female");
-  const [supported, setSupported] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      synthRef.current = window.speechSynthesis;
-      setSupported(true);
-    }
-  }, []);
-
-  const speak = useCallback(
-    (text: string) => {
-      if (!synthRef.current || muted) return;
-      synthRef.current.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
-      utterance.pitch = 1;
-      // Try to pick a voice matching gender
-      const voices = synthRef.current.getVoices();
-      if (voices.length > 0) {
-        const preferred = voices.find(
-          (v) =>
-            (voiceGender === "female" && v.name.toLowerCase().includes("female")) ||
-            (voiceGender === "male" && v.name.toLowerCase().includes("male"))
-        );
-        if (preferred) utterance.voice = preferred;
-      }
-      synthRef.current.speak(utterance);
-    },
-    [muted, voiceGender]
-  );
-
-  return { speak, muted, setMuted, voiceGender, setVoiceGender, supported };
-}
-
-function BreathingRing({ onBreath }: { onBreath: (phase: "inhale" | "exhale") => void }) {
+function BreathingRing({ onBreath }: { onBreath: (phase: "inhale" | "exhale", bpm: number) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [breaths, setBreaths] = useState<{ phase: string; time: number }[]>([]);
   const [bpm, setBpm] = useState(0);
-  const [phase, setPhase] = useState<"inhale" | "exhale">("inhale");
   const [guideProgress, setGuideProgress] = useState(0);
   const animRef = useRef<number>(0);
   const startRef = useRef<number>(0);
@@ -109,7 +79,6 @@ function BreathingRing({ onBreath }: { onBreath: (phase: "inhale" | "exhale") =>
       cycleRef.current = currentPhase;
       const progress = currentPhase === "inhale" ? cyclePos / cycleLen : (cyclePos - cycleLen) / cycleLen;
       setGuideProgress(progress);
-      setPhase(currentPhase);
 
       ctx.clearRect(0, 0, w, h);
       const cx = w / 2;
@@ -162,14 +131,16 @@ function BreathingRing({ onBreath }: { onBreath: (phase: "inhale" | "exhale") =>
     const recent = newBreaths.filter((b) => now - b.time < 30000);
     setBreaths(recent);
     // Calculate BPM: count breath pairs (inhale+exhale) in recent window
+    let newBpm = 0;
     if (recent.length >= 2) {
-      const windowMs = recent[recent.length - 1].time - recent[0].time;
+      const windowMs = recent[recent.length - 1]!.time - recent[0]!.time;
       const pairs = Math.floor(recent.length / 2);
       if (windowMs > 0) {
-        setBpm(Math.round((pairs / windowMs) * 60000));
+        newBpm = Math.round((pairs / windowMs) * 60000);
       }
     }
-    onBreath(currentPhase);
+    setBpm(newBpm);
+    onBreath(currentPhase, newBpm);
   }
 
   return (
@@ -201,12 +172,8 @@ function SpotifyPlayer({ onPauseRequest }: { onPauseRequest: (cb: () => void) =>
     e.preventDefault();
     let u = url.trim();
     if (!u) return;
-    // Convert Spotify URLs to embed format
-    // https://open.spotify.com/playlist/ID -> https://open.spotify.com/embed/playlist/ID
-    // https://open.spotify.com/track/ID -> https://open.spotify.com/embed/track/ID
     u = u.replace("/playlist/", "/embed/playlist/").replace("/track/", "/embed/track/").replace("/album/", "/embed/album/");
     if (!u.includes("/embed/")) {
-      // Try to construct embed URL
       if (u.includes("spotify.com")) {
         u = u.replace("open.spotify.com", "open.spotify.com/embed");
         if (!u.includes("/embed/")) u = u.replace("spotify.com/", "spotify.com/embed/");
@@ -215,7 +182,6 @@ function SpotifyPlayer({ onPauseRequest }: { onPauseRequest: (cb: () => void) =>
     setEmbedUrl(u);
   }
 
-  // Pause callback for voice guidance
   useEffect(() => {
     onPauseRequest(() => {
       try {
@@ -305,20 +271,28 @@ function WorkoutSessionPage() {
   const [breathData, setBreathData] = useState<Record<number, number>>({});
   const [showBreathing, setShowBreathing] = useState(false);
   const [musicPanelOpen, setMusicPanelOpen] = useState(false);
+  const [sessionComplete, setSessionComplete] = useState(false);
 
-  const { speak, muted, setMuted, voiceGender, setVoiceGender, supported: speechSupported } = useSpeech();
+  // AiVoiceCoach ref
+  const coachRef = useRef<AiVoiceCoachHandle>(null);
+
+  // Track previous phase for transition detection
+  const prevPhaseRef = useRef<string>("");
 
   // Session timer
   const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const restTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const encouragementTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pauseRef = useRef<() => void>(() => {});
+
+  // State for pause/resume voice commands
+  const [sessionPaused, setSessionPaused] = useState(false);
 
   // Load plan data
   useEffect(() => {
     getWorkoutPlan({ id: planId })
       .then((data: any) => {
         setPlan(data.plan);
-        // Get today's day of week (1-7, Mon-Sun)
         const today = new Date().getDay();
         const dayOfWeek = today === 0 ? 7 : today;
         const todayData = data.days[dayOfWeek] || { warmup: [], main: [], stretching: [] };
@@ -341,48 +315,98 @@ function WorkoutSessionPage() {
     }).catch(console.error);
   }, [exercises, sessionId, planId]);
 
-  // Session timer
+  // Session timer (pauses when sessionPaused is true)
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || sessionPaused) return;
     sessionTimerRef.current = setInterval(() => {
       setSessionTime((t) => t + 1);
     }, 1000);
     return () => {
       if (sessionTimerRef.current) clearInterval(sessionTimerRef.current);
     };
-  }, [sessionId]);
+  }, [sessionId, sessionPaused]);
 
-  // Announce exercise name when changing
+  // ── Auto-announce exercises on currentIndex change ───────────────
   useEffect(() => {
     if (exercises.length === 0 || currentIndex >= exercises.length) return;
-    const ex = exercises[currentIndex];
-    if (speechSupported) {
-      setTimeout(() => speak(`${ex.exercise_name}. ${ex.sets} sets of ${ex.reps} reps.`), 400);
-    }
-  }, [currentIndex, exercises, speechSupported, speak]);
+    const ex = exercises[currentIndex]!;
+    const phrase = getExerciseAnnouncement(ex.exercise_name, ex.sets, ex.reps);
+    const timer = setTimeout(() => {
+      coachRef.current?.speak(phrase);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentIndex, exercises]);
 
-  // Rest timer logic
+  // ── Phase transition detection ──────────────────────────────────
   useEffect(() => {
-    if (!restActive || restSeconds <= 0) {
+    if (exercises.length === 0 || currentIndex >= exercises.length) return;
+    const currentPhase = exercises[currentIndex]!.phase;
+    const prevPhase = prevPhaseRef.current;
+
+    if (prevPhase && currentPhase !== prevPhase) {
+      const phrase = getPhaseTransition(prevPhase, currentPhase);
+      setTimeout(() => {
+        coachRef.current?.speak(phrase);
+      }, 300);
+    }
+
+    prevPhaseRef.current = currentPhase;
+  }, [currentIndex, exercises]);
+
+  // ── Random encouragement during active phase ────────────────────
+  useEffect(() => {
+    if (sessionPaused || restActive || sessionComplete) {
+      if (encouragementTimerRef.current) {
+        clearInterval(encouragementTimerRef.current);
+        encouragementTimerRef.current = null;
+      }
+      return;
+    }
+    if (exercises.length === 0 || currentIndex >= exercises.length) return;
+
+    // Random interval between 30-45 seconds
+    const scheduleEncouragement = () => {
+      const delay = 30000 + Math.random() * 15000;
+      encouragementTimerRef.current = setTimeout(() => {
+        coachRef.current?.speak(getEncouragement());
+        // Schedule next
+        scheduleEncouragement();
+      }, delay);
+    };
+
+    scheduleEncouragement();
+
+    return () => {
+      if (encouragementTimerRef.current) {
+        clearTimeout(encouragementTimerRef.current);
+        encouragementTimerRef.current = null;
+      }
+    };
+  }, [sessionPaused, restActive, sessionComplete, currentIndex, exercises.length]);
+
+  // ── Rest timer logic with countdown ──────────────────────────────
+  useEffect(() => {
+    if (!restActive || restSeconds <= 0 || sessionPaused) {
       if (restTimerRef.current) clearInterval(restTimerRef.current);
       return;
     }
 
+    const lastSpokenRef = { second: -1 };
     restTimerRef.current = setInterval(() => {
       setRestSeconds((s) => {
         const next = s - 1;
-        // Voice countdown for last 3 seconds
-        if (speechSupported && next <= 3 && next > 0) {
-          speak(String(next));
+
+        // Voice countdown for last 5 seconds
+        if (next <= 5 && next > 0 && next !== lastSpokenRef.second) {
+          lastSpokenRef.second = next;
+          coachRef.current?.speak(getCountdownPhrase(next));
         }
-        if (next <= 0) {
+        if (next === 0) {
+          lastSpokenRef.second = 0;
           playChime();
           setRestActive(false);
           setRestSeconds(0);
-          if (speechSupported) {
-            const nextEx = exercises[currentIndex + 1];
-            if (nextEx) speak(`Next exercise: ${nextEx.exercise_name}`);
-          }
+          coachRef.current?.speak(getCountdownPhrase(0)); // "Kjør!"
           return 0;
         }
         return next;
@@ -392,7 +416,61 @@ function WorkoutSessionPage() {
     return () => {
       if (restTimerRef.current) clearInterval(restTimerRef.current);
     };
-  }, [restActive, exercises, currentIndex, speechSupported, speak]);
+  }, [restActive, sessionPaused]);
+
+  // ── Voice command handler ────────────────────────────────────────
+  const handleVoiceCommand = useCallback((cmd: string, _rawText: string) => {
+    switch (cmd) {
+      case "pause":
+        if (!sessionPaused) {
+          setSessionPaused(true);
+          coachRef.current?.speak("Økten er pauset.");
+        }
+        break;
+      case "resume":
+        if (sessionPaused) {
+          setSessionPaused(false);
+          coachRef.current?.speak("Økten fortsetter.");
+        }
+        break;
+      case "next":
+        if (restActive) {
+          // Skip rest
+          setRestActive(false);
+          setRestSeconds(0);
+          if (restTimerRef.current) clearInterval(restTimerRef.current);
+          coachRef.current?.speak("Hoppet over pause.");
+        } else if (currentIndex + 1 < exercises.length) {
+          // Skip to next exercise
+          setCurrentIndex((i) => i + 1);
+          setCurrentSet(1);
+          setShowBreathing(false);
+          coachRef.current?.speak("Hoppet til neste øvelse.");
+        }
+        break;
+      case "previous":
+        if (currentIndex > 0) {
+          setCurrentIndex((i) => i - 1);
+          setCurrentSet(1);
+          setShowBreathing(false);
+          setRestActive(false);
+          setRestSeconds(0);
+          coachRef.current?.speak("Gått til forrige øvelse.");
+        }
+        break;
+      case "remaining": {
+        const remaining = exercises.length - currentIndex - 1;
+        if (remaining > 0) {
+          coachRef.current?.speak(`${remaining} øvelser igjen.`);
+        } else if (currentIndex < exercises.length) {
+          coachRef.current?.speak("Dette er siste øvelse.");
+        } else {
+          coachRef.current?.speak("Økten er ferdig.");
+        }
+        break;
+      }
+    }
+  }, [sessionPaused, restActive, currentIndex, exercises.length]);
 
   function formatTime(s: number): string {
     const mins = Math.floor(s / 60);
@@ -404,12 +482,13 @@ function WorkoutSessionPage() {
     setRestSeconds(seconds);
     setRestTotal(seconds);
     setRestActive(true);
-    if (speechSupported) speak("Rest");
+    // Announce rest duration
+    coachRef.current?.speak(getRestCountdown(seconds));
   }
 
   async function handleCompleteSet() {
     if (currentIndex >= exercises.length) return;
-    const ex = exercises[currentIndex];
+    const ex = exercises[currentIndex]!;
 
     if (currentSet < ex.sets) {
       setCurrentSet((s) => s + 1);
@@ -450,6 +529,8 @@ function WorkoutSessionPage() {
         }
       } else {
         // Session complete
+        setSessionComplete(true);
+        coachRef.current?.speak(getSessionComplete());
         if (sessionId) {
           try {
             await endWorkoutSession({ sessionId });
@@ -457,7 +538,10 @@ function WorkoutSessionPage() {
             console.error("Failed to end session:", e);
           }
         }
-        navigate({ to: '/app/workout/session-summary', search: { sessionId: String(sessionId), planId: String(planId) } });
+        // Navigate after a brief delay so the user hears the completion message
+        setTimeout(() => {
+          navigate({ to: '/app/workout/session-summary', search: { sessionId: String(sessionId), planId: String(planId) } });
+        }, 2500);
       }
     }
   }
@@ -466,12 +550,10 @@ function WorkoutSessionPage() {
     setEffortLevels((prev) => ({ ...prev, [exId]: level }));
   }
 
-  function handleBreathCapture(phase: "inhale" | "exhale") {
-    // breath bpm is handled in BreathingRing component
-  }
-
-  function handleBreathUpdate(exId: number, bpm: number) {
-    setBreathData((prev) => ({ ...prev, [exId]: bpm }));
+  function handleBreathCapture(exId: number, _phase: "inhale" | "exhale", bpm: number) {
+    if (bpm > 0) {
+      setBreathData((prev) => ({ ...prev, [exId]: bpm }));
+    }
   }
 
   function handleEndSession() {
@@ -509,39 +591,25 @@ function WorkoutSessionPage() {
     );
   }
 
-  const currentEx = exercises[currentIndex];
+  const currentEx = exercises[currentIndex]!;
   const progress = ((currentIndex + (currentSet > 0 ? (currentSet - 1) / currentEx.sets : 0)) / exercises.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-16">
       {/* Nav */}
       <nav className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
           <a href="/app/dashboard" className="text-sm text-gray-500 hover:text-[#1A56DB]">← Exit</a>
           <div className="flex items-center gap-4">
+            {sessionPaused && (
+              <span className="rounded-full bg-yellow-100 px-3 py-0.5 text-xs font-semibold text-yellow-700">
+                PAUSED
+              </span>
+            )}
             <span className="text-sm font-medium text-gray-700">{formatTime(sessionTime)}</span>
             <span className="text-xs text-gray-400">{currentIndex + 1}/{exercises.length}</span>
           </div>
           <div className="flex items-center gap-2">
-            {/* Voice controls */}
-            {speechSupported && (
-              <>
-                <button
-                  onClick={() => setMuted(!muted)}
-                  className={`rounded-lg p-2 text-xs ${muted ? "bg-red-50 text-red-500" : "bg-gray-100 text-gray-500"}`}
-                  title={muted ? "Unmute" : "Mute"}
-                >
-                  {muted ? "🔇" : "🔊"}
-                </button>
-                <button
-                  onClick={() => setVoiceGender(g => g === "male" ? "female" : "male")}
-                  className="rounded-lg bg-gray-100 p-2 text-xs text-gray-500"
-                  title={`Voice: ${voiceGender}`}
-                >
-                  {voiceGender === "male" ? "👨" : "👩"}
-                </button>
-              </>
-            )}
             {/* Music toggle */}
             <button
               onClick={() => setMusicPanelOpen(!musicPanelOpen)}
@@ -634,7 +702,7 @@ function WorkoutSessionPage() {
           <div className="mt-6 flex gap-3">
             <button
               onClick={handleCompleteSet}
-              disabled={restActive}
+              disabled={restActive || sessionPaused}
               className="flex-1 rounded-xl bg-[#1A56DB] px-6 py-3 text-lg font-semibold text-white hover:bg-[#1E40AF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {currentSet < currentEx.sets ? `Complete Set ${currentSet}` : "Complete Exercise"}
@@ -683,8 +751,8 @@ function WorkoutSessionPage() {
             {showBreathing && (
               <div className="mt-4">
                 <BreathingRing
-                  onBreath={(phase) => {
-                    // BPM is calculated internally; we read it via a ref
+                  onBreath={(phase, bpm) => {
+                    handleBreathCapture(currentEx.id, phase, bpm);
                   }}
                 />
                 {breathData[currentEx.id] !== undefined && breathData[currentEx.id] > 0 && (
@@ -738,6 +806,9 @@ function WorkoutSessionPage() {
           </button>
         </div>
       </main>
+
+      {/* AiVoiceCoach overlay bar */}
+      <AiVoiceCoach ref={coachRef} onCommand={handleVoiceCommand} />
     </div>
   );
 }
