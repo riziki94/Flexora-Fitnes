@@ -283,6 +283,20 @@ function runMigrations(db: Database) {
     CREATE INDEX IF NOT EXISTS idx_user_points_user ON user_points(user_id);
     CREATE INDEX IF NOT EXISTS idx_user_points_rank ON user_points(points DESC);
     CREATE INDEX IF NOT EXISTS idx_competition_activity_comp ON competition_activity(competition_id);
+
+    CREATE TABLE IF NOT EXISTS pt_ratings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pt_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      client_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      session_id INTEGER,
+      rating TEXT NOT NULL CHECK(rating IN ('good','okay','bad')),
+      comment TEXT DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pt_ratings_pt ON pt_ratings(pt_user_id);
+    CREATE INDEX IF NOT EXISTS idx_pt_ratings_client ON pt_ratings(client_user_id);
+    CREATE INDEX IF NOT EXISTS idx_pt_ratings_session ON pt_ratings(session_id);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
