@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getDashboardData } from "~/lib/user-actions";
 import { FREE_TRIAL_DAYS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
+import { useTranslation } from "~/lib/i18n";
 
 export const Route = createFileRoute("/app/dashboard")({
   component: DashboardPage,
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/app/dashboard")({
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [dashData, setDashData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +59,7 @@ function DashboardPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-gray-500">{t("dashboard.loading")}</div>
       </div>
     );
   }
@@ -74,17 +76,17 @@ function DashboardPage() {
             <span className="text-lg font-light text-gray-400">Fitnes</span>
           </a>
           <div className="flex items-center gap-4">
-            <a href="/app/schedule" className="text-sm text-gray-600 hover:text-[#1A56DB]">Schedule</a>
-            <a href="/app/subscription" className="text-sm text-gray-600 hover:text-[#1A56DB]">Subscription</a>
-            <a href="/app/profile" className="text-sm text-gray-600 hover:text-[#1A56DB]">Profile</a>
+            <a href="/app/schedule" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.schedule")}</a>
+            <a href="/app/subscription" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.subscription")}</a>
+            <a href="/app/profile" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.profile")}</a>
             {isPt && (
-              <a href="/app/pt/verify" className="text-sm text-gray-600 hover:text-[#1A56DB]">Verification</a>
+              <a href="/app/pt/verify" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.verification")}</a>
             )}
             <button
               onClick={handleLogout}
               className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200"
             >
-              Sign Out
+              {t("nav.signOut")}
             </button>
           </div>
         </div>
@@ -97,7 +99,10 @@ function DashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <p className="font-semibold">
-                  Du har {trialDaysLeft} {trialDaysLeft === 1 ? "dag" : "dager"} igjen av prøveperioden
+                  {t("dashboard.trialDaysLeft", {
+                    days: trialDaysLeft,
+                    daysLabel: trialDaysLeft === 1 ? t("dashboard.trialDaysLeft_1") : t("dashboard.trialDaysLeft_other"),
+                  })}
                 </p>
                 <p className="text-sm text-blue-100">{FREE_TRIAL_MESSAGE}</p>
               </div>
@@ -105,7 +110,7 @@ function DashboardPage() {
                 href="/app/subscription"
                 className="shrink-0 rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#1A56DB] hover:bg-blue-50 transition-colors text-center"
               >
-                Velg Abonnement →
+                {t("dashboard.chooseSubscription")}
               </a>
             </div>
           </div>
@@ -114,10 +119,10 @@ function DashboardPage() {
         {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome back, {user?.name || "Athlete"}!
+            {t("dashboard.welcome", { name: user?.name || "Athlete" })}
           </h1>
           <p className="text-gray-500">
-            {isPt ? "Personal Trainer Dashboard" : "Client Dashboard"}
+            {isPt ? t("dashboard.ptDashboard") : t("dashboard.clientDashboard")}
           </p>
         </div>
 
@@ -128,31 +133,32 @@ function DashboardPage() {
 }
 
 function ClientDashboard({ data }: { data: any }) {
+  const { t } = useTranslation();
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {/* Quick Stats */}
-      <DashboardCard title="Subscription" className="md:col-span-2 lg:col-span-1">
+      <DashboardCard title={t("dashboard.subscription")} className="md:col-span-2 lg:col-span-1">
         {data?.subscription ? (
           <div>
             <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
               {data.subscription.plan.toUpperCase()}
             </span>
             <p className="mt-2 text-sm text-gray-500">
-              Active since {new Date(data.subscription.started_at).toLocaleDateString()}
+              {t("dashboard.activeSince")} {new Date(data.subscription.started_at).toLocaleDateString()}
             </p>
           </div>
         ) : (
           <div>
-            <p className="text-sm text-gray-500">No active subscription</p>
+            <p className="text-sm text-gray-500">{t("dashboard.noSubscription")}</p>
             <a href="/app/subscription" className="mt-2 inline-block text-sm font-medium text-[#1A56DB] hover:underline">
-              View Plans →
+              {t("dashboard.viewPlans")}
             </a>
           </div>
         )}
       </DashboardCard>
 
       {/* Workout Plans */}
-      <DashboardCard title="Workout Plans" className="md:col-span-2">
+      <DashboardCard title={t("dashboard.workoutPlans")} className="md:col-span-2">
         {data?.workouts && data.workouts.length > 0 ? (
           <div className="space-y-3">
             {data.workouts.map((w: any) => (
@@ -171,30 +177,30 @@ function ClientDashboard({ data }: { data: any }) {
           </div>
         ) : (
           <div className="rounded-lg border-2 border-dashed border-gray-200 p-6 text-center">
-            <p className="text-sm text-gray-500">No workout plans yet</p>
+            <p className="text-sm text-gray-500">{t("dashboard.noWorkoutPlans")}</p>
             <a
               href="/app/workout/plans/create"
               className="mt-3 inline-block rounded-full bg-[#1A56DB] px-5 py-2 text-sm font-medium text-white hover:bg-[#1E40AF]"
             >
-              Create Your First Plan
+              {t("dashboard.createFirstPlan")}
             </a>
           </div>
         )}
         <div className="mt-3">
           <a href="/app/workout/plans" className="text-sm font-medium text-[#1A56DB] hover:underline">
-            View All Plans →
+            {t("dashboard.viewAllPlans")}
           </a>
         </div>
       </DashboardCard>
 
       {/* Quick Actions */}
-      <DashboardCard title="Quick Actions">
+      <DashboardCard title={t("dashboard.quickActions")}>
         <div className="space-y-2">
-          <ActionLink href="/app/schedule">Weekly Schedule</ActionLink>
-          <ActionLink href="/app/workout/plans/create">Create Workout Plan</ActionLink>
-          <ActionLink href="/app/profile">Edit Profile</ActionLink>
-          <ActionLink href="/app/subscription">Upgrade Plan</ActionLink>
-          <ActionLink href="/app/dashboard">Browse PTs</ActionLink>
+          <ActionLink href="/app/schedule">{t("dashboard.weeklySchedule")}</ActionLink>
+          <ActionLink href="/app/workout/plans/create">{t("dashboard.createWorkoutPlan")}</ActionLink>
+          <ActionLink href="/app/profile">{t("dashboard.editProfile")}</ActionLink>
+          <ActionLink href="/app/subscription">{t("dashboard.upgradePlan")}</ActionLink>
+          <ActionLink href="/app/dashboard">{t("dashboard.browsePTs")}</ActionLink>
         </div>
       </DashboardCard>
     </div>
@@ -202,12 +208,13 @@ function ClientDashboard({ data }: { data: any }) {
 }
 
 function PtDashboard({ data }: { data: any }) {
+  const { t } = useTranslation();
   const profile = data?.profile;
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {/* Verification Status */}
-      <DashboardCard title="Verification Status">
+      <DashboardCard title={t("dashboard.verificationStatus")}>
         {profile ? (
           <div>
             <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
@@ -220,30 +227,30 @@ function PtDashboard({ data }: { data: any }) {
               {profile.verification_status.toUpperCase()}
             </span>
             {profile.verification_status === "pending" && (
-              <p className="mt-2 text-sm text-gray-500">Your documents are under review</p>
+              <p className="mt-2 text-sm text-gray-500">{t("dashboard.underReview")}</p>
             )}
           </div>
         ) : (
-          <p className="text-sm text-gray-500">Complete your PT profile</p>
+          <p className="text-sm text-gray-500">{t("dashboard.completeProfile")}</p>
         )}
       </DashboardCard>
 
       {/* Stats */}
-      <DashboardCard title="Your Stats">
+      <DashboardCard title={t("dashboard.yourStats")}>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">Experience</span>
-            <span className="font-medium">{profile?.years_of_experience || 0} years</span>
+            <span className="text-gray-500">{t("dashboard.experience")}</span>
+            <span className="font-medium">{profile?.years_of_experience || 0} {t("general.years")}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Education</span>
+            <span className="text-gray-500">{t("dashboard.education")}</span>
             <span className="font-medium">{profile?.education_location || "—"}</span>
           </div>
         </div>
       </DashboardCard>
 
       {/* Bookings */}
-      <DashboardCard title="Upcoming Bookings" className="md:col-span-2 lg:col-span-1">
+      <DashboardCard title={t("dashboard.upcomingBookings")} className="md:col-span-2 lg:col-span-1">
         {data?.bookings && data.bookings.length > 0 ? (
           <div className="space-y-3">
             {data.bookings.map((b: any) => (
@@ -257,17 +264,17 @@ function PtDashboard({ data }: { data: any }) {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-500">No upcoming bookings</p>
+          <p className="text-sm text-gray-500">{t("dashboard.noBookings")}</p>
         )}
       </DashboardCard>
 
       {/* Quick Actions */}
-      <DashboardCard title="Quick Actions">
+      <DashboardCard title={t("dashboard.quickActions")}>
         <div className="space-y-2">
-          <ActionLink href="/app/schedule">Weekly Schedule</ActionLink>
-          <ActionLink href="/app/profile">Edit Profile</ActionLink>
-          <ActionLink href="/app/pt/verify">Verification Status</ActionLink>
-          <ActionLink href="/app/dashboard">Browse Clients</ActionLink>
+          <ActionLink href="/app/schedule">{t("dashboard.weeklySchedule")}</ActionLink>
+          <ActionLink href="/app/profile">{t("dashboard.editProfile")}</ActionLink>
+          <ActionLink href="/app/pt/verify">{t("dashboard.verificationStatus")}</ActionLink>
+          <ActionLink href="/app/dashboard">{t("dashboard.browseClients")}</ActionLink>
         </div>
       </DashboardCard>
     </div>

@@ -4,6 +4,9 @@ import logoSvg from "~/assets/flexora-logo.svg";
 import iconSvg from "~/assets/flexora-icon.svg";
 import { getFeaturedPTs, type FeaturedPT } from "~/lib/pt-ratings-actions";
 import { STRIPE_PAYMENT_LINKS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
+import { useTranslation } from "~/lib/i18n";
+import { FlagSwitcher } from "~/components/FlagSwitcher";
+import { translations, type Language } from "~/lib/translations";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -151,6 +154,7 @@ function Home() {
 }
 
 function Nav() {
+  const { t } = useTranslation();
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -159,15 +163,16 @@ function Nav() {
           <span className="text-xl font-bold text-[#1A56DB]">Flexora</span>
         </a>
         <div className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-          <a href="#what" className="hover:text-[#1A56DB] transition-colors">What is Flexora</a>
-          <a href="#clients" className="hover:text-[#1A56DB] transition-colors">For Clients</a>
-          <a href="#pts" className="hover:text-[#1A56DB] transition-colors">For PTs</a>
-          <a href="#pricing" className="hover:text-[#1A56DB] transition-colors">Pricing</a>
+          <a href="#what" className="hover:text-[#1A56DB] transition-colors">{t("nav.whatIsFlexora")}</a>
+          <a href="#clients" className="hover:text-[#1A56DB] transition-colors">{t("nav.forClients")}</a>
+          <a href="#pts" className="hover:text-[#1A56DB] transition-colors">{t("nav.forPTs")}</a>
+          <a href="#pricing" className="hover:text-[#1A56DB] transition-colors">{t("nav.pricing")}</a>
+          <FlagSwitcher />
           <a
             href="/register"
             className="rounded-full bg-[#1A56DB] px-5 py-2 text-white hover:bg-[#1E40AF] transition-colors"
           >
-            Get Started
+            {t("nav.getStarted")}
           </a>
         </div>
       </div>
@@ -176,6 +181,7 @@ function Nav() {
 }
 
 function Hero() {
+  const { t } = useTranslation();
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#1A56DB] via-[#3B82F6] to-[#1E40AF] text-white">
       {/* Background pattern */}
@@ -199,25 +205,23 @@ function Hero() {
           />
           {/* Tagline */}
           <h1 className="mb-4 max-w-3xl text-2xl font-bold leading-tight md:text-4xl lg:text-5xl">
-            The World's First Two-Sided PT Marketplace
+            {t("hero.title")}
           </h1>
           <p className="mb-10 max-w-2xl text-lg text-blue-100 md:text-xl">
-            AI-powered fitness meets global personal training. Train smarter with
-            3D muscle visualization, live form correction, voice coaching, and
-            book verified PTs anywhere in the world.
+            {t("hero.subtitle")}
           </p>
           <div className="flex flex-col gap-4 sm:flex-row">
             <a
               href="/register"
               className="rounded-full bg-white px-8 py-3.5 text-base font-semibold text-[#1A56DB] shadow-lg hover:bg-blue-50 transition-colors"
               >
-              Start Training Free
+              {t("hero.startFree")}
             </a>
             <a
               href="#pricing"
               className="rounded-full border-2 border-white/40 px-8 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors"
             >
-              View Plans
+              {t("hero.viewPlans")}
             </a>
           </div>
         </div>
@@ -236,12 +240,13 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
 }
 
 function WhatIsFlexora() {
+  const { t } = useTranslation();
   return (
     <section id="what" className="bg-gray-50 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
-          title="What is Flexora Fitnes?"
-          subtitle="A complete fitness ecosystem for clients and trainers alike."
+          title={t("section.whatIsFlexora")}
+          subtitle={t("section.whatSubtitle")}
         />
         <div className="grid gap-8 md:grid-cols-2">
           {/* For Clients card */}
@@ -251,13 +256,9 @@ function WhatIsFlexora() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h3 className="mb-3 text-xl font-bold text-gray-900">For Clients</h3>
+            <h3 className="mb-3 text-xl font-bold text-gray-900">{t("section.forClients")}</h3>
             <p className="text-gray-600 leading-relaxed">
-              Your complete training journey — from warmup to workout to stretching
-              and nutrition — all in one place. Get AI-powered coaching with 3D
-              muscle maps, live form correction, voice guidance, and breathing
-              analysis. Scan your meals, compete globally, and book the perfect PT
-              anywhere in the world.
+              {t("section.forClientsDesc")}
             </p>
           </div>
           {/* For PTs card */}
@@ -267,12 +268,9 @@ function WhatIsFlexora() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h3 className="mb-3 text-xl font-bold text-gray-900">For Personal Trainers</h3>
+            <h3 className="mb-3 text-xl font-bold text-gray-900">{t("section.forPTs")}</h3>
             <p className="text-gray-600 leading-relaxed">
-              Register, showcase your diploma and experience, and market yourself
-              to a global client base. Use our innovative speed-date matching to
-              connect with ideal clients. Only verified, certified professionals
-              join Flexora — protecting your reputation and client trust.
+              {t("section.forPTsDesc")}
             </p>
           </div>
         </div>
@@ -282,24 +280,38 @@ function WhatIsFlexora() {
 }
 
 function ForClients() {
+  const { t } = useTranslation();
+  // Local features array keyed by translation keys
+  const clientFeatureKeys = [
+    { tKey: "feature.3dMuscle", dKey: "feature.3dMuscleDesc" },
+    { tKey: "feature.liveVideo", dKey: "feature.liveVideoDesc" },
+    { tKey: "feature.voice", dKey: "feature.voiceDesc" },
+    { tKey: "feature.breathing", dKey: "feature.breathingDesc" },
+    { tKey: "feature.effort", dKey: "feature.effortDesc" },
+    { tKey: "feature.timer", dKey: "feature.timerDesc" },
+    { tKey: "feature.food", dKey: "feature.foodDesc" },
+    { tKey: "feature.music", dKey: "feature.musicDesc" },
+    { tKey: "feature.ranking", dKey: "feature.rankingDesc" },
+    { tKey: "feature.bookPT", dKey: "feature.bookPTDesc" },
+  ];
   return (
     <section id="clients" className="py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
-          title="Complete Training Journey"
-          subtitle="Everything you need to reach your goals, powered by AI."
+          title={t("section.completeJourney")}
+          subtitle={t("section.journeySubtitle")}
         />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {clientFeatures.map((f) => (
+          {clientFeatureKeys.map((f) => (
             <div
-              key={f.title}
+              key={f.tKey}
               className="group rounded-xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md hover:border-[#3B82F6]/30 transition-all"
             >
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[#1A56DB]/10 group-hover:bg-[#1A56DB]/20 transition-colors">
                 <div className="h-2 w-2 rounded-full bg-[#1A56DB]" />
               </div>
-              <h4 className="mb-2 font-semibold text-gray-900">{f.title}</h4>
-              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+              <h4 className="mb-2 font-semibold text-gray-900">{t(f.tKey)}</h4>
+              <p className="text-sm text-gray-500 leading-relaxed">{t(f.dKey)}</p>
             </div>
           ))}
         </div>
@@ -309,17 +321,24 @@ function ForClients() {
 }
 
 function ForPTs() {
+  const { t } = useTranslation();
+  const ptFeatureKeys = [
+    { tKey: "pt.profile", dKey: "pt.profileDesc" },
+    { tKey: "pt.marketing", dKey: "pt.marketingDesc" },
+    { tKey: "pt.speedDate", dKey: "pt.speedDateDesc" },
+    { tKey: "pt.verified", dKey: "pt.verifiedDesc" },
+  ];
   return (
     <section id="pts" className="bg-[#1A56DB]/5 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
-          title="Trainers, Go Global"
-          subtitle="Join the world's premier PT marketplace. Verified. Professional. Borderless."
+          title={t("section.trainersGlobal")}
+          subtitle={t("section.trainersSubtitle")}
         />
         <div className="grid gap-6 sm:grid-cols-2">
-          {ptFeatures.map((f) => (
+          {ptFeatureKeys.map((f) => (
             <div
-              key={f.title}
+              key={f.tKey}
               className="flex gap-4 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3B82F6]/10">
@@ -328,8 +347,8 @@ function ForPTs() {
                 </svg>
               </div>
               <div>
-                <h4 className="mb-1 font-semibold text-gray-900">{f.title}</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
+                <h4 className="mb-1 font-semibold text-gray-900">{t(f.tKey)}</h4>
+                <p className="text-sm text-gray-500 leading-relaxed">{t(f.dKey)}</p>
               </div>
             </div>
           ))}
@@ -340,17 +359,23 @@ function ForPTs() {
 }
 
 function ClientTiers() {
+  const { t } = useTranslation();
+  const tiers = [
+    { name: t("pricing.basis"), price: "149 kr/mnd", key: "basis", color: "bg-white border-gray-200", highlight: false },
+    { name: t("pricing.hybrid"), price: "249 kr/mnd", key: "hybrid", color: "bg-blue-50 border-blue-300", highlight: true },
+    { name: t("pricing.premium"), price: "399 kr/mnd", key: "premium", color: "bg-white border-gray-200", highlight: false },
+  ];
   return (
     <section id="pricing" className="py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
-          title="Client Subscription Plans"
-          subtitle="Choose the tier that fits your fitness journey. All plans include a 1-month free trial."
+          title={t("section.clientPlans")}
+          subtitle={t("section.clientPlansSubtitle")}
         />
         <div className="grid gap-6 md:grid-cols-3">
-          {clientTiers.map((tier) => (
+          {tiers.map((tier) => (
             <div
-              key={tier.name}
+              key={tier.key}
               className={`relative rounded-2xl border-2 p-8 shadow-sm transition-all hover:shadow-lg ${
                 tier.highlight
                   ? "border-[#3B82F6] bg-blue-50 ring-1 ring-[#3B82F6] scale-[1.02]"
@@ -359,13 +384,13 @@ function ClientTiers() {
             >
               {tier.highlight && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#1A56DB] px-4 py-1 text-xs font-semibold text-white">
-                  Most Popular
+                  {t("pricing.mostPopular")}
                 </span>
               )}
               <h3 className="mb-1 text-xl font-bold text-gray-900">{tier.name}</h3>
               <p className="mb-6 text-3xl font-extrabold text-[#1A56DB]">{tier.price}</p>
               <ul className="mb-8 space-y-3">
-                {tier.features.map((f) => (
+                {clientTiers.find((ct) => ct.name.toLowerCase().includes(tier.key))?.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
                     <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -375,7 +400,7 @@ function ClientTiers() {
                 ))}
               </ul>
               <a
-                href={STRIPE_PAYMENT_LINKS[tier.name.toLowerCase()] || "#pricing"}
+                href={STRIPE_PAYMENT_LINKS[tier.key] || "#pricing"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`block rounded-full px-6 py-3 text-center text-sm font-semibold transition-colors ${
@@ -384,7 +409,7 @@ function ClientTiers() {
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                Start {tier.name} — Free Trial
+                {t("pricing.startTrial", { plan: tier.name })}
               </a>
             </div>
           ))}
@@ -395,6 +420,9 @@ function ClientTiers() {
 }
 
 function PTSubscription() {
+  const { t, lang } = useTranslation();
+  const langTranslations = translations[lang] as unknown as Record<string, string | readonly string[]>;
+  const ptFeatures = (langTranslations["pricing.ptFeatures"] || translations.en["pricing.ptFeatures"]) as readonly string[];
   return (
     <section className="bg-gray-50 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
@@ -404,18 +432,12 @@ function PTSubscription() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
-          <h3 className="mb-2 text-xl font-bold text-gray-900">PT Subscription</h3>
-          <p className="mb-4 text-3xl font-extrabold text-[#1A56DB]">199 kr/mnd</p>
-          <p className="mb-6 text-gray-500">Everything you need to grow your training business globally.</p>
+          <h3 className="mb-2 text-xl font-bold text-gray-900">{t("pricing.ptPlan")}</h3>
+          <p className="mb-4 text-3xl font-extrabold text-[#1A56DB]">{t("pricing.ptPrice")}</p>
+          <p className="mb-6 text-gray-500">{t("section.ptSubDesc")}</p>
           <ul className="mb-8 space-y-3 text-left">
-            {[
-              "Professional verified profile",
-              "Global marketing & visibility",
-              "Speed date matching with clients",
-              "Full access to global client base",
-              "Booking & scheduling tools",
-            ].map((f) => (
-              <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
+            {ptFeatures.map((f: string, i: number) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
                 <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
@@ -429,7 +451,7 @@ function PTSubscription() {
             rel="noopener noreferrer"
             className="block rounded-full bg-[#1A56DB] px-6 py-3 text-center text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors"
           >
-            Register as a PT — Free Trial
+            {t("pricing.startTrial", { plan: t("pricing.ptPlan") })}
           </a>
         </div>
       </div>
@@ -438,15 +460,15 @@ function PTSubscription() {
 }
 
 function CTA() {
+  const { t } = useTranslation();
   return (
     <section id="cta" className="bg-gradient-to-br from-[#1A56DB] to-[#1E40AF] py-20 text-white md:py-28">
       <div className="mx-auto max-w-4xl px-6 text-center">
         <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-          Ready to Transform Your Fitness?
+          {t("cta.title")}
         </h2>
         <p className="mb-4 text-lg text-blue-100 md:text-xl">
-          Join thousands of clients and verified PTs on the world's most advanced
-          fitness platform. Start your journey today.
+          {t("cta.subtitle")}
         </p>
         <p className="mb-10 text-base font-medium text-white/90">
           {FREE_TRIAL_MESSAGE}
@@ -456,13 +478,13 @@ function CTA() {
             href="/register"
             className="rounded-full bg-white px-8 py-3.5 text-base font-semibold text-[#1A56DB] shadow-lg hover:bg-blue-50 transition-colors"
           >
-            Sign Up as Client
+            {t("cta.signUpClient")}
           </a>
           <a
             href="/register"
             className="rounded-full border-2 border-white/50 px-8 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors"
           >
-            Register as PT
+            {t("cta.registerPT")}
           </a>
         </div>
       </div>
@@ -471,6 +493,7 @@ function CTA() {
 }
 
 function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="border-t border-gray-100 bg-gray-50 py-10">
       <div className="mx-auto max-w-7xl px-6">
@@ -480,12 +503,15 @@ function Footer() {
             <span className="text-sm font-semibold text-gray-500">Flexora Fitnes</span>
           </div>
           <p className="text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} Flexora Fitnes. All rights reserved.
+            &copy; {new Date().getFullYear()} {t("footer.rights")}
           </p>
         </div>
-        <p className="mt-4 text-center text-sm font-medium text-[#1A56DB]">
-          {FREE_TRIAL_MESSAGE}
-        </p>
+        <div className="mt-4 flex flex-col items-center gap-3">
+          <FlagSwitcher />
+          <p className="text-sm font-medium text-[#1A56DB]">
+            {FREE_TRIAL_MESSAGE}
+          </p>
+        </div>
       </div>
     </footer>
   );
@@ -535,6 +561,7 @@ function StarRating({ pct }: { pct: number }) {
 }
 
 function FeaturedTrainers() {
+  const { t } = useTranslation();
   const [trainers, setTrainers] = useState<FeaturedPT[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -551,8 +578,8 @@ function FeaturedTrainers() {
     <section className="bg-white py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
-          title="Våre PT-er"
-          subtitle="Meet our top-rated verified personal trainers from around the world."
+          title={t("section.featuredTrainers")}
+          subtitle={t("section.featuredSubtitle")}
         />
 
         {loading ? (
