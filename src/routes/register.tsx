@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { registerUser } from "~/lib/auth-actions";
 import { getPaymentLink, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
+import { useTranslation } from "~/lib/i18n";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/register")({
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const search = Route.useSearch();
   const [role, setRole] = useState<"client" | "pt">("client");
   const [plan, setPlan] = useState(search.plan || "");
@@ -46,7 +48,7 @@ function RegisterPage() {
     setError("");
 
     if (role === "pt" && !certificationInfo && !diplomaFile) {
-      setError("PTs must provide certification information or upload a diploma");
+      setError(t("auth.ptRequired"));
       return;
     }
 
@@ -89,7 +91,7 @@ function RegisterPage() {
 
       navigate({ to: "/app/dashboard" });
     } catch (e: any) {
-      setError(e.message || "Registration failed");
+      setError(e.message || t("auth.registerFailed"));
     } finally {
       setLoading(false);
     }
@@ -114,7 +116,7 @@ function RegisterPage() {
           </a>
         </div>
         <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-100">
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">Create Account</h1>
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">{t("auth.createAccount")}</h1>
           <p className="mb-6 text-sm font-medium text-[#1A56DB]">{FREE_TRIAL_MESSAGE}</p>
 
           {error && (
@@ -134,7 +136,7 @@ function RegisterPage() {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              I'm a Client
+              {t("auth.imClient")}
             </button>
             <button
               type="button"
@@ -145,7 +147,7 @@ function RegisterPage() {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              I'm a PT
+              {t("auth.imPT")}
             </button>
           </div>
 
@@ -153,13 +155,13 @@ function RegisterPage() {
           {role === "client" && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Plan
+                {t("auth.selectPlan")}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { key: "basis", label: "Basis", price: "149 kr" },
-                  { key: "hybrid", label: "Hybrid", price: "249 kr" },
-                  { key: "premium", label: "Premium", price: "399 kr" },
+                  { key: "basis", label: t("pricing.basis"), price: "149 kr" },
+                  { key: "hybrid", label: t("pricing.hybrid"), price: "249 kr" },
+                  { key: "premium", label: t("pricing.premium"), price: "399 kr" },
                 ].map((p) => (
                   <button
                     key={p.key}
@@ -182,7 +184,7 @@ function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
+                {t("auth.fullName")}
               </label>
               <input
                 id="name"
@@ -196,7 +198,7 @@ function RegisterPage() {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                {t("auth.email")}
               </label>
               <input
                 id="email"
@@ -210,7 +212,7 @@ function RegisterPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
+                {t("auth.password")}
               </label>
               <input
                 id="password"
@@ -220,14 +222,14 @@ function RegisterPage() {
                 required
                 minLength={6}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-[#1A56DB] focus:outline-none focus:ring-1 focus:ring-[#1A56DB]"
-                placeholder="Min. 6 characters"
+                placeholder={t("auth.passwordMinChars")}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
-                  Country
+                  {t("auth.country")}
                 </label>
                 <input
                   id="country"
@@ -239,7 +241,7 @@ function RegisterPage() {
               </div>
               <div>
                 <label htmlFor="birthday" className="block text-sm font-medium text-gray-700 mb-1">
-                  Birthday
+                  {t("auth.birthday")}
                 </label>
                 <input
                   id="birthday"
@@ -254,11 +256,11 @@ function RegisterPage() {
             {/* PT-only fields */}
             {role === "pt" && (
               <div className="space-y-4 rounded-lg border border-[#3B82F6]/30 bg-blue-50/50 p-4">
-                <p className="text-sm font-medium text-[#1A56DB]">Professional Information</p>
+                <p className="text-sm font-medium text-[#1A56DB]">{t("auth.professionalInfo")}</p>
 
                 <div>
                   <label htmlFor="certification" className="block text-sm font-medium text-gray-700 mb-1">
-                    Certification Info
+                    {t("auth.certificationInfo")}
                   </label>
                   <textarea
                     id="certification"
@@ -266,13 +268,13 @@ function RegisterPage() {
                     onChange={(e) => setCertificationInfo(e.target.value)}
                     rows={2}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-[#1A56DB] focus:outline-none focus:ring-1 focus:ring-[#1A56DB]"
-                    placeholder="Describe your certifications (e.g., NASM-CPT, ISSA, etc.)"
+                    placeholder={t("auth.certPlaceholder")}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="diploma" className="block text-sm font-medium text-gray-700 mb-1">
-                    Upload Diploma/Certificate
+                    {t("auth.uploadDiploma")}
                   </label>
                   <input
                     id="diploma"
@@ -289,7 +291,7 @@ function RegisterPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
-                      Years of Experience
+                      {t("auth.yearsExperience")}
                     </label>
                     <input
                       id="experience"
@@ -302,7 +304,7 @@ function RegisterPage() {
                   </div>
                   <div>
                     <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
-                      Education Location
+                      {t("auth.educationLocation")}
                     </label>
                     <input
                       id="education"
@@ -316,7 +318,7 @@ function RegisterPage() {
 
                 <div>
                   <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-                    Bio
+                    {t("auth.bio")}
                   </label>
                   <textarea
                     id="bio"
@@ -324,7 +326,7 @@ function RegisterPage() {
                     onChange={(e) => setBio(e.target.value)}
                     rows={3}
                     className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-[#1A56DB] focus:outline-none focus:ring-1 focus:ring-[#1A56DB]"
-                    placeholder="Tell clients about your training philosophy..."
+                    placeholder={t("auth.bioPlaceholder")}
                   />
                 </div>
               </div>
@@ -335,14 +337,18 @@ function RegisterPage() {
               disabled={loading}
               className="w-full rounded-full bg-[#1A56DB] px-6 py-3 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors disabled:opacity-50"
             >
-              {loading ? "Creating Account..." : `Start Free Trial — ${role === "pt" ? "PT Plan" : plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Select a Plan"}`}
+              {loading
+                ? t("auth.creatingAccount")
+                : t("auth.startFreeTrial", {
+                    plan: role === "pt" ? t("pricing.ptPlan") : plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : t("auth.selectPlan"),
+                  })}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
-            Already have an account?{" "}
+            {t("auth.haveAccount")}{" "}
             <a href="/login" className="font-medium text-[#1A56DB] hover:text-[#1E40AF]">
-              Sign in
+              {t("auth.signIn")}
             </a>
           </p>
         </div>

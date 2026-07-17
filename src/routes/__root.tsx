@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import ChatWidget from "~/components/ChatWidget";
+import { I18nProvider } from "~/lib/i18n";
 
 import appCss from "~/styles/app.css?url";
 import favicon16 from "~/assets/favicon-16.png";
@@ -47,9 +48,11 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <I18nProvider>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </I18nProvider>
   );
 }
 
