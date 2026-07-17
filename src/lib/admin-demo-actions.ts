@@ -6,6 +6,21 @@ const ADMIN_EMAIL = "admin@flexora.fitnes";
 const ADMIN_NAME = "Flexora Admin";
 const ADMIN_PASSWORD = "demo-admin-secure-2026";
 
+// Generate a simple colored avatar SVG as a data URL
+function generateAvatarDataUrl(name: string, bgColor: string, textColor: string = "#ffffff"): string {
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="100" fill="${bgColor}"/>
+  <text x="100" y="100" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-size="80" font-weight="bold" fill="${textColor}">${initials}</text>
+</svg>`;
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+}
+
 export const activateAdminDemo = createServerFn().handler(async () => {
   const db = getDb();
 
@@ -72,6 +87,7 @@ export const activateAdminDemo = createServerFn().handler(async () => {
       edu: "University of Oslo — Sports Science MSc",
       rate: 799,
       specialties: "Powerlifting,Body Recomposition,Sports Nutrition,Competition Prep",
+      avatarColor: "#1A56DB",
     },
     {
       name: "Marcus Johansson",
@@ -83,6 +99,7 @@ export const activateAdminDemo = createServerFn().handler(async () => {
       edu: "GIH Stockholm — Physical Education",
       rate: 649,
       specialties: "HIIT,Functional Training,Weight Loss,Military Fitness",
+      avatarColor: "#059669",
     },
     {
       name: "Sofia Larsen",
@@ -94,6 +111,7 @@ export const activateAdminDemo = createServerFn().handler(async () => {
       edu: "University of Copenhagen — Physiotherapy BSc",
       rate: 699,
       specialties: "Yoga,Mobility,Rehabilitation,Posture Correction,Mindfulness",
+      avatarColor: "#7C3AED",
     },
     {
       name: "Erik Hansen",
@@ -105,6 +123,7 @@ export const activateAdminDemo = createServerFn().handler(async () => {
       edu: "NTNU Trondheim — Exercise Physiology",
       rate: 549,
       specialties: "Running,Endurance,Cardio,Marathon Training,Triathlon",
+      avatarColor: "#EA580C",
     },
     {
       name: "Lena Virtanen",
@@ -116,6 +135,7 @@ export const activateAdminDemo = createServerFn().handler(async () => {
       edu: "University of Helsinki — Physiotherapy MSc",
       rate: 749,
       specialties: "Pre/Post Natal,Pilates,Women's Health,Core Strength,Recovery",
+      avatarColor: "#DB2777",
     },
   ];
 
@@ -128,12 +148,20 @@ export const activateAdminDemo = createServerFn().handler(async () => {
 
     if (!ptUser) {
       const pwHash = await hashPassword("ptdemo2026");
+      const avatarUrl = generateAvatarDataUrl(pt.name, pt.avatarColor);
       const result = db
         .query(
-          "INSERT INTO users (email, password_hash, role, name, country) VALUES (?, ?, 'pt', ?, ?)"
+          "INSERT INTO users (email, password_hash, role, name, country, profile_picture) VALUES (?, ?, 'pt', ?, ?, ?)"
         )
-        .run(pt.email, pwHash, pt.name, pt.country);
+        .run(pt.email, pwHash, pt.name, pt.country, avatarUrl);
       ptUser = { id: Number(result.lastInsertRowid) };
+    } else {
+      // Ensure profile picture for existing PT users
+      const existing = db.query("SELECT profile_picture FROM users WHERE id = ?").get(ptUser.id) as any;
+      if (!existing?.profile_picture) {
+        const avatarUrl = generateAvatarDataUrl(pt.name, pt.avatarColor);
+        db.query("UPDATE users SET profile_picture = ? WHERE id = ?").run(avatarUrl, ptUser.id);
+      }
     }
 
     // Ensure pt_profile
