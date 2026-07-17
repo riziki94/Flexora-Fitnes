@@ -331,6 +331,7 @@ function runMigrations(db: Database) {
   try { db.exec("ALTER TABLE pt_bookings ADD COLUMN session_type TEXT NOT NULL DEFAULT '60min'"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_bookings ADD COLUMN price REAL NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_bookings ADD COLUMN cancellation_status TEXT NOT NULL DEFAULT 'none' CHECK(cancellation_status IN ('none','pt_cancelled','client_no_show','client_cancelled'))"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE pt_bookings ADD COLUMN payment_status TEXT NOT NULL DEFAULT 'unpaid' CHECK(payment_status IN ('unpaid','paid','refunded_50','refunded_full'))"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN specialties TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN hourly_rate REAL NOT NULL DEFAULT 500"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN speed_date_enabled INTEGER NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }

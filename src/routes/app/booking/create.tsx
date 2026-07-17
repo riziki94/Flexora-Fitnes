@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { createBooking, getPtDetail } from "~/lib/booking-actions";
+import { PT_SESSION_PRICE, PT_SESSION_PAYMENT_LINK, PT_PREPAYMENT_POLICY } from "~/lib/stripe";
 
 export const Route = createFileRoute("/app/booking/create")({
   component: BookingCreatePage,
@@ -19,6 +20,8 @@ function BookingCreatePage() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [confirmation, setConfirmation] = useState<any>(null);
+  const [step, setStep] = useState<"form" | "payment">("form");
+  const [pendingBookingId, setPendingBookingId] = useState<number | null>(null);
 
   // Get ptId from query params
   const ptId = typeof window !== "undefined"
@@ -57,6 +60,7 @@ function BookingCreatePage() {
     navigate({ to: "/" });
   }
 
+  // Step 1: Create booking, then move to payment step
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!date || !time || !ptId) return;
@@ -65,11 +69,23 @@ function BookingCreatePage() {
     try {
       const scheduledAt = `${date}T${time}:00`;
       const result = await createBooking({ ptId, scheduledAt, sessionType });
+      setPendingBookingId(result.bookingId);
       setConfirmation(result);
+      setStep("payment");
     } catch (e: any) {
       setError(e.message || "Booking failed. Please try again.");
     }
     setSubmitting(false);
+  }
+
+  // Step 2: Open Stripe payment link
+  function handleProceedToPayment() {
+    if (!pendingBookingId || !confirmation) return;
+    const successUrl = `${window.location.origin}/app/bookings?payment=success&bookingId=${pendingBookingId}`;
+    // Open Stripe payment link in a new tab
+    window.open(PT_SESSION_PAYMENT_LINK, "_blank", "noopener,noreferrer");
+    // Navigate to bookings page so user can see their pending booking
+    navigate({ to: "/app/bookings" });
   }
 
   // Set default date to tomorrow
@@ -81,7 +97,7 @@ function BookingCreatePage() {
     }
   }, []);
 
-  const hourlyRate = pt?.hourly_rate || 500;
+  const hourlyRate = pt?.hourly_rate || PT_SESSION_PRICE;
   const price = sessionType === "30min" ? hourlyRate / 2 : hourlyRate;
 
   if (loading) {
@@ -118,60 +134,76 @@ function BookingCreatePage() {
           </a>
         </div>
 
-        {error && !confirmation && (
+        {error && (
           <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        {confirmation ? (
-          <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-100 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-2xl">
-              ✓
-            </div>
-            <h1 className="text-xl font-bold text-gray-900">Booking Confirmed!</h1>
-            <div className="mt-4 space-y-2 text-sm text-gray-600">
-              <p>
-                <span className="font-medium">PT:</span> {pt?.name || "Trainer"}
-              </p>
-              <p>
-                <span className="font-medium">Date:</span>{" "}
-                {new Date(confirmation.scheduledAt).toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              <p>
-                <span className="font-medium">Time:</span>{" "}
-                {new Date(confirmation.scheduledAt).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-              <p>
-                <span className="font-medium">Duration:</span>{" "}
-                {confirmation.sessionType === "30min" ? "30 minutes" : "60 minutes"}
-              </p>
-              <p>
-                <span className="font-medium">Price:</span> {confirmation.price} kr
+        {step === "payment" && confirmation ? (
+          /* ── Payment Step ── */
+          <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-100">
+            <div className="text-center mb-6">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-2xl">
+                💳
+              </div>
+              <h1 className="text-xl font-bold text-gray-900">Complete Payment</h1>
+              <p className="mt-2 text-sm text-gray-500">
+                Your booking is reserved — pay to confirm it
               </p>
             </div>
-            <div className="mt-6 flex gap-3 justify-center">
-              <a
-                href="/app/bookings"
-                className="rounded-lg bg-[#1A56DB] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#1E40AF] transition-colors"
-              >
-                View My Bookings
-              </a>
-              <a
-                href="/app/pt/discover"
-                className="rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                Discover More PTs
-              </a>
+
+            {/* Booking Summary */}
+            <div className="mb-6 rounded-lg bg-gray-50 p-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">PT</span>
+                <span className="font-medium text-gray-900">{pt?.name || "Trainer"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Date</span>
+                <span className="font-medium text-gray-900">
+                  {new Date(confirmation.scheduledAt).toLocaleDateString("en-US", {
+                    weekday: "long", year: "numeric", month: "long", day: "numeric",
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Time</span>
+                <span className="font-medium text-gray-900">
+                  {new Date(confirmation.scheduledAt).toLocaleTimeString("en-US", {
+                    hour: "2-digit", minute: "2-digit",
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Duration</span>
+                <span className="font-medium text-gray-900">
+                  {confirmation.sessionType === "30min" ? "30 minutes" : "60 minutes"}
+                </span>
+              </div>
+              <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
+                <span className="font-semibold text-gray-900">Total</span>
+                <span className="font-bold text-lg text-[#1A56DB]">{confirmation.price} kr</span>
+              </div>
             </div>
+
+            {/* Prepayment Policy */}
+            <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+              <h3 className="text-sm font-semibold text-amber-800">💳 Forskuddsbetaling</h3>
+              <p className="mt-1 text-sm text-amber-700">{PT_PREPAYMENT_POLICY}</p>
+            </div>
+
+            <button
+              onClick={handleProceedToPayment}
+              className="w-full rounded-xl bg-[#1A56DB] px-6 py-3.5 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors"
+            >
+              Pay {confirmation.price} kr with Stripe →
+            </button>
+
+            <p className="mt-3 text-center text-xs text-gray-400">
+              You will be redirected to Stripe to complete payment securely.
+              After payment you'll be taken to your bookings.
+            </p>
           </div>
         ) : error ? (
           <div className="rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-100 text-center">
@@ -273,20 +305,20 @@ function BookingCreatePage() {
                   <span className="text-gray-600">Session Price</span>
                   <span className="font-semibold text-gray-900">{price} kr</span>
                 </div>
-                <div className="mt-1 flex items-center justify-between text-xs text-gray-400">
-                  <span>Platform fee included</span>
-                  <span>—</span>
+                <div className="mt-1 text-xs text-gray-400">
+                  Payment required to confirm booking
                 </div>
               </div>
 
-              {/* Cancellation Policy */}
+              {/* Prepayment & Cancellation Policy */}
               <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
-                <h3 className="text-sm font-medium text-amber-800">Cancellation Policy</h3>
+                <h3 className="text-sm font-semibold text-amber-800">💳 Forskuddsbetaling og Avbud</h3>
+                <p className="mt-1 text-sm text-amber-700">{PT_PREPAYMENT_POLICY}</p>
                 <ul className="mt-2 space-y-1 text-xs text-amber-700">
-                  <li>• Free cancellation up to 24 hours before the session</li>
-                  <li>• Late cancellation (within 24h): 50% charge applies</li>
-                  <li>• No-show: full session price charged</li>
-                  <li>• Rescheduling is free up to 24 hours before</li>
+                  <li>• Betaling skjer via Stripe — du videresendes til sikker betaling</li>
+                  <li>• Avbud mer enn 2 timer før: 50% refusjon (250 kr)</li>
+                  <li>• Avbud mindre enn 2 timer før: ingen refusjon</li>
+                  <li>• Hvis PT avlyser: full refusjon</li>
                 </ul>
               </div>
 
@@ -296,7 +328,7 @@ function BookingCreatePage() {
                 disabled={submitting || !date || !time}
                 className="w-full rounded-xl bg-[#1A56DB] px-6 py-3.5 text-sm font-semibold text-white hover:bg-[#1E40AF] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {submitting ? "Confirming..." : `Confirm Booking — ${price} kr`}
+                {submitting ? "Creating booking..." : `Proceed to Payment — ${price} kr`}
               </button>
             </form>
           </>
