@@ -49,6 +49,7 @@ export const registerUser = createServerFn()
     role: "client" | "pt";
     country?: string;
     birthday?: string;
+    refPtId?: number;
     // PT-specific fields
     certificationInfo?: string;
     yearsOfExperience?: number;
@@ -99,6 +100,28 @@ export const registerUser = createServerFn()
         data.yearsOfExperience || 0,
         data.educationLocation || "",
         data.bio || ""
+      );
+    }
+
+    // PT referral: auto-create premium trial subscription
+    if (data.refPtId && data.role === "client") {
+      const now = new Date().toISOString().replace("T", " ").slice(0, 19);
+      const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .replace("T", " ")
+        .slice(0, 19);
+
+      db.query(
+        "INSERT INTO subscriptions (user_id, plan, status, started_at, expires_at) VALUES (?, 'premium', 'trial', ?, ?)"
+      ).run(userId, now, expires);
+
+      // Log activity
+      db.query(
+        "INSERT INTO activity_log (event_type, user_id, description, metadata) VALUES ('subscription', ?, ?, ?)"
+      ).run(
+        userId,
+        "Premium trial activated via PT referral",
+        JSON.stringify({ ref_pt_id: data.refPtId, plan: "premium", status: "trial" })
       );
     }
 

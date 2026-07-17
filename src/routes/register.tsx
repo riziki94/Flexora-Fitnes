@@ -8,6 +8,7 @@ export const Route = createFileRoute("/register")({
   component: RegisterPage,
   validateSearch: (search: Record<string, unknown>) => ({
     plan: (search.plan as string) || "",
+    ref_pt: (search.ref_pt as string) || "",
   }),
 });
 
@@ -17,6 +18,7 @@ function RegisterPage() {
   const search = Route.useSearch();
   const [role, setRole] = useState<"client" | "pt">("client");
   const [plan, setPlan] = useState(search.plan || "");
+  const [refPtId, setRefPtId] = useState(search.ref_pt || "");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,6 +65,7 @@ function RegisterPage() {
           role,
           country: country || undefined,
           birthday: birthday || undefined,
+          refPtId: refPtId ? Number(refPtId) : undefined,
           certificationInfo: role === "pt" ? certificationInfo : undefined,
           yearsOfExperience: role === "pt" ? yearsOfExperience : undefined,
           educationLocation: role === "pt" ? educationLocation : undefined,
@@ -81,7 +84,13 @@ function RegisterPage() {
         localStorage.setItem("flexora_pending_plan", effectivePlan);
       }
 
-      // Redirect to Stripe payment link
+      // PT referral: redirect to PT profile with welcome
+      if (refPtId) {
+        navigate({ to: `/app/pt/$id`, params: { id: refPtId }, search: { welcome: "1" } });
+        return;
+      }
+
+      // Redirect to Stripe payment link (only if no referral)
       const effectivePlan = plan || (role === "pt" ? "pt" : "basis");
       const paymentLink = getPaymentLink(effectivePlan);
 
@@ -122,6 +131,12 @@ function RegisterPage() {
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
               {error}
+            </div>
+          )}
+
+          {refPtId && (
+            <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700 border border-green-200">
+              🎯 {t("auth.referredByPT") || "You're registering via a Personal Trainer referral. You'll get a premium trial automatically!"}
             </div>
           )}
 

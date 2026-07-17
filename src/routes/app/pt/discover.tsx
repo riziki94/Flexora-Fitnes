@@ -232,18 +232,26 @@ function PtDiscoverPage() {
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <a
+                      href={`/app/pt/${pt.id}`}
+                      className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      View Profile
+                    </a>
+                    <a
+                      href={`/app/booking/create?ptId=${pt.id}`}
+                      className="flex-1 rounded-lg bg-[#1A56DB] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#1E40AF] transition-colors"
+                    >
+                      Book Now
+                    </a>
+                  </div>
                   <a
-                    href={`/app/pt/${pt.id}`}
-                    className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    href={`/register?ref_pt=${pt.id}`}
+                    className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-center text-sm font-medium text-green-700 hover:bg-green-100 transition-colors"
                   >
-                    View Profile
-                  </a>
-                  <a
-                    href={`/app/booking/create?ptId=${pt.id}`}
-                    className="flex-1 rounded-lg bg-[#1A56DB] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#1E40AF] transition-colors"
-                  >
-                    Book Now
+                    Registrer deg og tren med {pt.name}
                   </a>
                 </div>
               </div>
