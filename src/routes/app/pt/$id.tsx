@@ -17,6 +17,7 @@ function PtProfilePage() {
   const [satisfaction, setSatisfaction] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [certLightbox, setCertLightbox] = useState<string>("");
 
   useEffect(() => {
     const stored = localStorage.getItem("flexora_user");
@@ -200,10 +201,23 @@ function PtProfilePage() {
           </div>
         )}
 
-        {pt.certification_info && (
+        {(pt.certification_info || pt.certificate_image) && (
           <div className="mb-8 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-400">Certifications</h2>
-            <p className="text-sm text-gray-700">{pt.certification_info}</p>
+            {pt.certificate_image && (
+              <div className="mb-3">
+                <img
+                  src={pt.certificate_image}
+                  alt="Certificate"
+                  className="max-h-40 rounded-lg border border-gray-200 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => setCertLightbox(pt.certificate_image)}
+                  title="Click to view full-size"
+                />
+              </div>
+            )}
+            {pt.certification_info && (
+              <p className="text-sm text-gray-700">{pt.certification_info}</p>
+            )}
             {pt.diploma_url && (
               <a href={pt.diploma_url} target="_blank" rel="noopener" className="mt-2 inline-block text-sm font-medium text-[#1A56DB] hover:underline">
                 View Diploma &rarr;
@@ -253,6 +267,31 @@ function PtProfilePage() {
             &larr; Back to Discover
           </a>
         </div>
+      {/* Certificate Lightbox Modal */}
+      {certLightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => setCertLightbox('')}
+        >
+          <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setCertLightbox('')}
+              className="absolute -top-3 -right-3 rounded-full bg-white p-1.5 text-gray-700 hover:bg-gray-200 shadow-lg transition-colors"
+              title="Close"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              src={certLightbox}
+              alt="Certificate full-size"
+              className="max-h-[85vh] max-w-[85vw] rounded-lg object-contain shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
+
       </main>
     </div>
   );

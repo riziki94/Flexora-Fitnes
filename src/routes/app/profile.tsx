@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { getDashboardData, updateProfilePicture } from "~/lib/user-actions";
+import { getDashboardData, updateProfilePicture, uploadPTCertificate, removePTCertificate } from "~/lib/user-actions";
 import Avatar from "~/components/Avatar";
 
 export const Route = createFileRoute("/app/profile")({
@@ -43,6 +43,14 @@ function ProfilePage() {
   const [uploadMsg, setUploadMsg] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Certificate state (PT only)
+  const [certImage, setCertImage] = useState<string>("");
+  const [certPreview, setCertPreview] = useState<string>("");
+  const [certUploading, setCertUploading] = useState(false);
+  const [certMsg, setCertMsg] = useState("");
+  const certFileInputRef = useRef<HTMLInputElement>(null);
+  const [certLightbox, setCertLightbox] = useState<string>("");
+
   useEffect(() => {
     const stored = localStorage.getItem("flexora_user");
     if (!stored) {
@@ -57,6 +65,10 @@ function ProfilePage() {
         // Check if user has a profile picture in the returned data
         const pic = d?.user?.profile_picture || "";
         setProfilePic(pic);
+        // Load certificate image for PTs
+        if (d?.profile?.certificate_image) {
+          setCertImage(d.profile.certificate_image);
+        }
       }).catch(console.error).finally(() => setLoading(false));
     } catch {
       navigate({ to: "/login" });
@@ -109,6 +121,68 @@ function ProfilePage() {
   function handleCancel() {
     setPreviewPic("");
     if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  // Certificate handlers
+  function handleCertUploadClick() {
+    certFileInputRef.current?.click();
+  }
+
+  function handleCertFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Validate type
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setCertMsg("Please select a JPG, PNG, or WebP image.");
+      return;
+    }
+    // Validate size (~2MB)
+    if (file.size > 2_100_000) {
+      setCertMsg("File too large. Max 2MB allowed.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setCertPreview(result);
+      setCertMsg("");
+    };
+    reader.onerror = () => setCertMsg("Failed to read file.");
+    reader.readAsDataURL(file);
+  }
+
+  async function handleCertSave() {
+    if (!certPreview) return;
+    setCertUploading(true);
+    setCertMsg("");
+    try {
+      await uploadPTCertificate({ imageDataUrl: certPreview });
+      setCertImage(certPreview);
+      setCertPreview("");
+      setCertMsg("Certificate uploaded!");
+    } catch (e: any) {
+      setCertMsg(e.message || "Failed to upload.");
+    }
+    setCertUploading(false);
+  }
+
+  function handleCertCancel() {
+    setCertPreview("");
+    if (certFileInputRef.current) certFileInputRef.current.value = "";
+  }
+
+  async function handleCertRemove() {
+    setCertUploading(true);
+    setCertMsg("");
+    try {
+      await removePTCertificate();
+      setCertImage("");
+      setCertPreview("");
+      setCertMsg("Certificate removed.");
+    } catch (e: any) {
+      setCertMsg(e.message || "Failed to remove.");
+    }
+    setCertUploading(false);
   }
 
   function handleLogout() {
@@ -277,6 +351,88 @@ function ProfilePage() {
             </div>
           )}
 
+          {/* Certificate Upload (PT only) */}
+          {isPt && profile && (
+            <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">Certificate / Diploma</h2>
+              <div className="space-y-4">
+                {certImage && (
+                  <div className="relative inline-block">
+                    <img
+                      src={certImage}
+                      alt="Certificate"
+                      className="max-h-48 rounded-lg border border-gray-200 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setCertLightbox(certImage)}
+                      title="Click to view full-size"
+                    />
+                    <button
+                      onClick={handleCertRemove}
+                      disabled={certUploading}
+                      className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600 disabled:opacity-50 transition-colors shadow-sm"
+                      title="Remove certificate"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                {!certImage && !certPreview && (
+                  <div
+                    onClick={handleCertUploadClick}
+                    className="flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8 hover:border-[#1A56DB] hover:bg-blue-50/30 transition-colors"
+                  >
+                    <div className="text-center">
+                      <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                      </svg>
+                      <p className="mt-2 text-sm font-medium text-gray-600">Click to upload certificate</p>
+                      <p className="mt-1 text-xs text-gray-400">JPG, PNG, or WebP — max 2MB</p>
+                    </div>
+                  </div>
+                )}
+                {certPreview && (
+                  <div className="space-y-3">
+                    <img
+                      src={certPreview}
+                      alt="Certificate preview"
+                      className="max-h-64 rounded-lg border border-gray-200 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setCertPreview(certPreview)}
+                      title="Click to view full-size"
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleCertSave}
+                        disabled={certUploading}
+                        className="rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E40AF] disabled:opacity-50 transition-colors"
+                      >
+                        {certUploading ? "Saving..." : "Save Certificate"}
+                      </button>
+                      <button
+                        onClick={handleCertCancel}
+                        className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <input
+                  ref={certFileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleCertFileChange}
+                />
+                {certMsg && (
+                  <p className={`text-xs ${certMsg.includes("uploaded") || certMsg.includes("removed") ? "text-green-600" : "text-red-500"}`}>
+                    {certMsg}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Subscription info (if client) */}
           {!isPt && data?.subscription && (
             <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
@@ -298,6 +454,31 @@ function ProfilePage() {
           )}
         </div>
       </main>
+
+      {/* Certificate Lightbox Modal */}
+      {certLightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => setCertLightbox("")}
+        >
+          <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setCertLightbox("")}
+              className="absolute -top-3 -right-3 rounded-full bg-white p-1.5 text-gray-700 hover:bg-gray-200 shadow-lg transition-colors"
+              title="Close"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              src={certLightbox}
+              alt="Certificate full-size"
+              className="max-h-[85vh] max-w-[85vw] rounded-lg object-contain shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

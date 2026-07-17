@@ -72,6 +72,45 @@ export const getDashboardData = createServerFn()
     return { user, workouts, subscription };
   });
 
+export const uploadPTCertificate = createServerFn()
+  .validator((data: { imageDataUrl: string }) => data)
+  .handler(async ({ data }) => {
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Unauthorized");
+    if (user.role !== "pt") throw new Error("Only PTs can upload certificates");
+
+    // Validate it's a reasonable base64 data URL (max ~2MB)
+    if (!data.imageDataUrl || !data.imageDataUrl.startsWith("data:image/")) {
+      throw new Error("Invalid image data");
+    }
+    if (data.imageDataUrl.length > 2_800_000) {
+      throw new Error("Image too large — max 2MB");
+    }
+
+    const db = getDb();
+    // Ensure pt_profile exists
+    const profile = db.query("SELECT user_id FROM pt_profiles WHERE user_id = ?").get(user.id) as any;
+    if (!profile) throw new Error("PT profile not found");
+
+    db.query("UPDATE pt_profiles SET certificate_image = ? WHERE user_id = ?")
+      .run(data.imageDataUrl, user.id);
+
+    return { success: true };
+  });
+
+export const removePTCertificate = createServerFn()
+  .handler(async () => {
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Unauthorized");
+    if (user.role !== "pt") throw new Error("Only PTs can manage certificates");
+
+    const db = getDb();
+    db.query("UPDATE pt_profiles SET certificate_image = '' WHERE user_id = ?")
+      .run(user.id);
+
+    return { success: true };
+  });
+
 export const updateProfilePicture = createServerFn()
   .validator((data: { imageDataUrl: string }) => data)
   .handler(async ({ data }) => {

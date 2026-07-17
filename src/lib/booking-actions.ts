@@ -40,7 +40,7 @@ export const searchPTs = createServerFn()
       SELECT u.id, u.name, u.country, u.profile_picture,
              p.years_of_experience, p.education_location, p.specialties,
              p.hourly_rate, p.verification_status, p.bio,
-             p.speed_date_enabled,
+             p.speed_date_enabled, p.certificate_image,
              COALESCE(AVG(r.rating), 0) as avg_rating,
              COUNT(r.id) as review_count
       FROM users u
@@ -87,7 +87,7 @@ export const getPtDetail = createServerFn()
       SELECT u.id, u.name, u.country, u.profile_picture,
              p.years_of_experience, p.education_location, p.specialties,
              p.hourly_rate, p.verification_status, p.bio,
-             p.diploma_url, p.certification_info,
+             p.diploma_url, p.certification_info, p.certificate_image,
              p.speed_date_enabled,
              COALESCE(AVG(r.rating), 0) as avg_rating,
              COUNT(r.id) as review_count
