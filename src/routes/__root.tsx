@@ -23,6 +23,10 @@ export const Route = createRootRoute({
         content:
           "The world's first two-sided PT marketplace with AI-powered training. 3D muscle visualization, live form correction, voice guidance, and global competitions.",
       },
+      // iOS PWA support
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "theme-color", content: "#1A56DB" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -30,6 +34,10 @@ export const Route = createRootRoute({
       { rel: "icon", type: "image/png", sizes: "16x16", href: favicon16 },
       { rel: "icon", type: "image/png", sizes: "32x32", href: favicon32 },
       { rel: "shortcut icon", href: faviconIco },
+      // PWA manifest
+      { rel: "manifest", href: "/manifest.json" },
+      // iOS apple-touch-icon
+      { rel: "apple-touch-icon", href: "/flexora-icon.png" },
     ],
   }),
   notFoundComponent: () => <div>Page not found</div>,
@@ -53,6 +61,22 @@ function RootDocument({ children }: { children: ReactNode }) {
       <body>
         {children}
         <Scripts />
+        {/* Service Worker registration for PWA */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('SW registered:', reg.scope);
+                  }).catch(function(err) {
+                    console.log('SW registration failed:', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
