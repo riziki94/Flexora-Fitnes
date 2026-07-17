@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { askAssistant } from "~/lib/chat-actions";
+import { askSupport } from "~/lib/support-actions";
 
 interface Message {
   id: string;
@@ -9,9 +10,17 @@ interface Message {
 
 const SUGGESTED_QUESTIONS = [
   { no: "Finn en PT i Norge", en: "Find a PT in Norway" },
-  { no: "Hvordan fungerer prøveperioden?", en: "How does the trial work?" },
   { no: "Hva koster det?", en: "What does it cost?" },
-  { no: "Anbefal en PT for vekttap", en: "Recommend a PT for weight loss" },
+  { no: "Hjelp med betaling", en: "Help with payment" },
+  { no: "Mitt abonnement", en: "My subscription" },
+];
+
+// Support-related keywords that trigger the support engine
+const SUPPORT_KEYWORDS = [
+  "hjelp", "help", "problem", "issue", "betaling", "refusjon", "refund",
+  "kansellere", "cancel", "abonnement", "subscription", "teknisk",
+  "fungerer ikke", "not working", "feil", "error", "klage", "complaint",
+  "support", "kontakt", "contact",
 ];
 
 export default function ChatWidget() {
@@ -60,7 +69,15 @@ export default function ChatWidget() {
     setInput("");
     setIsLoading(true);
 
-    askAssistant({ data: { question: messageText } })
+    // Detect if this is a support query
+    const lower = messageText.toLowerCase();
+    const isSupport = SUPPORT_KEYWORDS.some(kw => lower.includes(kw));
+
+    const caller = isSupport
+      ? askSupport({ data: { question: messageText } })
+      : askAssistant({ data: { question: messageText } });
+
+    caller
       .then((result: any) => {
         const assistantMsg: Message = {
           id: (Date.now() + 1).toString(),
@@ -248,7 +265,9 @@ export default function ChatWidget() {
             </div>
             <p className="mt-1.5 text-center text-[10px] text-gray-400">
               Flexora AI • Drevet av smart matching •{" "}
-              <a href="/app/chat" className="underline hover:text-[#1A56DB]">Åpne i fullskjerm</a>
+              <a href="/app/chat" className="underline hover:text-[#1A56DB]">Chat</a>
+              {" • "}
+              <a href="/app/support" className="underline hover:text-green-600">Kundeservice</a>
             </p>
           </div>
         </div>

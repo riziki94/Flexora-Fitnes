@@ -11,6 +11,7 @@ import {
   getCountryDistribution,
   getRecentActivity,
 } from "~/lib/analytics-actions";
+import { getOpenTicketCount } from "~/lib/support-actions";
 
 export const Route = createFileRoute("/app/admin/analytics")({
   component: AdminAnalyticsPage,
@@ -293,6 +294,7 @@ function AdminAnalyticsPage() {
   const [topPTs, setTopPTs] = useState<any[]>([]);
   const [countryDist, setCountryDist] = useState<any[]>([]);
   const [activityFeed, setActivityFeed] = useState<any[]>([]);
+  const [openTicketCount, setOpenTicketCount] = useState(0);
 
   useEffect(() => {
     const stored = localStorage.getItem("flexora_user");
@@ -326,6 +328,11 @@ function AdminAnalyticsPage() {
         setTopPTs(pt);
         setCountryDist(cd);
         setActivityFeed(af);
+
+        // Load open ticket count (best-effort, non-blocking)
+        getOpenTicketCount()
+          .then((r: any) => setOpenTicketCount(r.count || 0))
+          .catch(() => setOpenTicketCount(0));
       } catch (err: any) {
         if (err.message?.includes("Admin")) {
           setError("Access denied. Admin privileges required.");
@@ -376,6 +383,7 @@ function AdminAnalyticsPage() {
     { label: "Verified PTs", value: overview.verifiedPTs.value.toLocaleString(), change: overview.verifiedPTs.change, color: "#F59E0B" },
     { label: "Booked Sessions", value: overview.bookedSessions.value.toLocaleString(), change: overview.bookedSessions.change, color: "#EC4899" },
     { label: "Revenue (kr)", value: `kr ${overview.revenue.value.toLocaleString()}`, change: overview.revenue.change, color: "#06B6D4" },
+    { label: "Open Tickets", value: openTicketCount.toLocaleString(), change: 0, color: "#F97316" },
   ] : [];
 
   return (
@@ -390,6 +398,11 @@ function AdminAnalyticsPage() {
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm">
+            <button onClick={() => navigate({ to: "/app/admin/tickets" })}
+              className="text-orange-400 hover:text-orange-300 transition-colors">
+              Tickets{openTicketCount > 0 ? ` (${openTicketCount})` : ""}
+            </button>
+            <span className="text-gray-600">|</span>
             <button onClick={() => navigate({ to: "/app/dashboard" })}
               className="text-gray-400 hover:text-white transition-colors">
               ← Dashboard
