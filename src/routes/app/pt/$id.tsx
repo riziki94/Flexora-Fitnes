@@ -166,12 +166,18 @@ function PtProfilePage() {
         )}
 
         {user?.role === "client" && (
-          <div className="mb-8">
+          <div className="mb-8 space-y-3">
             <a
               href={`/app/booking/create?ptId=${pt.id}`}
               className="block w-full rounded-xl bg-[#1A56DB] px-6 py-4 text-center text-base font-semibold text-white hover:bg-[#1E40AF] transition-colors shadow-sm"
             >
               Book a Session with {pt.name}
+            </a>
+            <a
+              href={`/app/messages?pt=${pt.id}`}
+              className="block w-full rounded-xl border-2 border-[#1A56DB] bg-white px-6 py-4 text-center text-base font-semibold text-[#1A56DB] hover:bg-blue-50 transition-colors"
+            >
+              💬 Send melding
             </a>
           </div>
         )}

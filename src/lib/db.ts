@@ -369,6 +369,26 @@ function runMigrations(db: any) {
 
     CREATE INDEX IF NOT EXISTS idx_signaling_booking ON signaling_messages(booking_id);
     CREATE INDEX IF NOT EXISTS idx_signaling_created ON signaling_messages(booking_id, created_at);
+
+    -- Direct messages between users (PT <-> client)
+    CREATE TABLE IF NOT EXISTS messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      receiver_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      content TEXT NOT NULL,
+      read INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(sender_id, receiver_id);
+    CREATE INDEX IF NOT EXISTS idx_messages_receiver ON messages(receiver_id, read);
+    CREATE INDEX IF NOT EXISTS idx_messages_created ON messages(created_at);
+
+    -- Track when users were last active
+    CREATE TABLE IF NOT EXISTS user_presence (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      last_active_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)

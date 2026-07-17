@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { askAssistant } from "~/lib/chat-actions";
 import { askSupport } from "~/lib/support-actions";
+import { getUnreadCount } from "~/lib/direct-message-actions";
 
 interface Message {
   id: string;
@@ -28,8 +29,24 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [unreadDmCount, setUnreadDmCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Poll for unread DM count
+  useEffect(() => {
+    const stored = localStorage.getItem("flexora_token");
+    if (!stored) return;
+
+    const poll = () => {
+      getUnreadCount()
+        .then((c: any) => setUnreadDmCount(typeof c === "number" ? c : 0))
+        .catch(() => {});
+    };
+    poll();
+    const interval = setInterval(poll, 10000);
+    return () => clearInterval(interval);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -145,6 +162,11 @@ export default function ChatWidget() {
           <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
             AI
           </span>
+          {unreadDmCount > 0 && (
+            <span className="absolute -top-1 -left-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#1A56DB] text-xs font-bold text-white px-1">
+              {unreadDmCount > 9 ? "9+" : unreadDmCount}
+            </span>
+          )}
         </button>
       )}
 
