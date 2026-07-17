@@ -112,6 +112,62 @@ function runMigrations(db: Database) {
 
     CREATE INDEX IF NOT EXISTS idx_plan_exercises_plan ON plan_exercises(plan_id);
     CREATE INDEX IF NOT EXISTS idx_plan_progress_plan ON plan_progress(plan_id);
+
+    CREATE TABLE IF NOT EXISTS foods (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      calories REAL NOT NULL DEFAULT 0,
+      protein REAL NOT NULL DEFAULT 0,
+      carbs REAL NOT NULL DEFAULT 0,
+      fat REAL NOT NULL DEFAULT 0,
+      serving_size TEXT NOT NULL DEFAULT '100g',
+      category TEXT NOT NULL DEFAULT 'general'
+    );
+
+    CREATE TABLE IF NOT EXISTS food_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      food_id INTEGER REFERENCES foods(id) ON DELETE SET NULL,
+      custom_name TEXT DEFAULT '',
+      meal_type TEXT NOT NULL CHECK(meal_type IN ('breakfast', 'lunch', 'dinner', 'snack')),
+      servings REAL NOT NULL DEFAULT 1,
+      calories REAL NOT NULL DEFAULT 0,
+      protein REAL NOT NULL DEFAULT 0,
+      carbs REAL NOT NULL DEFAULT 0,
+      fat REAL NOT NULL DEFAULT 0,
+      log_date TEXT NOT NULL DEFAULT (date('now')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS meal_plans (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      start_date TEXT NOT NULL DEFAULT (date('now')),
+      end_date TEXT NOT NULL DEFAULT (date('now', '+6 days')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS meal_plan_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      meal_plan_id INTEGER NOT NULL REFERENCES meal_plans(id) ON DELETE CASCADE,
+      day_of_week INTEGER NOT NULL CHECK(day_of_week BETWEEN 1 AND 7),
+      meal_type TEXT NOT NULL CHECK(meal_type IN ('breakfast', 'lunch', 'dinner', 'snack')),
+      food_id INTEGER REFERENCES foods(id) ON DELETE SET NULL,
+      custom_name TEXT DEFAULT '',
+      servings REAL NOT NULL DEFAULT 1,
+      calories REAL NOT NULL DEFAULT 0,
+      protein REAL NOT NULL DEFAULT 0,
+      carbs REAL NOT NULL DEFAULT 0,
+      fat REAL NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_foods_category ON foods(category);
+    CREATE INDEX IF NOT EXISTS idx_food_logs_user_date ON food_logs(user_id, log_date);
+    CREATE INDEX IF NOT EXISTS idx_food_logs_meal_type ON food_logs(meal_type);
+    CREATE INDEX IF NOT EXISTS idx_meal_plans_user ON meal_plans(user_id);
+    CREATE INDEX IF NOT EXISTS idx_meal_plan_entries_plan ON meal_plan_entries(meal_plan_id);
   `);
 }
 
