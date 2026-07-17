@@ -119,6 +119,15 @@ function getRefundDisplay(booking: any) {
   };
 }
 
+// Check if booking is within video session window (30 min before to 2 hours after)
+function isWithinVideoWindow(scheduledAt: string): boolean {
+  const now = new Date();
+  const scheduled = new Date(scheduledAt + "Z");
+  const windowStart = new Date(scheduled.getTime() - 30 * 60 * 1000);
+  const windowEnd = new Date(scheduled.getTime() + 2 * 60 * 60 * 1000);
+  return now >= windowStart && now <= windowEnd;
+}
+
 function PaymentStatusBadge({ status }: { status: string }) {
   const labels: Record<string, string> = {
     unpaid: "Unpaid",
@@ -422,6 +431,14 @@ function MyBookingsPage() {
                       {/* PT actions */}
                       {isPt && b.status === "confirmed" && (
                         <>
+                          {isWithinVideoWindow(b.scheduled_at) && (
+                            <a
+                              href={`/app/video?bookingId=${b.id}`}
+                              className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors text-center"
+                            >
+                              🎥 Start Video
+                            </a>
+                          )}
                           <button
                             onClick={() => handleCancel(b.id)}
                             className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
@@ -440,6 +457,14 @@ function MyBookingsPage() {
                       {/* Client actions */}
                       {!isPt && b.status === "confirmed" && (
                         <>
+                          {isWithinVideoWindow(b.scheduled_at) && (
+                            <a
+                              href={`/app/video?bookingId=${b.id}`}
+                              className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors text-center"
+                            >
+                              🎥 Start Video
+                            </a>
+                          )}
                           {showCancelConfirm === b.id ? (
                             <div className="space-y-2">
                               {(() => {

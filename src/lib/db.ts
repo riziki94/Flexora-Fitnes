@@ -356,6 +356,19 @@ function runMigrations(db: any) {
 
     CREATE INDEX IF NOT EXISTS idx_activity_log_type ON activity_log(event_type);
     CREATE INDEX IF NOT EXISTS idx_activity_log_created ON activity_log(created_at);
+
+    -- WebRTC Signaling
+    CREATE TABLE IF NOT EXISTS signaling_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      booking_id INTEGER NOT NULL REFERENCES pt_bookings(id) ON DELETE CASCADE,
+      sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type TEXT NOT NULL CHECK(type IN ('offer', 'answer', 'ice', 'hangup')),
+      data TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_signaling_booking ON signaling_messages(booking_id);
+    CREATE INDEX IF NOT EXISTS idx_signaling_created ON signaling_messages(booking_id, created_at);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
