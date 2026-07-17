@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { getMyBookings, cancelBooking, markNoShow } from "~/lib/booking-actions";
+import { getMyBookings, cancelBooking, cancelBookingClient, markNoShow, getRefundInfo } from "~/lib/booking-actions";
 import { ratePtSession, hasUserRatedBooking } from "~/lib/pt-ratings-actions";
+import { PT_PREPAYMENT_POLICY, PT_REFUND_HOURS_THRESHOLD, PT_SESSION_PRICE } from "~/lib/stripe";
 
 export const Route = createFileRoute("/app/bookings/")({
   component: MyBookingsPage,
@@ -38,7 +39,6 @@ function RatingWidget({ bookingId, ptUserId, ptName, onRated }: {
       setSubmitted(true);
       onRated();
     } catch (e: any) {
-      // already rated or error - still show submitted
       setSubmitted(true);
     }
     setSubmitting(false);
@@ -100,13 +100,54 @@ function RatingWidget({ bookingId, ptUserId, ptName, onRated }: {
   );
 }
 
+// Calculate refund info client-side for display
+function getRefundDisplay(booking: any) {
+  const now = new Date();
+  const scheduledTime = new Date(booking.scheduled_at + "Z");
+  const hoursUntilSession = (scheduledTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const price = booking.price || PT_SESSION_PRICE;
+
+  if (hoursUntilSession > PT_REFUND_HOURS_THRESHOLD) {
+    return {
+      message: `Du får 50% refusjon (${Math.round(price / 2)} kr)`,
+      color: "text-amber-700 bg-amber-50 border-amber-200",
+    };
+  }
+  return {
+    message: "Ingen refusjon ved avbud mindre enn 2 timer før",
+    color: "text-red-700 bg-red-50 border-red-200",
+  };
+}
+
+function PaymentStatusBadge({ status }: { status: string }) {
+  const labels: Record<string, string> = {
+    unpaid: "Unpaid",
+    paid: "Paid",
+    refunded_50: "50% Refunded",
+    refunded_full: "No Refund",
+  };
+  const colors: Record<string, string> = {
+    unpaid: "bg-yellow-100 text-yellow-700",
+    paid: "bg-green-100 text-green-700",
+    refunded_50: "bg-amber-100 text-amber-700",
+    refunded_full: "bg-red-100 text-red-700",
+  };
+  return (
+    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-600"}`}>
+      {labels[status] || status}
+    </span>
+  );
+}
+
 function MyBookingsPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [actionMsg, setActionMsg] = useState("");
+  const [actionType, setActionType] = useState<"info" | "success" | "error">("info");
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all");
+  const [showCancelConfirm, setShowCancelConfirm] = useState<number | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("flexora_user");
@@ -114,6 +155,18 @@ function MyBookingsPage() {
     try { setUser(JSON.parse(stored)); } catch { navigate({ to: "/login" }); return; }
 
     loadBookings();
+
+    // Check for payment success param
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("payment") === "success") {
+        setActionMsg("Payment successful! Your booking is confirmed.");
+        setActionType("success");
+      } else if (params.get("payment") === "cancelled") {
+        setActionMsg("Payment was cancelled. Your booking is not confirmed.");
+        setActionType("error");
+      }
+    }
   }, []);
 
   async function loadBookings() {
@@ -132,20 +185,38 @@ function MyBookingsPage() {
     try {
       await cancelBooking({ bookingId });
       setActionMsg("Booking cancelled.");
+      setActionType("info");
       loadBookings();
     } catch (e: any) {
       setActionMsg(e.message || "Failed to cancel.");
+      setActionType("error");
+    }
+  }
+
+  async function handleClientCancel(bookingId: number) {
+    try {
+      const result = await cancelBookingClient({ bookingId });
+      setActionMsg(result.refundMessage || "Booking cancelled.");
+      setActionType("success");
+      setShowCancelConfirm(null);
+      loadBookings();
+    } catch (e: any) {
+      setActionMsg(e.message || "Failed to cancel.");
+      setActionType("error");
+      setShowCancelConfirm(null);
     }
   }
 
   async function handleNoShow(bookingId: number) {
-    if (!confirm("Mark this client as no-show? This will charge the full price.")) return;
+    if (!confirm("Møtte ikke — ingen refusjon til kunde. Bekreft?")) return;
     try {
       await markNoShow({ bookingId });
-      setActionMsg("Marked as no-show. Client will be charged.");
+      setActionMsg("Marked as no-show — ingen refusjon til kunde.");
+      setActionType("info");
       loadBookings();
     } catch (e: any) {
       setActionMsg(e.message || "Failed to mark no-show.");
+      setActionType("error");
     }
   }
 
@@ -217,7 +288,19 @@ function MyBookingsPage() {
         </div>
 
         {actionMsg && (
-          <div className="mb-6 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">{actionMsg}</div>
+          <div className={`mb-6 rounded-lg p-3 text-sm ${
+            actionType === "success" ? "bg-green-50 text-green-700" :
+            actionType === "error" ? "bg-red-50 text-red-700" :
+            "bg-blue-50 text-blue-700"
+          }`}>{actionMsg}</div>
+        )}
+
+        {/* Prepayment policy banner for clients */}
+        {!isPt && (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-medium text-amber-800">💳 Forskuddsbetaling og Avbud</p>
+            <p className="mt-1 text-xs text-amber-700">{PT_PREPAYMENT_POLICY}</p>
+          </div>
         )}
 
         {/* PT Earnings Summary */}
@@ -270,96 +353,148 @@ function MyBookingsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {bookings.map((b: any) => (
-              <div key={b.id} className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-gray-900">
-                        {isPt ? b.client_name : b.pt_name}
-                      </h3>
-                      {statusBadge(b.status)}
-                    </div>
+            {bookings.map((b: any) => {
+              const refund = !isPt && b.status === "confirmed" ? getRefundDisplay(b) : null;
+              return (
+                <div key={b.id} className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-semibold text-gray-900">
+                          {isPt ? b.client_name : b.pt_name}
+                        </h3>
+                        {statusBadge(b.status)}
+                        {b.payment_status && b.payment_status !== "unpaid" && (
+                          <PaymentStatusBadge status={b.payment_status} />
+                        )}
+                      </div>
 
-                    <div className="grid gap-1 text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <span className="text-gray-400">📅</span>
-                        {new Date(b.scheduled_at).toLocaleDateString("en-US", {
-                          weekday: "short",
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                        {" at "}
-                        {new Date(b.scheduled_at).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                      <div>
-                        <span className="text-gray-400">⏱</span>{" "}
-                        {b.session_type === "30min" ? "30 min" : "60 min"}
-                        {" · "}
-                        {b.price} kr
-                      </div>
-                      {!isPt && b.pt_country && (
+                      <div className="grid gap-1 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-400">📅</span>
+                          {new Date(b.scheduled_at).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                          {" at "}
+                          {new Date(b.scheduled_at).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
                         <div>
-                          <span className="text-gray-400">📍</span> {b.pt_country}
+                          <span className="text-gray-400">⏱</span>{" "}
+                          {b.session_type === "30min" ? "30 min" : "60 min"}
+                          {" · "}
+                          {b.price} kr
+                        </div>
+                        {!isPt && b.pt_country && (
+                          <div>
+                            <span className="text-gray-400">📍</span> {b.pt_country}
+                          </div>
+                        )}
+                      </div>
+
+                      {b.cancellation_status !== "none" && (
+                        <div className="mt-2">
+                          <span className="inline-block rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
+                            {b.cancellation_status === "pt_cancelled"
+                              ? "Cancelled by PT"
+                              : b.cancellation_status === "client_no_show"
+                              ? "Client No-Show — ingen refusjon"
+                              : "Cancelled by client"}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Refund info for confirmed bookings (client view) */}
+                      {refund && (
+                        <div className={`mt-2 rounded-lg border px-3 py-1.5 text-xs font-medium ${refund.color}`}>
+                          {refund.message}
                         </div>
                       )}
                     </div>
 
-                    {b.cancellation_status !== "none" && (
-                      <div className="mt-2">
-                        <span className="inline-block rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
-                          {b.cancellation_status === "pt_cancelled"
-                            ? "Cancelled by PT"
-                            : b.cancellation_status === "client_no_show"
-                            ? "Client No-Show"
-                            : "Cancelled by client"}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                    {/* Actions */}
+                    <div className="ml-4 flex flex-col gap-2">
+                      {/* PT actions */}
+                      {isPt && b.status === "confirmed" && (
+                        <>
+                          <button
+                            onClick={() => handleCancel(b.id)}
+                            className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleNoShow(b.id)}
+                            className="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-50 transition-colors"
+                          >
+                            Møtte ikke
+                          </button>
+                        </>
+                      )}
 
-                  {/* Actions */}
-                  <div className="ml-4 flex flex-col gap-2">
-                    {isPt && b.status === "confirmed" && (
-                      <>
-                        <button
-                          onClick={() => handleCancel(b.id)}
-                          className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                      {/* Client actions */}
+                      {!isPt && b.status === "confirmed" && (
+                        <>
+                          {showCancelConfirm === b.id ? (
+                            <div className="space-y-2">
+                              {(() => {
+                                const r = getRefundDisplay(b);
+                                return (
+                                  <p className={`rounded-lg border px-2 py-1 text-xs font-medium ${r.color}`}>
+                                    {r.message}
+                                  </p>
+                                );
+                              })()}
+                              <button
+                                onClick={() => handleClientCancel(b.id)}
+                                className="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600 transition-colors w-full"
+                              >
+                                Bekreft avbud
+                              </button>
+                              <button
+                                onClick={() => setShowCancelConfirm(null)}
+                                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors w-full"
+                              >
+                                Avbryt
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setShowCancelConfirm(b.id)}
+                              className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                            >
+                              Avbestill
+                            </button>
+                          )}
+                        </>
+                      )}
+
+                      {!isPt && b.status === "confirmed" && b.pt_id && (
+                        <a
+                          href={`/app/pt/${b.pt_id}`}
+                          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors text-center"
                         >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => handleNoShow(b.id)}
-                          className="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-50 transition-colors"
-                        >
-                          No-Show
-                        </button>
-                      </>
-                    )}
-                    {!isPt && b.status === "confirmed" && b.pt_id && (
-                      <a
-                        href={`/app/pt/${b.pt_id}`}
-                        className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors text-center"
-                      >
-                        View PT
-                      </a>
-                    )}
-                    {!isPt && b.status === "completed" && b.pt_id && (
-                      <RatingWidget
-                        bookingId={b.id}
-                        ptUserId={b.pt_id}
-                        ptName={b.pt_name}
-                        onRated={() => loadBookings()}
-                      />
-                    )}
+                          View PT
+                        </a>
+                      )}
+                      {!isPt && b.status === "completed" && b.pt_id && (
+                        <RatingWidget
+                          bookingId={b.id}
+                          ptUserId={b.pt_id}
+                          ptName={b.pt_name}
+                          onRated={() => loadBookings()}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

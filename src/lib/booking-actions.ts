@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getUserFromToken } from "~/lib/auth";
 import { getDb } from "~/lib/db";
+import { PT_SESSION_PRICE, PT_REFUND_HOURS_THRESHOLD } from "~/lib/stripe";
 
 // --- Auth helper ---
 async function getAuthUser() {
@@ -173,12 +174,12 @@ export const createBooking = createServerFn()
     ).get(data.ptId) as any;
     if (!pt) throw new Error("PT not found or not verified");
 
-    const hourlyRate = pt.hourly_rate || 500;
+    const hourlyRate = pt.hourly_rate || PT_SESSION_PRICE;
     const price = data.sessionType === "30min" ? hourlyRate / 2 : hourlyRate;
 
     const result = db.query(
-      `INSERT INTO pt_bookings (client_id, pt_id, status, scheduled_at, session_type, price)
-       VALUES (?, ?, 'confirmed', ?, ?, ?)`
+      `INSERT INTO pt_bookings (client_id, pt_id, status, scheduled_at, session_type, price, payment_status)
+       VALUES (?, ?, 'confirmed', ?, ?, ?, 'unpaid')`
     ).run(user.id, data.ptId, data.scheduledAt, data.sessionType, price);
 
     const bookingId = Number(result.lastInsertRowid);
@@ -190,6 +191,24 @@ export const createBooking = createServerFn()
       scheduledAt: data.scheduledAt,
       ptName: "",
     };
+  });
+
+// ── Mark booking as paid (called after Stripe payment) ───
+
+export const markBookingPaid = createServerFn()
+  .validator((data: { bookingId: number }) => data)
+  .handler(async ({ data }) => {
+    const user = await getAuthUser();
+    const db = getDb();
+
+    const booking = db.query("SELECT * FROM pt_bookings WHERE id = ? AND client_id = ?")
+      .get(data.bookingId, user.id) as any;
+    if (!booking) throw new Error("Booking not found");
+
+    db.query("UPDATE pt_bookings SET payment_status = 'paid' WHERE id = ?")
+      .run(data.bookingId);
+
+    return { success: true, bookingId: data.bookingId };
   });
 
 // ── My Bookings ───────────────────────────────────────────
@@ -244,6 +263,8 @@ export const getMyBookings = createServerFn()
     };
   });
 
+// ── Cancel booking (PT) ───────────────────────────────────
+
 export const cancelBooking = createServerFn()
   .validator((data: { bookingId: number }) => data)
   .handler(async ({ data }) => {
@@ -265,6 +286,57 @@ export const cancelBooking = createServerFn()
     return { success: true };
   });
 
+// ── Cancel booking (Client) — with refund logic ───────────
+
+export const cancelBookingClient = createServerFn()
+  .validator((data: { bookingId: number }) => data)
+  .handler(async ({ data }) => {
+    const user = await getAuthUser();
+    if (user.role !== "client") throw new Error("Only clients can cancel their bookings");
+
+    const db = getDb();
+    const booking = db.query("SELECT * FROM pt_bookings WHERE id = ? AND client_id = ?")
+      .get(data.bookingId, user.id) as any;
+    if (!booking) throw new Error("Booking not found");
+
+    if (booking.status === "cancelled") {
+      throw new Error("Booking is already cancelled");
+    }
+    if (booking.status === "completed") {
+      throw new Error("Cannot cancel a completed session");
+    }
+
+    const now = new Date();
+    const scheduledTime = new Date(booking.scheduled_at + "Z"); // treat as UTC
+    const hoursUntilSession = (scheduledTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    let refundStatus = "refunded_full";
+    let refundMessage = "";
+
+    if (hoursUntilSession > PT_REFUND_HOURS_THRESHOLD) {
+      // > 2 hours: 50% refund
+      refundStatus = "refunded_50";
+      refundMessage = `Du får 50% refusjon (${Math.round(booking.price / 2)} kr)`;
+    } else {
+      // < 2 hours: no refund
+      refundStatus = "refunded_full"; // means "charged full, no refund"
+      refundMessage = "Ingen refusjon ved avbud mindre enn 2 timer før";
+    }
+
+    db.query(
+      "UPDATE pt_bookings SET status = 'cancelled', cancellation_status = 'client_cancelled', payment_status = ? WHERE id = ?"
+    ).run(refundStatus, data.bookingId);
+
+    return {
+      success: true,
+      refundStatus,
+      refundMessage,
+      hoursUntilSession: Math.round(hoursUntilSession * 10) / 10,
+    };
+  });
+
+// ── Mark no-show (PT) ─────────────────────────────────────
+
 export const markNoShow = createServerFn()
   .validator((data: { bookingId: number }) => data)
   .handler(async ({ data }) => {
@@ -279,10 +351,45 @@ export const markNoShow = createServerFn()
     }
 
     db.query(
-      "UPDATE pt_bookings SET status = 'completed', cancellation_status = 'client_no_show' WHERE id = ?"
+      "UPDATE pt_bookings SET status = 'completed', cancellation_status = 'client_no_show', payment_status = 'refunded_full' WHERE id = ?"
     ).run(data.bookingId);
 
     return { success: true, penaltyApplied: true };
+  });
+
+// ── Get refund info for a booking ─────────────────────────
+
+export const getRefundInfo = createServerFn()
+  .validator((data: { bookingId: number }) => data)
+  .handler(async ({ data }) => {
+    const user = await getAuthUser();
+    const db = getDb();
+
+    const booking = db.query("SELECT * FROM pt_bookings WHERE id = ? AND client_id = ?")
+      .get(data.bookingId, user.id) as any;
+    if (!booking) throw new Error("Booking not found");
+
+    const now = new Date();
+    const scheduledTime = new Date(booking.scheduled_at + "Z");
+    const hoursUntilSession = (scheduledTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    let refundMessage: string;
+    let refundPercent: number;
+
+    if (hoursUntilSession > PT_REFUND_HOURS_THRESHOLD) {
+      refundMessage = `Du får 50% refusjon (${Math.round(booking.price / 2)} kr)`;
+      refundPercent = 50;
+    } else {
+      refundMessage = "Ingen refusjon ved avbud mindre enn 2 timer før";
+      refundPercent = 0;
+    }
+
+    return {
+      hoursUntilSession: Math.round(hoursUntilSession * 10) / 10,
+      refundMessage,
+      refundPercent,
+      price: booking.price,
+    };
   });
 
 // ── Speed Date ────────────────────────────────────────────
