@@ -1,18 +1,32 @@
-import { Database } from "bun:sqlite";
-import { existsSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+// ⚠️ No Node.js module imports at top level — Vite client build can't resolve them.
+// All platform-specific imports happen lazily inside getDb().
 
-const DATA_DIR = join(import.meta.dirname, "..", "..", "data");
-const DB_PATH = join(DATA_DIR, "flexora.db");
+let db: any = null;
 
-let db: Database | null = null;
+function getDataDir(): string {
+  try {
+    const base = (import.meta as any).dirname || "";
+    return base + "/../../data";
+  } catch {
+    return "./data";
+  }
+}
 
-export function getDb(): Database {
+export function getDb(): any {
   if (!db) {
-    if (!existsSync(DATA_DIR)) {
-      mkdirSync(DATA_DIR, { recursive: true });
+    // Lazy-import bun:sqlite — only runs server-side
+    const { Database } = require("bun:sqlite") as { Database: any };
+    const { existsSync, mkdirSync } = require("node:fs") as {
+      existsSync: (p: string) => boolean;
+      mkdirSync: (p: string, opts?: any) => void;
+    };
+
+    const dataDir = getDataDir();
+    const dbPath = dataDir + "/flexora.db";
+    if (!existsSync(dataDir)) {
+      mkdirSync(dataDir, { recursive: true });
     }
-    db = new Database(DB_PATH);
+    db = new Database(dbPath);
     db.exec("PRAGMA journal_mode=WAL;");
     db.exec("PRAGMA foreign_keys=ON;");
     runMigrations(db);
@@ -20,7 +34,7 @@ export function getDb(): Database {
   return db;
 }
 
-function runMigrations(db: Database) {
+function runMigrations(db: any) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -325,6 +339,23 @@ function runMigrations(db: Database) {
 
     CREATE INDEX IF NOT EXISTS idx_chat_messages_user ON chat_messages(user_id);
     CREATE INDEX IF NOT EXISTS idx_chat_messages_created ON chat_messages(user_id, created_at);
+
+    CREATE TABLE IF NOT EXISTS admin_users (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS activity_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_type TEXT NOT NULL CHECK(event_type IN ('signup','booking','payment','session_completed','subscription','pt_verified')),
+      user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      description TEXT NOT NULL DEFAULT '',
+      metadata TEXT DEFAULT '{}',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_activity_log_type ON activity_log(event_type);
+    CREATE INDEX IF NOT EXISTS idx_activity_log_created ON activity_log(created_at);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
@@ -335,6 +366,14 @@ function runMigrations(db: Database) {
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN specialties TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN hourly_rate REAL NOT NULL DEFAULT 500"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN speed_date_enabled INTEGER NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }
+
+  // Seed first user as admin (idempotent)
+  try {
+    const firstUser = db.query("SELECT id FROM users ORDER BY id LIMIT 1").get() as any;
+    if (firstUser) {
+      db.query("INSERT OR IGNORE INTO admin_users (user_id) VALUES (?)").run(firstUser.id);
+    }
+  } catch (_) { /* best-effort */ }
 
   // Seed competition data (idempotent) — run inline to avoid circular imports
   try {
