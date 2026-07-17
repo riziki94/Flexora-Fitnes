@@ -399,6 +399,7 @@ function runMigrations(db: any) {
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN specialties TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN hourly_rate REAL NOT NULL DEFAULT 500"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN speed_date_enabled INTEGER NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE pt_profiles ADD COLUMN certificate_image TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
 
   // Seed first user as admin (idempotent)
   try {
