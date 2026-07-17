@@ -76,6 +76,10 @@ function DashboardPage() {
             <span className="text-lg font-light text-gray-400">Fitnes</span>
           </a>
           <div className="flex items-center gap-4">
+            <a href="/app/messages" className="text-sm text-gray-600 hover:text-[#1A56DB] relative">
+              💬 {t("nav.messages") || "Meldinger"}
+              <span id="dm-badge-dashboard" className="absolute -top-2 -right-5 hidden flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#1A56DB] text-[10px] font-bold text-white px-1">0</span>
+            </a>
             <a href="/app/schedule" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.schedule")}</a>
             <a href="/app/subscription" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.subscription")}</a>
             <a href="/app/profile" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.profile")}</a>
