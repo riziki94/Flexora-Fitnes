@@ -27,7 +27,7 @@ export const translations = {
     "nav.signOut": "Sign Out",
 
     // Hero
-    "hero.title": "The World's First Two-Sided PT Marketplace",
+    "hero.title": "The World's First PT Marketplace",
     "hero.subtitle": "AI-powered fitness meets global personal training. Train smarter with 3D muscle visualization, live form correction, voice coaching, and book verified PTs anywhere in the world.",
     "hero.startFree": "Start Training Free",
     "hero.viewPlans": "View Plans",
