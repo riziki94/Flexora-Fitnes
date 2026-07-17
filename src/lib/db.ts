@@ -247,6 +247,21 @@ function runMigrations(db: any) {
     CREATE INDEX IF NOT EXISTS idx_reviews_pt ON reviews(pt_id);
     CREATE INDEX IF NOT EXISTS idx_reviews_booking ON reviews(booking_id);
 
+    -- Speed date matches (created when both parties accept)
+    CREATE TABLE IF NOT EXISTS speed_date_matches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pt_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      client_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      slot_id INTEGER REFERENCES speed_date_slots(id) ON DELETE SET NULL,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','pt_accepted','client_accepted','matched','declined')),
+      chat_created INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_speed_date_matches_pt ON speed_date_matches(pt_user_id);
+    CREATE INDEX IF NOT EXISTS idx_speed_date_matches_client ON speed_date_matches(client_user_id);
+    CREATE INDEX IF NOT EXISTS idx_speed_date_matches_status ON speed_date_matches(status);
+
     -- Competitions & Leaderboard tables
     CREATE TABLE IF NOT EXISTS competitions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

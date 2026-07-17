@@ -495,6 +495,12 @@ export const joinSpeedDate = createServerFn()
       "UPDATE speed_date_slots SET status = 'booked', client_id = ? WHERE id = ?"
     ).run(user.id, slot.id);
 
+    // Create a pending speed date match (client implicitly accepts by booking)
+    db.query(
+      `INSERT INTO speed_date_matches (pt_user_id, client_user_id, slot_id, status)
+       VALUES (?, ?, ?, 'client_accepted')`
+    ).run(slot.pt_user_id, user.id, slot.id);
+
     // Get PT info
     const pt = db.query(
       "SELECT u.name, u.country, p.specialties, p.years_of_experience FROM users u JOIN pt_profiles p ON u.id = p.user_id WHERE u.id = ?"
@@ -508,6 +514,145 @@ export const joinSpeedDate = createServerFn()
       datetime: slot.datetime,
       specialties: pt?.specialties ? pt.specialties.split(",").map((s: string) => s.trim()).filter(Boolean) : [],
     };
+  });
+
+// ── Speed Date Match → Chat ───────────────────────────────
+
+export const acceptSpeedDate = createServerFn()
+  .validator((data: { matchId: number }) => data)
+  .handler(async ({ data }) => {
+    const user = await getAuthUser();
+    const db = getDb();
+
+    const match = db.query(
+      "SELECT * FROM speed_date_matches WHERE id = ?"
+    ).get(data.matchId) as any;
+
+    if (!match) throw new Error("Match not found");
+
+    // PT accepts
+    if (user.role === "pt" && match.pt_user_id === user.id) {
+      if (match.status === "client_accepted") {
+        // Both have now accepted → match!
+        db.query(
+          "UPDATE speed_date_matches SET status = 'matched' WHERE id = ?"
+        ).run(data.matchId);
+
+        // Create chat channel: insert system message
+        if (!match.chat_created) {
+          db.query(
+            `INSERT INTO messages (sender_id, receiver_id, content, read)
+             VALUES (?, ?, 'Dere har matchet! 💪 Start en samtale for å bli bedre kjent.', 1)`
+          ).run(match.pt_user_id, match.client_user_id);
+
+          db.query(
+            "UPDATE speed_date_matches SET chat_created = 1 WHERE id = ?"
+          ).run(data.matchId);
+        }
+
+        return { success: true, status: "matched", message: "Dere har matchet! Chatten er opprettet." };
+      } else {
+        db.query(
+          "UPDATE speed_date_matches SET status = 'pt_accepted' WHERE id = ?"
+        ).run(data.matchId);
+        return { success: true, status: "pt_accepted", message: "Venter på at klienten aksepterer." };
+      }
+    }
+
+    // Client accepts
+    if (user.role === "client" && match.client_user_id === user.id) {
+      if (match.status === "pt_accepted") {
+        // Both have now accepted → match!
+        db.query(
+          "UPDATE speed_date_matches SET status = 'matched' WHERE id = ?"
+        ).run(data.matchId);
+
+        // Create chat channel
+        if (!match.chat_created) {
+          db.query(
+            `INSERT INTO messages (sender_id, receiver_id, content, read)
+             VALUES (?, ?, 'Dere har matchet! 💪 Start en samtale for å bli bedre kjent.', 1)`
+          ).run(match.pt_user_id, match.client_user_id);
+
+          db.query(
+            "UPDATE speed_date_matches SET chat_created = 1 WHERE id = ?"
+          ).run(data.matchId);
+        }
+
+        return { success: true, status: "matched", message: "Dere har matchet! Chatten er opprettet." };
+      } else {
+        db.query(
+          "UPDATE speed_date_matches SET status = 'client_accepted' WHERE id = ?"
+        ).run(data.matchId);
+        return { success: true, status: "client_accepted", message: "Venter på at PT-en aksepterer." };
+      }
+    }
+
+    throw new Error("You are not authorized to accept this match");
+  });
+
+export const declineSpeedDate = createServerFn()
+  .validator((data: { matchId: number }) => data)
+  .handler(async ({ data }) => {
+    const user = await getAuthUser();
+    const db = getDb();
+
+    const match = db.query(
+      "SELECT * FROM speed_date_matches WHERE id = ?"
+    ).get(data.matchId) as any;
+
+    if (!match) throw new Error("Match not found");
+
+    if ((user.role === "pt" && match.pt_user_id !== user.id) ||
+        (user.role === "client" && match.client_user_id !== user.id)) {
+      throw new Error("Not authorized");
+    }
+
+    db.query(
+      "UPDATE speed_date_matches SET status = 'declined' WHERE id = ?"
+    ).run(data.matchId);
+
+    return { success: true, status: "declined" };
+  });
+
+export const getMySpeedDateMatches = createServerFn()
+  .handler(async () => {
+    const user = await getAuthUser();
+    const db = getDb();
+
+    const matches = db.query(`
+      SELECT 
+        m.id, m.pt_user_id, m.client_user_id, m.slot_id, m.status, m.chat_created, m.created_at,
+        sds.datetime as slot_datetime,
+        CASE WHEN ? = m.pt_user_id THEN u2.name ELSE u1.name END as partner_name,
+        CASE WHEN ? = m.pt_user_id THEN u2.profile_picture ELSE u1.profile_picture END as partner_avatar,
+        CASE WHEN ? = m.pt_user_id THEN u2.id ELSE u1.id END as partner_id,
+        CASE WHEN ? = m.pt_user_id THEN u2.role ELSE u1.role END as partner_role,
+        CASE WHEN ? = m.pt_user_id THEN u2.country ELSE u1.country END as partner_country
+      FROM speed_date_matches m
+      JOIN users u1 ON m.pt_user_id = u1.id
+      JOIN users u2 ON m.client_user_id = u2.id
+      LEFT JOIN speed_date_slots sds ON m.slot_id = sds.id
+      WHERE (m.pt_user_id = ? OR m.client_user_id = ?)
+        AND m.status IN ('pending', 'pt_accepted', 'client_accepted', 'matched')
+      ORDER BY m.created_at DESC
+    `, user.id, user.id, user.id, user.id, user.id, user.id, user.id).all() as any[];
+
+    return matches.map(m => ({
+      id: m.id,
+      ptUserId: m.pt_user_id,
+      clientUserId: m.client_user_id,
+      slotId: m.slot_id,
+      status: m.status,
+      chatCreated: !!m.chat_created,
+      createdAt: m.created_at,
+      slotDatetime: m.slot_datetime || "",
+      partnerName: m.partner_name,
+      partnerAvatar: m.partner_avatar || "",
+      partnerId: m.partner_id,
+      partnerRole: m.partner_role,
+      partnerCountry: m.partner_country || "",
+    }));
   });
 
 // ── Countries & Specialties (for filters) ─────────────────
