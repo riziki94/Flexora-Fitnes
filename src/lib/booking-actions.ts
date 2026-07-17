@@ -655,6 +655,45 @@ export const getMySpeedDateMatches = createServerFn()
     }));
   });
 
+// ── PT Match List (dedicated PT view) ──────────────────────
+
+export const getPTMatches = createServerFn()
+  .handler(async () => {
+    const user = await getAuthUser();
+    if (user.role !== "pt") throw new Error("Only PTs can view their matches");
+
+    const db = getDb();
+
+    const matches = db.query(`
+      SELECT 
+        m.id, m.pt_user_id, m.client_user_id, m.slot_id, m.status, m.chat_created, m.created_at,
+        u.name as client_name,
+        u.profile_picture as client_profile_picture,
+        u.country as client_country,
+        sds.datetime as slot_datetime
+      FROM speed_date_matches m
+      JOIN users u ON m.client_user_id = u.id
+      LEFT JOIN speed_date_slots sds ON m.slot_id = sds.id
+      WHERE m.pt_user_id = ?
+        AND m.status IN ('pending', 'pt_accepted', 'client_accepted', 'matched')
+      ORDER BY m.created_at DESC
+    `, user.id).all() as any[];
+
+    return matches.map(m => ({
+      id: m.id,
+      ptUserId: m.pt_user_id,
+      clientUserId: m.client_user_id,
+      clientName: m.client_name,
+      clientProfilePicture: m.client_profile_picture || "",
+      clientCountry: m.client_country || "",
+      slotId: m.slot_id,
+      status: m.status,
+      chatCreated: !!m.chat_created,
+      createdAt: m.created_at,
+      slotDatetime: m.slot_datetime || "",
+    }));
+  });
+
 // ── Countries & Specialties (for filters) ─────────────────
 
 export const getAvailableCountries = createServerFn()

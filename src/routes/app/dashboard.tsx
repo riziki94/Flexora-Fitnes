@@ -88,7 +88,10 @@ function DashboardPage() {
               {t("nav.profile")}
             </a>
             {isPt && (
-              <a href="/app/pt/verify" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.verification")}</a>
+              <>
+                <a href="/app/pt/matches" className="text-sm text-gray-600 hover:text-[#1A56DB]">Matches</a>
+                <a href="/app/pt/verify" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.verification")}</a>
+              </>
             )}
             <button
               onClick={handleLogout}
@@ -280,6 +283,7 @@ function PtDashboard({ data }: { data: any }) {
       <DashboardCard title={t("dashboard.quickActions")}>
         <div className="space-y-2">
           <ActionLink href="/app/schedule">{t("dashboard.weeklySchedule")}</ActionLink>
+          <ActionLink href="/app/pt/matches">Matches ⚡</ActionLink>
           <ActionLink href="/app/profile">{t("dashboard.editProfile")}</ActionLink>
           <ActionLink href="/app/pt/verify">{t("dashboard.verificationStatus")}</ActionLink>
           <ActionLink href="/app/dashboard">{t("dashboard.browseClients")}</ActionLink>
