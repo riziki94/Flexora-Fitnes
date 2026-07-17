@@ -1,0 +1,278 @@
+import { useState, useEffect } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { getMyBookings, cancelBooking, markNoShow } from "~/lib/booking-actions";
+
+export const Route = createFileRoute("/app/bookings/")({
+  component: MyBookingsPage,
+});
+
+function MyBookingsPage() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [actionMsg, setActionMsg] = useState("");
+  const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("flexora_user");
+    if (!stored) { navigate({ to: "/login" }); return; }
+    try { setUser(JSON.parse(stored)); } catch { navigate({ to: "/login" }); return; }
+
+    loadBookings();
+  }, []);
+
+  async function loadBookings() {
+    setLoading(true);
+    try {
+      const result = await getMyBookings();
+      setData(result);
+    } catch (e: any) {
+      console.error(e);
+    }
+    setLoading(false);
+  }
+
+  async function handleCancel(bookingId: number) {
+    if (!confirm("Are you sure you want to cancel this booking?")) return;
+    try {
+      await cancelBooking({ bookingId });
+      setActionMsg("Booking cancelled.");
+      loadBookings();
+    } catch (e: any) {
+      setActionMsg(e.message || "Failed to cancel.");
+    }
+  }
+
+  async function handleNoShow(bookingId: number) {
+    if (!confirm("Mark this client as no-show? This will charge the full price.")) return;
+    try {
+      await markNoShow({ bookingId });
+      setActionMsg("Marked as no-show. Client will be charged.");
+      loadBookings();
+    } catch (e: any) {
+      setActionMsg(e.message || "Failed to mark no-show.");
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("flexora_token");
+    localStorage.removeItem("flexora_user");
+    document.cookie = "flexora_token=; path=/; max-age=0";
+    navigate({ to: "/" });
+  }
+
+  const isPt = user?.role === "pt";
+
+  function statusBadge(status: string) {
+    const colors: Record<string, string> = {
+      confirmed: "bg-blue-100 text-blue-700",
+      completed: "bg-green-100 text-green-700",
+      cancelled: "bg-red-100 text-red-700",
+      pending: "bg-yellow-100 text-yellow-700",
+    };
+    return (
+      <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${colors[status] || "bg-gray-100 text-gray-600"}`}>
+        {status}
+      </span>
+    );
+  }
+
+  const now = new Date();
+  let bookings = data?.bookings || [];
+
+  // Apply filter
+  if (filter === "upcoming") {
+    bookings = bookings.filter((b: any) => new Date(b.scheduled_at) >= now && b.status !== "cancelled");
+  } else if (filter === "past") {
+    bookings = bookings.filter((b: any) => new Date(b.scheduled_at) < now || b.status === "completed" || b.status === "cancelled");
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-gray-500">Loading bookings...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+          <a href="/" className="flex items-center gap-2">
+            <span className="text-lg font-bold text-[#1A56DB]">Flexora</span>
+            <span className="text-lg font-light text-gray-400">Fitnes</span>
+          </a>
+          <div className="flex items-center gap-4">
+            <a href="/app/dashboard" className="text-sm text-gray-600 hover:text-[#1A56DB]">Dashboard</a>
+            <a href="/app/pt/discover" className="text-sm text-gray-600 hover:text-[#1A56DB]">Discover</a>
+            <button onClick={handleLogout} className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200">
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <main className="mx-auto max-w-3xl px-6 py-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">My Bookings</h1>
+          <p className="text-gray-500">
+            {isPt ? "Manage your client sessions" : "Track your training sessions"}
+          </p>
+        </div>
+
+        {actionMsg && (
+          <div className="mb-6 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">{actionMsg}</div>
+        )}
+
+        {/* PT Earnings Summary */}
+        {isPt && data?.earnings && (
+          <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100 text-center">
+              <p className="text-xs font-medium uppercase text-gray-400">Total Sessions</p>
+              <p className="mt-1 text-lg font-bold text-gray-900">{data.earnings.total_sessions}</p>
+            </div>
+            <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100 text-center">
+              <p className="text-xs font-medium uppercase text-gray-400">Total Earned</p>
+              <p className="mt-1 text-lg font-bold text-gray-900">{data.earnings.total_earnings} kr</p>
+            </div>
+            <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100 text-center">
+              <p className="text-xs font-medium uppercase text-gray-400">Upcoming</p>
+              <p className="mt-1 text-lg font-bold text-gray-900">{data.earnings.upcoming_earnings} kr</p>
+            </div>
+          </div>
+        )}
+
+        {/* Filter tabs */}
+        <div className="mb-6 flex gap-2">
+          {(["all", "upcoming", "past"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                filter === f
+                  ? "bg-[#1A56DB] text-white"
+                  : "bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50"
+              }`}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* Bookings list */}
+        {bookings.length === 0 ? (
+          <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-gray-100">
+            <p className="text-gray-500">No bookings found.</p>
+            {!isPt && (
+              <a
+                href="/app/pt/discover"
+                className="mt-4 inline-block rounded-lg bg-[#1A56DB] px-5 py-2 text-sm font-medium text-white hover:bg-[#1E40AF]"
+              >
+                Find a Trainer
+              </a>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {bookings.map((b: any) => (
+              <div key={b.id} className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="font-semibold text-gray-900">
+                        {isPt ? b.client_name : b.pt_name}
+                      </h3>
+                      {statusBadge(b.status)}
+                    </div>
+
+                    <div className="grid gap-1 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <span className="text-gray-400">📅</span>
+                        {new Date(b.scheduled_at).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                        {" at "}
+                        {new Date(b.scheduled_at).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                      <div>
+                        <span className="text-gray-400">⏱</span>{" "}
+                        {b.session_type === "30min" ? "30 min" : "60 min"}
+                        {" · "}
+                        {b.price} kr
+                      </div>
+                      {!isPt && b.pt_country && (
+                        <div>
+                          <span className="text-gray-400">📍</span> {b.pt_country}
+                        </div>
+                      )}
+                    </div>
+
+                    {b.cancellation_status !== "none" && (
+                      <div className="mt-2">
+                        <span className="inline-block rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
+                          {b.cancellation_status === "pt_cancelled"
+                            ? "Cancelled by PT"
+                            : b.cancellation_status === "client_no_show"
+                            ? "Client No-Show"
+                            : "Cancelled by client"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="ml-4 flex flex-col gap-2">
+                    {isPt && b.status === "confirmed" && (
+                      <>
+                        <button
+                          onClick={() => handleCancel(b.id)}
+                          className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => handleNoShow(b.id)}
+                          className="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-50 transition-colors"
+                        >
+                          No-Show
+                        </button>
+                      </>
+                    )}
+                    {!isPt && b.status === "confirmed" && b.pt_id && (
+                      <a
+                        href={`/app/pt/${b.pt_id}`}
+                        className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors text-center"
+                      >
+                        View PT
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Bottom nav for client */}
+        {!isPt && (
+          <div className="mt-8 text-center">
+            <a
+              href="/app/pt/discover"
+              className="inline-block rounded-lg bg-[#1A56DB] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#1E40AF] transition-colors"
+            >
+              Book Another Session
+            </a>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
