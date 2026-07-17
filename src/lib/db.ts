@@ -297,6 +297,23 @@ function runMigrations(db: Database) {
     CREATE INDEX IF NOT EXISTS idx_pt_ratings_pt ON pt_ratings(pt_user_id);
     CREATE INDEX IF NOT EXISTS idx_pt_ratings_client ON pt_ratings(client_user_id);
     CREATE INDEX IF NOT EXISTS idx_pt_ratings_session ON pt_ratings(session_id);
+
+    CREATE TABLE IF NOT EXISTS schedule_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      day_of_week INTEGER NOT NULL CHECK(day_of_week BETWEEN 0 AND 6),
+      week_start_date TEXT NOT NULL,
+      time TEXT NOT NULL,
+      activity_type TEXT NOT NULL CHECK(activity_type IN ('workout','rest','cardio','stretching','meal_prep','pt_session','other')),
+      name TEXT NOT NULL DEFAULT '',
+      duration_minutes INTEGER NOT NULL DEFAULT 60,
+      completed INTEGER NOT NULL DEFAULT 0,
+      notes TEXT DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_schedule_entries_user ON schedule_entries(user_id);
+    CREATE INDEX IF NOT EXISTS idx_schedule_entries_week ON schedule_entries(user_id, week_start_date);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)

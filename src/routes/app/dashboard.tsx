@@ -58,6 +58,7 @@ function DashboardPage() {
             <span className="text-lg font-light text-gray-400">Fitnes</span>
           </a>
           <div className="flex items-center gap-4">
+            <a href="/app/schedule" className="text-sm text-gray-600 hover:text-[#1A56DB]">Schedule</a>
             <a href="/app/profile" className="text-sm text-gray-600 hover:text-[#1A56DB]">Profile</a>
             {isPt && (
               <a href="/app/pt/verify" className="text-sm text-gray-600 hover:text-[#1A56DB]">Verification</a>
@@ -152,6 +153,7 @@ function ClientDashboard({ data }: { data: any }) {
       {/* Quick Actions */}
       <DashboardCard title="Quick Actions">
         <div className="space-y-2">
+          <ActionLink href="/app/schedule">Weekly Schedule</ActionLink>
           <ActionLink href="/app/workout/plans/create">Create Workout Plan</ActionLink>
           <ActionLink href="/app/profile">Edit Profile</ActionLink>
           <ActionLink href="/#pricing">Upgrade Plan</ActionLink>
@@ -225,6 +227,7 @@ function PtDashboard({ data }: { data: any }) {
       {/* Quick Actions */}
       <DashboardCard title="Quick Actions">
         <div className="space-y-2">
+          <ActionLink href="/app/schedule">Weekly Schedule</ActionLink>
           <ActionLink href="/app/profile">Edit Profile</ActionLink>
           <ActionLink href="/app/pt/verify">Verification Status</ActionLink>
           <ActionLink href="/app/dashboard">Browse Clients</ActionLink>
