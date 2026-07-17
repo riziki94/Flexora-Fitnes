@@ -15,6 +15,12 @@ const SUGGESTED_QUESTIONS = [
   { no: "Anbefal en PT for vekttap", en: "Recommend a PT for weight loss" },
   { no: "Hvilke funksjoner har Flexora?", en: "What features does Flexora have?" },
   { no: "Hvem er de beste PT-ene?", en: "Who are the top PTs?" },
+  { no: "Hvordan bygge muskler?", en: "How to build muscle?" },
+  { no: "Hvordan gå ned i vekt?", en: "How to lose weight?" },
+  { no: "Hva er speed date?", en: "What is speed date?" },
+  { no: "Hvordan bli PT på Flexora?", en: "How to become a PT on Flexora?" },
+  { no: "Hvordan booker jeg en PT?", en: "How do I book a PT?" },
+  { no: "Hvordan fungerer konkurranser?", en: "How do competitions work?" },
 ];
 
 export const Route = createFileRoute("/app/chat")({

@@ -12,8 +12,16 @@ interface Message {
 const SUGGESTED_QUESTIONS = [
   { no: "Finn en PT i Norge", en: "Find a PT in Norway" },
   { no: "Hva koster det?", en: "What does it cost?" },
+  { no: "Hvordan bygge muskler?", en: "How to build muscle?" },
+  { no: "Hvordan gå ned i vekt?", en: "How to lose weight?" },
+  { no: "Hvilke funksjoner har Flexora?", en: "What features does Flexora have?" },
+  { no: "Hvordan fungerer prøveperioden?", en: "How does the trial work?" },
+  { no: "Hvordan booker jeg en PT?", en: "How do I book a PT?" },
   { no: "Hjelp med betaling", en: "Help with payment" },
   { no: "Mitt abonnement", en: "My subscription" },
+  { no: "Hvordan bli PT på Flexora?", en: "How to become a PT on Flexora?" },
+  { no: "Hva er speed date?", en: "What is speed date?" },
+  { no: "Hvordan fungerer konkurranser?", en: "How do competitions work?" },
 ];
 
 // Support-related keywords that trigger the support engine
