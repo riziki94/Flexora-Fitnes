@@ -314,6 +314,17 @@ function runMigrations(db: Database) {
 
     CREATE INDEX IF NOT EXISTS idx_schedule_entries_user ON schedule_entries(user_id);
     CREATE INDEX IF NOT EXISTS idx_schedule_entries_week ON schedule_entries(user_id, week_start_date);
+
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role TEXT NOT NULL CHECK(role IN ('user', 'assistant')),
+      content TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_chat_messages_user ON chat_messages(user_id);
+    CREATE INDEX IF NOT EXISTS idx_chat_messages_created ON chat_messages(user_id, created_at);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)

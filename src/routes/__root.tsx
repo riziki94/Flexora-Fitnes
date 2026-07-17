@@ -5,6 +5,7 @@ import {
   createRootRoute,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import ChatWidget from "~/components/ChatWidget";
 
 import appCss from "~/styles/app.css?url";
 import favicon16 from "~/assets/favicon-16.png";
@@ -60,6 +61,7 @@ function RootDocument({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <ChatWidget />
         <Scripts />
         {/* Service Worker registration for PWA */}
         <script
