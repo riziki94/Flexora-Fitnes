@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getPtLeaderboard, getPtLeaderboardCountries } from "~/lib/pt-ratings-actions";
+import Avatar from "~/components/Avatar";
 
 export const Route = createFileRoute("/app/pt/leaderboard/")({
   component: PtLeaderboardPage,
@@ -138,6 +139,9 @@ function PtLeaderboardPage() {
                 return (
                   <div key={pt.id} className={`${cardOrder} rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100 text-center`}>
                     <div className="text-3xl mb-2">{medals[idx]}</div>
+                    <div className="flex justify-center mb-2">
+                      <Avatar src={pt.profilePicture} name={pt.name} size={48} />
+                    </div>
                     <a href={`/app/pt/${pt.id}`} className="text-base font-semibold text-gray-900 hover:text-[#1A56DB]">
                       {pt.name}
                     </a>
@@ -173,9 +177,12 @@ function PtLeaderboardPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <a href={`/app/pt/${pt.id}`} className="text-sm font-medium text-gray-900 hover:text-[#1A56DB]">
-                          {pt.name}
-                        </a>
+                        <div className="flex items-center gap-2">
+                          <Avatar src={pt.profilePicture} name={pt.name} size={24} />
+                          <a href={`/app/pt/${pt.id}`} className="text-sm font-medium text-gray-900 hover:text-[#1A56DB]">
+                            {pt.name}
+                          </a>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500 hidden sm:table-cell">{pt.country || "—"}</td>
                       <td className="px-4 py-3 text-right">

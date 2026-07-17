@@ -94,7 +94,7 @@ export const getCompetitionDetail = createServerFn()
     if (!comp) throw new Error("Competition not found");
 
     const participants = db.query(
-      `SELECT cp.*, u.name, u.country
+      `SELECT cp.*, u.name, u.country, u.profile_picture
        FROM competition_participants cp
        JOIN users u ON cp.user_id = u.id
        WHERE cp.competition_id = ?

@@ -4,6 +4,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getDashboardData } from "~/lib/user-actions";
 import { FREE_TRIAL_DAYS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
 import { useTranslation } from "~/lib/i18n";
+import Avatar from "~/components/Avatar";
 
 export const Route = createFileRoute("/app/dashboard")({
   component: DashboardPage,
@@ -82,7 +83,10 @@ function DashboardPage() {
             </a>
             <a href="/app/schedule" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.schedule")}</a>
             <a href="/app/subscription" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.subscription")}</a>
-            <a href="/app/profile" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.profile")}</a>
+            <a href="/app/profile" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#1A56DB]">
+              <Avatar src={user?.profile_picture} name={user?.name} size={28} />
+              {t("nav.profile")}
+            </a>
             {isPt && (
               <a href="/app/pt/verify" className="text-sm text-gray-600 hover:text-[#1A56DB]">{t("nav.verification")}</a>
             )}

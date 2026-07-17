@@ -85,9 +85,7 @@ function PtProfilePage() {
       <main className="mx-auto max-w-3xl px-6 py-8">
         <div className="mb-8 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <div className="flex items-start gap-5">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1A56DB]/10 text-2xl font-bold text-[#1A56DB]">
-              {pt.name?.charAt(0)?.toUpperCase() || "P"}
-            </div>
+            <Avatar src={pt.profile_picture} name={pt.name} size={64} />
             <div className="flex-1">
               <h1 className="text-xl font-bold text-gray-900">{pt.name}</h1>
               <p className="text-sm text-gray-500">{pt.country}</p>

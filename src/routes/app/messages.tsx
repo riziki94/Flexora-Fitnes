@@ -6,6 +6,7 @@ import {
   sendMessage,
   getUnreadCount,
 } from "~/lib/direct-message-actions";
+import Avatar from "~/components/Avatar";
 
 interface Conversation {
   partnerId: number;
@@ -264,9 +265,7 @@ function MessagesPage() {
               >
                 <div className="flex items-start gap-3">
                   <div className="relative flex-shrink-0">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1A56DB]/10 text-sm font-bold text-[#1A56DB]">
-                      {conv.partnerName.charAt(0).toUpperCase()}
-                    </div>
+                    <Avatar src={conv.partnerAvatar} name={conv.partnerName} size={40} />
                     {isOnline(conv.lastActive) && (
                       <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 rounded-full border-2 border-white bg-green-500" />
                     )}
@@ -323,9 +322,10 @@ function MessagesPage() {
               <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1A56DB]/10 text-sm font-bold text-[#1A56DB]">
-                      {activePartnerName.charAt(0).toUpperCase()}
-                    </div>
+                    {(() => {
+                      const conv = conversations.find(c => c.partnerId === activePartnerId);
+                      return <Avatar src={conv?.partnerAvatar} name={activePartnerName} size={36} />;
+                    })()}
                     {(() => {
                       const conv = conversations.find(c => c.partnerId === activePartnerId);
                       return conv && isOnline(conv.lastActive) ? (
@@ -365,9 +365,7 @@ function MessagesPage() {
                       className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
                     >
                       {!isOwn && (
-                        <div className="mr-2 mt-1 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gray-300 text-xs font-bold text-gray-600">
-                          {msg.senderName.charAt(0).toUpperCase()}
-                        </div>
+                        <Avatar src="" name={msg.senderName} size={28} className="mr-2 mt-1" />
                       )}
                       <div className="max-w-[70%]">
                         <div
@@ -391,9 +389,7 @@ function MessagesPage() {
                         </div>
                       </div>
                       {isOwn && (
-                        <div className="ml-2 mt-1 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#1A56DB]/10 text-xs font-bold text-[#1A56DB]">
-                          {userName.charAt(0).toUpperCase()}
-                        </div>
+                        <Avatar src="" name={userName} size={28} className="ml-2 mt-1" />
                       )}
                     </div>
                   );

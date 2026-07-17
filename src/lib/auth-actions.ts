@@ -9,12 +9,13 @@ export const loginUser = createServerFn()
   })
   .handler(async ({ data }) => {
     const db = getDb();
-    const user = db.query("SELECT id, email, password_hash, role, name FROM users WHERE email = ?").get(data.email) as {
+    const user = db.query("SELECT id, email, password_hash, role, name, profile_picture FROM users WHERE email = ?").get(data.email) as {
       id: number;
       email: string;
       password_hash: string;
       role: string;
       name: string;
+      profile_picture: string;
     } | undefined;
 
     if (!user) {
@@ -35,6 +36,7 @@ export const loginUser = createServerFn()
         email: user.email,
         role: user.role,
         name: user.name,
+        profile_picture: user.profile_picture || "",
       },
     };
   });
@@ -109,6 +111,7 @@ export const registerUser = createServerFn()
         email: data.email,
         role: data.role,
         name: data.name,
+        profile_picture: "",
       },
     };
   });
