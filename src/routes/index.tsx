@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import logoSvg from "~/assets/flexora-logo.svg";
 import iconSvg from "~/assets/flexora-icon.svg";
 import { getFeaturedPTs, type FeaturedPT } from "~/lib/pt-ratings-actions";
+import { STRIPE_PAYMENT_LINKS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -344,7 +345,7 @@ function ClientTiers() {
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           title="Client Subscription Plans"
-          subtitle="Choose the tier that fits your fitness journey."
+          subtitle="Choose the tier that fits your fitness journey. All plans include a 1-month free trial."
         />
         <div className="grid gap-6 md:grid-cols-3">
           {clientTiers.map((tier) => (
@@ -374,14 +375,16 @@ function ClientTiers() {
                 ))}
               </ul>
               <a
-                href="#cta"
+                href={STRIPE_PAYMENT_LINKS[tier.name.toLowerCase()] || "#pricing"}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`block rounded-full px-6 py-3 text-center text-sm font-semibold transition-colors ${
                   tier.highlight
                     ? "bg-[#1A56DB] text-white hover:bg-[#1E40AF]"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                Choose {tier.name}
+                Start {tier.name} — Free Trial
               </a>
             </div>
           ))}
@@ -421,10 +424,12 @@ function PTSubscription() {
             ))}
           </ul>
           <a
-            href="/register"
+            href={STRIPE_PAYMENT_LINKS.pt}
+            target="_blank"
+            rel="noopener noreferrer"
             className="block rounded-full bg-[#1A56DB] px-6 py-3 text-center text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors"
           >
-            Register as a PT
+            Register as a PT — Free Trial
           </a>
         </div>
       </div>
@@ -439,9 +444,12 @@ function CTA() {
         <h2 className="mb-4 text-3xl font-bold md:text-4xl">
           Ready to Transform Your Fitness?
         </h2>
-        <p className="mb-10 text-lg text-blue-100 md:text-xl">
+        <p className="mb-4 text-lg text-blue-100 md:text-xl">
           Join thousands of clients and verified PTs on the world's most advanced
           fitness platform. Start your journey today.
+        </p>
+        <p className="mb-10 text-base font-medium text-white/90">
+          {FREE_TRIAL_MESSAGE}
         </p>
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <a
@@ -465,13 +473,18 @@ function CTA() {
 function Footer() {
   return (
     <footer className="border-t border-gray-100 bg-gray-50 py-10">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-6 md:flex-row md:justify-between">
-        <div className="flex items-center gap-2">
-          <img src={iconSvg} alt="Flexora" className="h-6 w-6" />
-          <span className="text-sm font-semibold text-gray-500">Flexora Fitnes</span>
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
+          <div className="flex items-center gap-2">
+            <img src={iconSvg} alt="Flexora" className="h-6 w-6" />
+            <span className="text-sm font-semibold text-gray-500">Flexora Fitnes</span>
+          </div>
+          <p className="text-sm text-gray-400">
+            &copy; {new Date().getFullYear()} Flexora Fitnes. All rights reserved.
+          </p>
         </div>
-        <p className="text-sm text-gray-400">
-          &copy; {new Date().getFullYear()} Flexora Fitnes. All rights reserved.
+        <p className="mt-4 text-center text-sm font-medium text-[#1A56DB]">
+          {FREE_TRIAL_MESSAGE}
         </p>
       </div>
     </footer>
