@@ -369,19 +369,6 @@ function runMigrations(db: any) {
 
     CREATE INDEX IF NOT EXISTS idx_signaling_booking ON signaling_messages(booking_id);
     CREATE INDEX IF NOT EXISTS idx_signaling_created ON signaling_messages(booking_id, created_at);
-
-    -- Support ticket system
-    CREATE TABLE IF NOT EXISTS support_tickets (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-      subject TEXT NOT NULL,
-      message TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'closed')),
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_support_tickets_user ON support_tickets(user_id);
-    CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
