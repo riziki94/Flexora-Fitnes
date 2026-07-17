@@ -168,6 +168,35 @@ function runMigrations(db: Database) {
     CREATE INDEX IF NOT EXISTS idx_food_logs_meal_type ON food_logs(meal_type);
     CREATE INDEX IF NOT EXISTS idx_meal_plans_user ON meal_plans(user_id);
     CREATE INDEX IF NOT EXISTS idx_meal_plan_entries_plan ON meal_plan_entries(meal_plan_id);
+
+    CREATE TABLE IF NOT EXISTS workout_sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      plan_id INTEGER NOT NULL REFERENCES workout_plans(id) ON DELETE CASCADE,
+      started_at TEXT NOT NULL DEFAULT (datetime('now')),
+      ended_at TEXT,
+      duration_seconds INTEGER DEFAULT 0,
+      calories_estimated INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS session_exercises (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id INTEGER NOT NULL REFERENCES workout_sessions(id) ON DELETE CASCADE,
+      plan_exercise_id INTEGER REFERENCES plan_exercises(id) ON DELETE SET NULL,
+      exercise_name TEXT NOT NULL,
+      phase TEXT NOT NULL DEFAULT 'main',
+      sets_completed INTEGER NOT NULL DEFAULT 0,
+      total_sets INTEGER NOT NULL DEFAULT 0,
+      reps TEXT NOT NULL DEFAULT '',
+      effort_level TEXT DEFAULT '' CHECK(effort_level IN ('', 'green', 'yellow', 'red')),
+      breaths_per_minute REAL DEFAULT 0,
+      completed_at TEXT DEFAULT '',
+      sort_order INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_workout_sessions_user ON workout_sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_workout_sessions_plan ON workout_sessions(plan_id);
+    CREATE INDEX IF NOT EXISTS idx_session_exercises_session ON session_exercises(session_id);
   `);
 }
 
