@@ -19,11 +19,11 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Flexora Fitnes — Global PT Marketplace & AI-Powered Fitness" },
+      { title: "Flexora Fitnes — The World's First PT Marketplace" },
       {
         name: "description",
         content:
-          "The world's first two-sided PT marketplace with AI-powered training. 3D muscle visualization, live form correction, voice guidance, and global competitions.",
+          "The world's first PT marketplace with AI-powered training. 3D muscle visualization, live form correction, voice guidance, and global competitions.",
       },
       // iOS PWA support
       { name: "apple-mobile-web-app-capable", content: "yes" },
