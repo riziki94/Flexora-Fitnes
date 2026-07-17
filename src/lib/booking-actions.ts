@@ -2,10 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { getUserFromToken } from "~/lib/auth";
 import { getDb } from "~/lib/db";
 import { PT_SESSION_PRICE, PT_REFUND_HOURS_THRESHOLD } from "~/lib/stripe";
+import { getServerRequest } from "~/lib/request-context";
 
 // --- Auth helper ---
 async function getAuthUser() {
-  const request = (globalThis as any).__request;
+  const request = getServerRequest();
   if (!request) throw new Error("No request context");
 
   let token: string | null = null;

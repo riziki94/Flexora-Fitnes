@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getDb } from "~/lib/db";
+import { getServerRequest } from "~/lib/request-context";
 
 function getUserIdFromRequest(db: any): number {
-  const request = (globalThis as any).__request;
+  const request = getServerRequest();
   if (!request) throw new Error("No request context");
 
   const authHeader = request.headers.get("authorization") || request.headers.get("cookie");

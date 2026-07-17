@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getDb } from "~/lib/db";
+import { getServerRequest } from "~/lib/request-context";
 
 // ── Auth helper ──────────────────────────────────────────
 function getTokenFromRequest(): string | null {
-  const request = (globalThis as any).__request;
+  const request = getServerRequest();
   if (!request) return null;
   const cookieHeader = request.headers.get("cookie") || "";
   const match = cookieHeader.match(/flexora_token=([^;]+)/);

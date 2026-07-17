@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getUserFromToken } from "~/lib/auth";
 import { getDb } from "~/lib/db";
+import { getServerRequest } from "~/lib/request-context";
 
 export const getCurrentUser = createServerFn()
   .handler(async () => {
-    // Read token from the request
-    const request = (globalThis as any).__request;
+    // Read token from the request via AsyncLocalStorage (TanStack Start native)
+    const request = getServerRequest();
     if (!request) return null;
 
     const authHeader = request.headers.get("authorization") || request.headers.get("cookie");

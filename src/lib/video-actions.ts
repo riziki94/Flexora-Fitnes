@@ -1,10 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getDb } from "~/lib/db";
 import { getUserFromToken } from "~/lib/auth";
+import { getServerRequest } from "~/lib/request-context";
 
 // --- Auth helper (same pattern as booking-actions) ---
 async function getAuthUser() {
-  const request = (globalThis as any).__request;
+  const request = getServerRequest();
   if (!request) throw new Error("No request context");
 
   let token: string | null = null;

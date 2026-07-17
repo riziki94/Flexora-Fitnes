@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getUserFromToken } from "~/lib/auth";
 import { getDb } from "~/lib/db";
+import { getServerRequest } from "~/lib/request-context";
 
 function getUserId(): number | null {
-  const request = (globalThis as any).__request;
+  const request = getServerRequest();
   if (!request) return null;
   const authHeader = request.headers.get("authorization") || request.headers.get("cookie");
   if (!authHeader) return null;
@@ -18,7 +19,7 @@ function getUserId(): number | null {
 }
 
 export const checkAdminAccess = createServerFn().handler(async () => {
-  const request = (globalThis as any).__request;
+  const request = getServerRequest();
   if (!request) throw new Error("No request context");
   const authHeader = request.headers.get("authorization") || request.headers.get("cookie");
   if (!authHeader) throw new Error("Unauthorized");
