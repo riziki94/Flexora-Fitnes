@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { getPtDetail } from "~/lib/booking-actions";
 import { getPtSatisfaction } from "~/lib/pt-ratings-actions";
 
 export const Route = createFileRoute("/app/pt/$id")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    welcome: (search.welcome as string) || "",
+  }),
   component: PtProfilePage,
 });
 
@@ -19,10 +22,14 @@ function PtProfilePage() {
   const [error, setError] = useState("");
   const [certLightbox, setCertLightbox] = useState<string>("");
 
+  const search = useSearch({ from: "/app/pt/$id" });
+  const showWelcome = search.welcome === "1";
+
   useEffect(() => {
     const stored = localStorage.getItem("flexora_user");
-    if (!stored) { navigate({ to: "/login" }); return; }
-    try { setUser(JSON.parse(stored)); } catch { navigate({ to: "/login" }); return; }
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch { /* ignore bad stored data */ }
+    }
 
     getPtDetail({ ptId })
       .then(setPt)
@@ -64,6 +71,8 @@ function PtProfilePage() {
     );
   }
 
+  const isLoggedIn = !!user;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur">
@@ -72,18 +81,72 @@ function PtProfilePage() {
             <span className="text-lg font-bold text-[#1A56DB]">Flexora</span>
             <span className="text-lg font-light text-gray-400">Fitnes</span>
           </a>
-          <div className="flex items-center gap-4">
-            <a href="/app/dashboard" className="text-sm text-gray-600 hover:text-[#1A56DB]">Dashboard</a>
-            <a href="/app/pt/discover" className="text-sm text-gray-600 hover:text-[#1A56DB]">Discover</a>
-            <a href="/app/bookings" className="text-sm text-gray-600 hover:text-[#1A56DB]">My Bookings</a>
-            <button onClick={handleLogout} className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200">
-              Sign Out
-            </button>
-          </div>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-4">
+              <a href="/app/dashboard" className="text-sm text-gray-600 hover:text-[#1A56DB]">Dashboard</a>
+              <a href="/app/pt/discover" className="text-sm text-gray-600 hover:text-[#1A56DB]">Discover</a>
+              <a href="/app/bookings" className="text-sm text-gray-600 hover:text-[#1A56DB]">My Bookings</a>
+              <button onClick={handleLogout} className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200">
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <a href="/app/pt/discover" className="text-sm text-gray-600 hover:text-[#1A56DB]">Discover PTs</a>
+              <a href="/login" className="text-sm text-gray-600 hover:text-[#1A56DB]">Sign In</a>
+              <a href={`/register?ref_pt=${ptId}`} className="rounded-full bg-[#1A56DB] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E40AF]">
+                Registrer deg
+              </a>
+            </div>
+          )}
         </div>
       </nav>
 
       <main className="mx-auto max-w-3xl px-6 py-8">
+        {/* Welcome banner for referral registrations */}
+        {showWelcome && (
+          <div className="mb-6 rounded-xl bg-green-50 border border-green-200 p-5">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🎉</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-green-800">
+                  Velkommen! Du er nå klar for å trene med {pt.name}.
+                </p>
+                <p className="mt-1 text-sm text-green-700">
+                  Din premium-prøveperiode er aktivert! Du har full tilgang i 30 dager.
+                </p>
+                <a
+                  href={`/app/booking/create?ptId=${ptId}`}
+                  className="mt-3 inline-block rounded-full bg-[#1A56DB] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors"
+                >
+                  Book din første time
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Referral CTA for non-logged-in visitors */}
+        {!isLoggedIn && !showWelcome && (
+          <div className="mb-6 rounded-xl bg-gradient-to-r from-[#1A56DB] to-[#3B82F6] p-5 text-white">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <p className="text-sm font-semibold">
+                  Likte du {pt.name} sin profil?
+                </p>
+                <p className="mt-1 text-xs text-blue-100">
+                  Registrer deg og få premium tilgang med 30 dagers gratis prøveperiode!
+                </p>
+              </div>
+              <a
+                href={`/register?ref_pt=${ptId}`}
+                className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#1A56DB] hover:bg-blue-50 transition-colors whitespace-nowrap"
+              >
+                Registrer deg og tren med {pt.name}
+              </a>
+            </div>
+          </div>
+        )}
         <div className="mb-8 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <div className="flex items-start gap-5">
             <Avatar src={pt.profile_picture} name={pt.name} size={64} />

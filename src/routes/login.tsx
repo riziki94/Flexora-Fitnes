@@ -5,11 +5,15 @@ import { useTranslation } from "~/lib/i18n";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    ref_pt: (search.ref_pt as string) || "",
+  }),
 });
 
 function LoginPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const search = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,7 +33,12 @@ function LoginPage() {
         // Also set as cookie via document.cookie for SSR
         document.cookie = `flexora_token=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
       }
-      navigate({ to: "/app/dashboard" });
+      // If referred by PT, redirect to PT profile
+      if (search.ref_pt) {
+        navigate({ to: `/app/pt/$id`, params: { id: search.ref_pt }, search: { welcome: "1" } });
+      } else {
+        navigate({ to: "/app/dashboard" });
+      }
     } catch (e: any) {
       setError(e.message || t("auth.loginFailed"));
     } finally {
@@ -97,7 +106,7 @@ function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             {t("auth.noAccount")}{" "}
-            <a href="/register" className="font-medium text-[#1A56DB] hover:text-[#1E40AF]">
+            <a href={`/register${search.ref_pt ? `?ref_pt=${search.ref_pt}` : ""}`} className="font-medium text-[#1A56DB] hover:text-[#1E40AF]">
               {t("auth.signUp")}
             </a>
           </p>
