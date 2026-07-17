@@ -1,0 +1,23 @@
+{
+  "name": "Flexora Fitnes",
+  "short_name": "Flexora",
+  "description": "Global PT Marketplace & AI-Powered Fitness — 3D muscle visualization, live form correction, voice guidance, and global competitions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#1A56DB",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/flexora-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}
