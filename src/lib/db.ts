@@ -85,6 +85,33 @@ function runMigrations(db: Database) {
     CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_pt_bookings_client ON pt_bookings(client_id);
     CREATE INDEX IF NOT EXISTS idx_pt_bookings_pt ON pt_bookings(pt_id);
+
+    CREATE TABLE IF NOT EXISTS plan_exercises (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      plan_id INTEGER NOT NULL REFERENCES workout_plans(id) ON DELETE CASCADE,
+      exercise_key TEXT NOT NULL,
+      exercise_name TEXT NOT NULL,
+      phase TEXT NOT NULL CHECK(phase IN ('warmup', 'main', 'stretching')),
+      day_of_week INTEGER NOT NULL DEFAULT 1 CHECK(day_of_week BETWEEN 1 AND 7),
+      sets INTEGER NOT NULL DEFAULT 3,
+      reps TEXT NOT NULL DEFAULT '10',
+      rest_seconds INTEGER NOT NULL DEFAULT 60,
+      notes TEXT DEFAULT '',
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS plan_progress (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      plan_id INTEGER NOT NULL REFERENCES workout_plans(id) ON DELETE CASCADE,
+      plan_exercise_id INTEGER NOT NULL REFERENCES plan_exercises(id) ON DELETE CASCADE,
+      completed INTEGER NOT NULL DEFAULT 0,
+      completed_at TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_plan_exercises_plan ON plan_exercises(plan_id);
+    CREATE INDEX IF NOT EXISTS idx_plan_progress_plan ON plan_progress(plan_id);
   `);
 }
 

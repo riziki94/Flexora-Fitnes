@@ -118,28 +118,41 @@ function ClientDashboard({ data }: { data: any }) {
         {data?.workouts && data.workouts.length > 0 ? (
           <div className="space-y-3">
             {data.workouts.map((w: any) => (
-              <div key={w.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+              <a
+                key={w.id}
+                href={`/app/workout/plans/${w.id}`}
+                className="flex items-center justify-between rounded-lg bg-gray-50 p-3 hover:bg-blue-50 transition-colors"
+              >
                 <div>
                   <p className="font-medium text-gray-900">{w.name}</p>
                   <p className="text-xs text-gray-500 capitalize">{w.goal.replace("_", " ")}</p>
                 </div>
                 <span className="text-xs text-gray-400">{new Date(w.created_at).toLocaleDateString()}</span>
-              </div>
+              </a>
             ))}
           </div>
         ) : (
           <div className="rounded-lg border-2 border-dashed border-gray-200 p-6 text-center">
             <p className="text-sm text-gray-500">No workout plans yet</p>
-            <button className="mt-3 rounded-full bg-[#1A56DB] px-5 py-2 text-sm font-medium text-white hover:bg-[#1E40AF]">
+            <a
+              href="/app/workout/plans/create"
+              className="mt-3 inline-block rounded-full bg-[#1A56DB] px-5 py-2 text-sm font-medium text-white hover:bg-[#1E40AF]"
+            >
               Create Your First Plan
-            </button>
+            </a>
           </div>
         )}
+        <div className="mt-3">
+          <a href="/app/workout/plans" className="text-sm font-medium text-[#1A56DB] hover:underline">
+            View All Plans →
+          </a>
+        </div>
       </DashboardCard>
 
       {/* Quick Actions */}
       <DashboardCard title="Quick Actions">
         <div className="space-y-2">
+          <ActionLink href="/app/workout/plans/create">Create Workout Plan</ActionLink>
           <ActionLink href="/app/profile">Edit Profile</ActionLink>
           <ActionLink href="/#pricing">Upgrade Plan</ActionLink>
           <ActionLink href="/app/dashboard">Browse PTs</ActionLink>
