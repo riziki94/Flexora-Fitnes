@@ -1,16 +1,47 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { getDashboardData } from "~/lib/user-actions";
+import { getDashboardData, updateProfilePicture } from "~/lib/user-actions";
+import Avatar from "~/components/Avatar";
 
 export const Route = createFileRoute("/app/profile")({
   component: ProfilePage,
 });
+
+const MAX_SIZE = 512;
+
+function resizeImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      // Scale down to max 512x512 maintaining aspect ratio
+      if (width > MAX_SIZE || height > MAX_SIZE) {
+        const ratio = Math.min(MAX_SIZE / width, MAX_SIZE / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => reject(new Error("Failed to load image"));
+    img.src = URL.createObjectURL(file);
+  });
+}
 
 function ProfilePage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [profilePic, setProfilePic] = useState<string>("");
+  const [previewPic, setPreviewPic] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadMsg, setUploadMsg] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("flexora_user");
@@ -19,12 +50,66 @@ function ProfilePage() {
       return;
     }
     try {
-      setUser(JSON.parse(stored));
-      getDashboardData().then(setData).catch(console.error).finally(() => setLoading(false));
+      const parsedUser = JSON.parse(stored);
+      setUser(parsedUser);
+      getDashboardData().then((d) => {
+        setData(d);
+        // Check if user has a profile picture in the returned data
+        const pic = d?.user?.profile_picture || "";
+        setProfilePic(pic);
+      }).catch(console.error).finally(() => setLoading(false));
     } catch {
       navigate({ to: "/login" });
     }
   }, []);
+
+  function handleAvatarClick() {
+    fileInputRef.current?.click();
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Validate type
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setUploadMsg("Please select a JPG, PNG, or WebP image.");
+      return;
+    }
+    try {
+      const resized = await resizeImage(file);
+      setPreviewPic(resized);
+      setUploadMsg("");
+    } catch {
+      setUploadMsg("Failed to process image.");
+    }
+  }
+
+  async function handleSave() {
+    if (!previewPic) return;
+    setUploading(true);
+    setUploadMsg("");
+    try {
+      await updateProfilePicture({ imageDataUrl: previewPic });
+      setProfilePic(previewPic);
+      setPreviewPic("");
+      // Update localStorage as well
+      const stored = localStorage.getItem("flexora_user");
+      if (stored) {
+        const u = JSON.parse(stored);
+        u.profile_picture = previewPic;
+        localStorage.setItem("flexora_user", JSON.stringify(u));
+      }
+      setUploadMsg("Profile picture updated!");
+    } catch (e: any) {
+      setUploadMsg(e.message || "Failed to upload.");
+    }
+    setUploading(false);
+  }
+
+  function handleCancel() {
+    setPreviewPic("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
   function handleLogout() {
     localStorage.removeItem("flexora_token");
@@ -68,6 +153,64 @@ function ProfilePage() {
         <h1 className="mb-8 text-2xl font-bold text-gray-900">My Profile</h1>
 
         <div className="space-y-6">
+          {/* Avatar Section */}
+          <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">Profile Picture</h2>
+            <div className="flex items-center gap-6">
+              <div
+                className="relative cursor-pointer group"
+                onClick={handleAvatarClick}
+                title="Click to change profile picture"
+              >
+                <Avatar
+                  src={previewPic || profilePic}
+                  name={user?.name || ""}
+                  size={96}
+                />
+                <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                  <span className="text-white opacity-0 group-hover:opacity-100 text-xs font-medium transition-opacity">
+                    Change
+                  </span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-gray-700 font-medium">{user?.name}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Click the avatar to upload a new picture. JPG, PNG, or WebP. Max 512×512.
+                </p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                {previewPic && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <button
+                      onClick={handleSave}
+                      disabled={uploading}
+                      className="rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E40AF] disabled:opacity-50 transition-colors"
+                    >
+                      {uploading ? "Saving..." : "Save Picture"}
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+                {uploadMsg && (
+                  <p className={`mt-2 text-xs ${uploadMsg.includes("updated") ? "text-green-600" : "text-red-500"}`}>
+                    {uploadMsg}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Basic Info */}
           <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
             <h2 className="mb-4 text-lg font-semibold text-gray-900">Basic Information</h2>

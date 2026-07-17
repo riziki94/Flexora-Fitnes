@@ -80,6 +80,7 @@ export async function getUserFromToken(token: string): Promise<{
   email: string;
   role: string;
   name: string;
+  profile_picture?: string;
 } | null> {
   const payload = await verifyToken(token);
   if (!payload || !payload.userId) return null;
@@ -89,11 +90,12 @@ export async function getUserFromToken(token: string): Promise<{
   const session = db.query("SELECT user_id FROM sessions WHERE token = ? AND expires_at > datetime('now')").get(token) as { user_id: number } | undefined;
   if (!session) return null;
 
-  const user = db.query("SELECT id, email, role, name FROM users WHERE id = ?").get(session.user_id) as {
+  const user = db.query("SELECT id, email, role, name, profile_picture FROM users WHERE id = ?").get(session.user_id) as {
     id: number;
     email: string;
     role: string;
     name: string;
+    profile_picture: string;
   } | undefined;
 
   return user || null;

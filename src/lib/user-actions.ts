@@ -70,3 +70,24 @@ export const getDashboardData = createServerFn()
 
     return { user, workouts, subscription };
   });
+
+export const updateProfilePicture = createServerFn()
+  .validator((data: { imageDataUrl: string }) => data)
+  .handler(async ({ data }) => {
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Unauthorized");
+
+    // Validate it's a reasonable base64 data URL (max ~400KB after base64 => ~512KB limit)
+    if (!data.imageDataUrl || !data.imageDataUrl.startsWith("data:image/")) {
+      throw new Error("Invalid image data");
+    }
+    if (data.imageDataUrl.length > 700_000) {
+      throw new Error("Image too large — max 512KB");
+    }
+
+    const db = getDb();
+    db.query("UPDATE users SET profile_picture = ? WHERE id = ?")
+      .run(data.imageDataUrl, user.id);
+
+    return { success: true };
+  });

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getMyBookings, cancelBooking, cancelBookingClient, markNoShow, getRefundInfo } from "~/lib/booking-actions";
 import { ratePtSession, hasUserRatedBooking } from "~/lib/pt-ratings-actions";
+import Avatar from "~/components/Avatar";
 import { PT_PREPAYMENT_POLICY, PT_REFUND_HOURS_THRESHOLD, PT_SESSION_PRICE } from "~/lib/stripe";
 
 export const Route = createFileRoute("/app/bookings/")({
@@ -369,6 +370,7 @@ function MyBookingsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
+                        <Avatar src={b.client_profile_picture || b.pt_profile_picture} name={isPt ? b.client_name : b.pt_name} size={32} />
                         <h3 className="font-semibold text-gray-900">
                           {isPt ? b.client_name : b.pt_name}
                         </h3>

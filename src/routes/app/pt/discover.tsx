@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { searchPTs, getAvailableCountries, getAvailableSpecialties } from "~/lib/booking-actions";
+import Avatar from "~/components/Avatar";
 
 export const Route = createFileRoute("/app/pt/discover")({
   component: PtDiscoverPage,
@@ -180,9 +181,7 @@ function PtDiscoverPage() {
               <div key={pt.id} className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 hover:shadow-md transition-shadow">
                 {/* Avatar */}
                 <div className="mb-4 flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A56DB]/10 text-lg font-bold text-[#1A56DB]">
-                    {pt.name?.charAt(0)?.toUpperCase() || "P"}
-                  </div>
+                  <Avatar src={pt.profile_picture} name={pt.name} size={48} />
                   <div>
                     <h3 className="font-semibold text-gray-900">{pt.name}</h3>
                     <p className="text-xs text-gray-500">{pt.country}</p>

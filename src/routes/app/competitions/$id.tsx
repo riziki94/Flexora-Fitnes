@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
+import Avatar from "~/components/Avatar";
 import {
   getCompetitionDetail,
   joinCompetition,
@@ -398,9 +399,7 @@ function CompetitionDetailPage() {
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {participants.map((p: any) => (
                     <div key={p.id} className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                        {p.name.charAt(0).toUpperCase()}
-                      </div>
+                      <Avatar src={p.profile_picture} name={p.name} size={24} />
                       <span className="text-gray-700 truncate">{p.name}</span>
                       {p.score > 0 && (
                         <span className="ml-auto text-xs font-medium text-[#1A56DB]">{p.score}</span>

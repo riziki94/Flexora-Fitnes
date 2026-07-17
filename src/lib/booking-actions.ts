@@ -220,7 +220,7 @@ export const getMyBookings = createServerFn()
 
     if (user.role === "pt") {
       const bookings = db.query(`
-        SELECT pb.*, u.name as client_name, u.email as client_email
+        SELECT pb.*, u.name as client_name, u.email as client_email, u.profile_picture as client_profile_picture
         FROM pt_bookings pb
         JOIN users u ON pb.client_id = u.id
         WHERE pb.pt_id = ?
@@ -250,7 +250,7 @@ export const getMyBookings = createServerFn()
 
     // Client view
     const bookings = db.query(`
-      SELECT pb.*, u.name as pt_name, u.country as pt_country
+      SELECT pb.*, u.name as pt_name, u.country as pt_country, u.profile_picture as pt_profile_picture
       FROM pt_bookings pb
       JOIN users u ON pb.pt_id = u.id
       WHERE pb.client_id = ?
