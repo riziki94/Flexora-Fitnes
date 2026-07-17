@@ -232,15 +232,114 @@ function runMigrations(db: Database) {
     CREATE INDEX IF NOT EXISTS idx_speed_date_slots_status ON speed_date_slots(status);
     CREATE INDEX IF NOT EXISTS idx_reviews_pt ON reviews(pt_id);
     CREATE INDEX IF NOT EXISTS idx_reviews_booking ON reviews(booking_id);
-  `);
 
-  // Add new columns to existing tables if they don't exist (safe ALTER)
+    -- Competitions & Leaderboard tables
+    CREATE TABLE IF NOT EXISTS competitions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      creator_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      type TEXT NOT NULL CHECK(type IN ('reps','duration','consistency','weight_loss')),
+      start_date TEXT NOT NULL,
+      end_date TEXT NOT NULL,
+      prize TEXT NOT NULL DEFAULT '',
+      country_scope TEXT NOT NULL DEFAULT 'global' CHECK(country_scope IN ('my_country','global')),
+      max_participants INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'upcoming' CHECK(status IN ('upcoming','active','ended')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS competition_participants (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      competition_id INTEGER NOT NULL REFERENCES competitions(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      score INTEGER NOT NULL DEFAULT 0,
+      joined_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(competition_id, user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS user_points (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+      points INTEGER NOT NULL DEFAULT 0,
+      workouts_completed INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS competition_activity (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      competition_id INTEGER NOT NULL REFERENCES competitions(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      activity_type TEXT NOT NULL DEFAULT 'entry' CHECK(activity_type IN ('entry','join','score_update')),
+      description TEXT NOT NULL DEFAULT '',
+      score_delta INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_competitions_status ON competitions(status);
+    CREATE INDEX IF NOT EXISTS idx_competitions_type ON competitions(type);
+    CREATE INDEX IF NOT EXISTS idx_competition_participants_comp ON competition_participants(competition_id);
+    CREATE INDEX IF NOT EXISTS idx_competition_participants_user ON competition_participants(user_id);
+    CREATE INDEX IF NOT EXISTS idx_user_points_user ON user_points(user_id);
+    CREATE INDEX IF NOT EXISTS idx_user_points_rank ON user_points(points DESC);
+    CREATE INDEX IF NOT EXISTS idx_competition_activity_comp ON competition_activity(competition_id);
+    `);
+
+    // Add new columns to existing tables if they don't exist (safe ALTER)
   try { db.exec("ALTER TABLE pt_bookings ADD COLUMN session_type TEXT NOT NULL DEFAULT '60min'"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_bookings ADD COLUMN price REAL NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_bookings ADD COLUMN cancellation_status TEXT NOT NULL DEFAULT 'none' CHECK(cancellation_status IN ('none','pt_cancelled','client_no_show','client_cancelled'))"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN specialties TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN hourly_rate REAL NOT NULL DEFAULT 500"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN speed_date_enabled INTEGER NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }
+
+  // Seed competition data (idempotent) — run inline to avoid circular imports
+  try {
+    const count = (db.query("SELECT COUNT(*) as cnt FROM competitions").get() as any)?.cnt || 0;
+    if (count === 0) {
+      const admin = db.query("SELECT id FROM users LIMIT 1").get() as any;
+      const creatorId = admin ? admin.id : 1;
+      const now = new Date();
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const in2days = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const in10days = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const in30days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const in60days = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+      const comps = [
+        ["Summer Shred Challenge 2026", "Push your limits this summer! Compete for the most reps across all exercises. Winner gets bragging rights and a featured profile!", "reps", yesterday, in30days, "$200 Gift Card + 1 Year Premium Membership", "global", 100, "active"],
+        ["Consistency King July", "Show up every day. The athlete with the most consecutive workout days wins. Miss a day and your streak resets!", "consistency", yesterday, in30days, "$100 Gift Card + Trophy Badge", "global", 0, "active"],
+        ["Weekly Weight Loss Sprint", "A fast-paced weight loss challenge. Highest percentage of body weight lost in 2 weeks wins.", "weight_loss", in2days, in10days, "Premium Membership (6 months) + Nutrition Guide", "global", 50, "active"],
+        ["Endurance Marathon", "Who can log the most workout minutes this month? Every session counts — cardio, strength, stretching.", "duration", in2days, in60days, "Gold Trophy Badge + Flexora Merch Pack", "global", 200, "upcoming"],
+        ["Nordic Strength Showdown", "A country-exclusive competition for Nordic athletes. Compete with your fellow countrymen!", "reps", in2days, in30days, "Regional Champion Badge + Spa Weekend Voucher", "my_country", 50, "upcoming"],
+        ["April Abs Challenge (Ended)", "This competition has concluded. Congratulations to all participants!", "consistency", "2026-04-01", "2026-04-30", "Premium Membership (3 months)", "global", 150, "ended"],
+      ];
+
+      for (const c of comps) {
+        db.query(
+          `INSERT INTO competitions (creator_id, name, description, type, start_date, end_date, prize, country_scope, max_participants, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
+        ).run(creatorId, c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8]);
+      }
+
+      // Seed user points
+      const users = db.query("SELECT id FROM users LIMIT 20").all() as any[];
+      for (let i = 0; i < users.length; i++) {
+        const pts = Math.floor(Math.random() * 5000) + 500;
+        const wko = Math.floor(pts / 50) + Math.floor(Math.random() * 20);
+        db.query("INSERT OR IGNORE INTO user_points (user_id, points, workouts_completed) VALUES (?, ?, ?)").run(users[i].id, pts, wko);
+      }
+
+      // Seed participants for competition 1
+      if (users.length > 0) {
+        for (let i = 0; i < Math.min(users.length, 15); i++) {
+          const score = Math.floor(Math.random() * 1000) + 100;
+          db.query("INSERT OR IGNORE INTO competition_participants (competition_id, user_id, score) VALUES (1, ?, ?)").run(users[i].id, score);
+          db.query("INSERT INTO competition_activity (competition_id, user_id, activity_type, description, score_delta) VALUES (1, ?, 'join', (SELECT name FROM users WHERE id = ?) || ' joined the competition', 0)").run(users[i].id, users[i].id);
+        }
+      }
+    }
+  } catch (_) { /* seed is best-effort */ }
 }
 
 export function closeDb() {
