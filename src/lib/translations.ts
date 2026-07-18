@@ -1,7 +1,7 @@
 export type Language = "en" | "no" | "es" | "fr" | "de" | "ar" | "zh";
 
 export const languages: { code: Language; flag: string; label: string; nativeLabel: string }[] = [
-  { code: "en", flag: "🇬🇧", label: "English", nativeLabel: "English" },
+  { code: "en", flag: "🇺🇸", label: "English", nativeLabel: "English" },
   { code: "no", flag: "🇳🇴", label: "Norwegian", nativeLabel: "Norsk" },
   { code: "es", flag: "🇪🇸", label: "Spanish", nativeLabel: "Español" },
   { code: "fr", flag: "🇫🇷", label: "French", nativeLabel: "Français" },
