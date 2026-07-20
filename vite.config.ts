@@ -13,6 +13,13 @@ export default defineConfig({
     // rejects a proxied request with "Blocked request".
     allowedHosts: true,
   },
+  ssr: {
+    // leaflet and react-leaflet reference browser globals (window, document).
+    // They must always be external during SSR — never bundled in server chunks.
+    // The routes that use them wrap in ClientOnly + lazy() so they only load
+    // client-side, but externalising here is belt-and-suspenders.
+    external: ["leaflet", "react-leaflet"],
+  },
   plugins: [
     tailwindcss(),
     tsConfigPaths({

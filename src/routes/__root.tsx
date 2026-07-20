@@ -1,76 +1,41 @@
 import {
   HeadContent,
+  Link,
   Outlet,
   Scripts,
   createRootRoute,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import ChatWidget from "~/components/ChatWidget";
-import { I18nProvider } from "~/lib/i18n";
+import { useEffect, useState } from "react";
+import { AuthProvider, useAuth } from "~/lib/auth";
+import { getProfile, SUBSCRIPTION_TIERS, type Profile } from "~/lib/subscription";
 
+import ChatWidget from "~/components/ChatWidget";
 import appCss from "~/styles/app.css?url";
-import favicon16 from "~/assets/favicon-16.png";
-import favicon32 from "~/assets/favicon-32.png";
-import faviconSvg from "~/assets/favicon.svg";
-import faviconIco from "~/assets/favicon.ico";
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Flexora Fitnes — The World's First PT Marketplace" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
       {
-        name: "description",
-        content:
-          "The world's first PT marketplace with AI-powered training. 3D muscle visualization, live form correction, voice guidance, and global competitions.",
+        title:
+          "Kitozon — Sustainable Container Homes & Environmental Monitoring",
       },
-      // iOS PWA support
+      // PWA / theme
+      { name: "theme-color", content: "#059669" },
+      { name: "description", content: "Sustainable Container Homes & Environmental Monitoring" },
+      // iOS / Safari
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "Flexora" },
-      { name: "theme-color", content: "#1A56DB" },
-      // Apple Smart App Banner (set app-id when iOS app is published)
-      { name: "apple-itunes-app", content: "app-id=PLACEHOLDER_APP_ID" },
+      { name: "apple-mobile-web-app-title", content: "Kitozon" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/svg+xml", href: faviconSvg },
-      { rel: "icon", type: "image/png", sizes: "16x16", href: favicon16 },
-      { rel: "icon", type: "image/png", sizes: "32x32", href: favicon32 },
-      { rel: "shortcut icon", href: faviconIco },
-      // PWA manifest
+      // PWA
       { rel: "manifest", href: "/manifest.json" },
-      // iOS apple-touch-icon
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
-      // iOS splash screen link tags for all iPhone/iPad sizes
-      // iPhone SE / iPod Touch (640x1136)
-      { rel: "apple-touch-startup-image", media: "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
-      // iPhone 6/7/8 (750x1334)
-      { rel: "apple-touch-startup-image", media: "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
-      // iPhone 6+/7+/8+ (1242x2208)
-      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
-      // iPhone X / XS (1125x2436)
-      { rel: "apple-touch-startup-image", media: "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
-      // iPhone XR / 11 (828x1792)
-      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
-      // iPhone XS Max / 11 Pro Max (1242x2688)
-      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
-      // iPhone 12/13/14 (1170x2532)
-      { rel: "apple-touch-startup-image", media: "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
-      // iPhone 12/13/14 Pro Max (1284x2778)
-      { rel: "apple-touch-startup-image", media: "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
-      // iPhone 14 Pro (1179x2556)
-      { rel: "apple-touch-startup-image", media: "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
-      // iPad Mini / Air (1536x2048)
-      { rel: "apple-touch-startup-image", media: "(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
-      // iPad Pro 10.5" (1668x2224)
-      { rel: "apple-touch-startup-image", media: "(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
-      // iPad Pro 11" (1668x2388)
-      { rel: "apple-touch-startup-image", media: "(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
-      // iPad Pro 12.9" (2048x2732)
-      { rel: "apple-touch-startup-image", media: "(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
+      { rel: "icon", href: "/favicon.ico", sizes: "32x32" },
+      { rel: "apple-touch-icon", href: "/icons/icon-192.png" },
     ],
   }),
   notFoundComponent: () => <div>Page not found</div>,
@@ -79,11 +44,247 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <I18nProvider>
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
-    </I18nProvider>
+    <RootDocument>
+      <AuthProvider>
+        <AppShell />
+      </AuthProvider>
+    </RootDocument>
+  );
+}
+
+function AppShell() {
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+      <Footer />
+      <ChatWidget />
+    </>
+  );
+}
+
+function Navbar() {
+  const { user, signOut } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      getProfile({ data: { userId: user.id } })
+        .then(setProfile)
+        .catch(() => setProfile(null));
+    } else {
+      setProfile(null);
+    }
+  }, [user]);
+
+  const linkClass =
+    "text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200";
+  const activeLinkClass = "text-emerald-600 font-semibold";
+
+  const handleSignOut = async () => {
+    await signOut();
+    setMobileOpen(false);
+  };
+
+  const tierKey = (profile?.subscription_tier || "").toLowerCase();
+  const tierInfo =
+    tierKey && SUBSCRIPTION_TIERS[tierKey as keyof typeof SUBSCRIPTION_TIERS]
+      ? SUBSCRIPTION_TIERS[tierKey as keyof typeof SUBSCRIPTION_TIERS]
+      : null;
+
+  const tierBadgeColors: Record<string, string> = {
+    blue: "bg-blue-100 text-blue-700",
+    emerald: "bg-emerald-100 text-emerald-700",
+    purple: "bg-purple-100 text-purple-700",
+  };
+
+  return (
+    <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-sm pt-safe">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 font-bold text-xl text-gray-900 hover:text-emerald-600 transition-colors"
+          >
+            <img src="/images/logo-original.png" alt="Kitozon" className="h-16 w-auto object-contain" />
+          </Link>
+
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-8">
+            <Link
+              to="/zongosol"
+              className={linkClass}
+              activeProps={{ className: activeLinkClass }}
+            >
+              Zongosol
+            </Link>
+            <Link
+              to="/kitoslight"
+              className={linkClass}
+              activeProps={{ className: activeLinkClass }}
+            >
+              Kitoslight
+            </Link>
+            <Link
+              to="/pricing"
+              className={linkClass}
+              activeProps={{ className: activeLinkClass }}
+            >
+              Priser
+            </Link>
+            {/* Auth area */}
+            {user ? (
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/account"
+                  className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors"
+                >
+                  {user.user_metadata?.full_name ||
+                    user.email?.split("@")[0] ||
+                    "User"}
+                  {tierInfo && (
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${tierBadgeColors[tierInfo.color] || "bg-gray-100 text-gray-700"}`}
+                    >
+                      {tierInfo.name}
+                    </span>
+                  )}
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors duration-200"
+              >
+                Login
+              </Link>
+            )}
+          </div>
+
+          {/* Mobile hamburger — min 44x44 tap target */}
+          <button
+            className="md:hidden rounded-lg p-3 text-gray-600 hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
+          >
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {mobileOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile menu — slide-down animation */}
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            mobileOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="border-t border-gray-100 py-3 flex flex-col gap-1 pb-4 pb-safe">
+            <Link
+              to="/zongosol"
+              className={linkClass + " px-3 py-3 rounded-lg hover:bg-gray-50 min-h-[44px] flex items-center"}
+              onClick={() => setMobileOpen(false)}
+            >
+              Zongosol
+            </Link>
+            <Link
+              to="/kitoslight"
+              className={linkClass + " px-3 py-3 rounded-lg hover:bg-gray-50 min-h-[44px] flex items-center"}
+              onClick={() => setMobileOpen(false)}
+            >
+              Kitoslight
+            </Link>
+            <Link
+              to="/pricing"
+              className={linkClass + " px-3 py-3 rounded-lg hover:bg-gray-50 min-h-[44px] flex items-center"}
+              onClick={() => setMobileOpen(false)}
+            >
+              Priser
+            </Link>
+
+            <hr className="border-gray-100 my-1" />
+
+            {user ? (
+              <>
+                <Link
+                  to="/account"
+                  className="px-3 py-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-gray-50 rounded-lg min-h-[44px] flex items-center gap-2"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Account
+                  {tierInfo && (
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${tierBadgeColors[tierInfo.color] || "bg-gray-100 text-gray-700"}`}
+                    >
+                      {tierInfo.name}
+                    </span>
+                  )}
+                </Link>
+                <div className="px-3 py-2 text-sm font-medium text-gray-500">
+                  {user.user_metadata?.full_name ||
+                    user.email?.split("@")[0] ||
+                    "User"}
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 text-center min-h-[44px]"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 text-center min-h-[44px] flex items-center justify-center"
+                onClick={() => setMobileOpen(false)}
+              >
+                Login
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-gray-100 bg-gray-50 py-8 mt-auto pb-safe">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+        <p>
+          &copy; {new Date().getFullYear()} Kitozon. All rights reserved.
+        </p>
+      </div>
+    </footer>
   );
 }
 
@@ -93,32 +294,19 @@ function RootDocument({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="flex min-h-dvh flex-col">
         {children}
-        <ChatWidget />
         <Scripts />
-        {/* Service Worker registration for PWA */}
+        {/* Register service worker for PWA offline support */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(function(reg) {
-                    console.log('SW registered:', reg.scope);
-                    // Listen for updates
-                    reg.addEventListener('updatefound', function() {
-                      var newWorker = reg.installing;
-                      if (newWorker) {
-                        newWorker.addEventListener('statechange', function() {
-                          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('New SW available — refresh to update');
-                          }
-                        });
-                      }
-                    });
-                  }).catch(function(err) {
-                    console.log('SW registration failed:', err);
-                  });
+                  navigator.serviceWorker.register('/sw.js').then(
+                    function(reg) { console.log('SW registered:', reg.scope); },
+                    function(err) { console.log('SW registration failed:', err); }
+                  );
                 });
               }
             `,

@@ -1,180 +1,112 @@
-// Flexora Fitnes Service Worker — cache-first for app shell, network-first for data
-const CACHE_NAME = 'flexora-v2';
-const STATIC_CACHE = 'flexora-static-v2';
-const IMAGE_CACHE = 'flexora-images-v2';
+// Kitozon Service Worker
+// Cache-first for static assets, network-first for API calls
 
-// App shell assets to precache on install
-const APP_SHELL = [
-  '/',
-  '/manifest.json',
-];
-
-// Static assets that rarely change (versioned by cache name)
+const CACHE_NAME = "kitozon-v1";
 const STATIC_ASSETS = [
-  '/flexora-icon-48.png',
-  '/flexora-icon-72.png',
-  '/flexora-icon-96.png',
-  '/flexora-icon-144.png',
-  '/flexora-icon-168.png',
-  '/flexora-icon-192.png',
-  '/flexora-icon-512.png',
-  '/favicon-32.png',
+  "/",
+  "/manifest.json",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/icon-maskable.png",
 ];
 
-// Install: precache the app shell and static assets
-self.addEventListener('install', (event) => {
+// Install: pre-cache the app shell
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    Promise.all([
-      caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
-      caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)),
-    ]).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(STATIC_ASSETS);
+    })
   );
+  // Activate immediately
+  self.skipWaiting();
 });
 
-// Activate: clean old caches
-self.addEventListener('activate', (event) => {
-  const validCaches = [CACHE_NAME, STATIC_CACHE, IMAGE_CACHE];
+// Activate: clean up old caches
+self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => !validCaches.includes(key)).map((key) => caches.delete(key))
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       );
-    }).then(() => self.clients.claim())
+    })
   );
+  // Take control of all clients immediately
+  self.clients.claim();
 });
 
-// Helper: is an image request?
-function isImage(url) {
-  return /\.(png|jpg|jpeg|gif|svg|webp|ico)(\?|$)/i.test(url.pathname);
-}
-
-// Helper: is a navigation request?
-function isNavigation(request) {
-  return request.mode === 'navigate';
-}
-
-// Helper: is an API request?
-function isApi(url) {
-  return url.pathname.startsWith('/api/');
-}
-
-// Fetch: strategy varies by resource type
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
+// Fetch: cache-first for static, network-first for dynamic/API
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  const isApiCall =
+    url.pathname.startsWith("/api/") ||
+    url.pathname.includes("supabase") ||
+    url.pathname.startsWith("/_server/");
 
   // Skip non-GET requests
-  if (request.method !== 'GET') return;
+  if (event.request.method !== "GET") return;
 
-  // API requests: network-first, no caching
-  if (isApi(url)) {
-    return;
-    // Let these go straight to network — they're dynamic
+  if (isApiCall) {
+    // Network-first for API calls
+    event.respondWith(networkFirst(event.request));
+  } else if (url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|webp|svg|ico|woff|woff2|ttf|eot)$/)) {
+    // Cache-first for static assets
+    event.respondWith(cacheFirst(event.request));
+  } else {
+    // Network-first for navigation/document requests
+    event.respondWith(networkFirst(event.request));
   }
+});
 
-  // Image requests: cache-first with network fallback
-  if (isImage(url)) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
 
-        return fetch(request).then((response) => {
-          if (!response || response.status !== 200 || response.type === 'opaque') {
-            return response;
-          }
-
-          const clone = response.clone();
-          caches.open(IMAGE_CACHE).then((cache) => {
-            cache.put(request, clone);
-          });
-
-          return response;
-        }).catch(() => {
-          // Return a placeholder or just fail gracefully
-          return new Response('', { status: 503, statusText: 'Offline' });
-        });
-      })
-    );
-    return;
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    // If it's an image, return a placeholder
+    if (request.destination === "image") {
+      return new Response(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#e5e7eb" width="200" height="200"/><text x="100" y="105" text-anchor="middle" fill="#9ca3af" font-size="20">Offline</text></svg>',
+        { headers: { "Content-Type": "image/svg+xml" } }
+      );
+    }
+    return new Response("Offline", { status: 503 });
   }
+}
 
-  // Navigation requests: network-first, fallback to cached shell
-  if (isNavigation(request)) {
-    event.respondWith(
-      fetch(request).then((response) => {
-        if (response && response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, clone);
-          });
-          return response;
+async function networkFirst(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+
+    // If this is a navigation request, return the offline page
+    if (request.mode === "navigate") {
+      const offlineCache = await caches.match("/offline");
+      if (offlineCache) return offlineCache;
+
+      // Fallback offline HTML
+      return new Response(
+        `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kitozon — Offline</title><style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;color:#111827}main{text-align:center;padding:2rem}.logo{width:80px;height:80px;background:#059669;border-radius:20px;display:flex;align-items:center;justify-content:center;color:white;font-size:40px;font-weight:bold;margin:0 auto 1.5rem}h1{font-size:1.5rem;margin-bottom:.5rem}p{color:#6b7280;margin-bottom:1.5rem}button{background:#059669;color:white;border:none;padding:12px 32px;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer}button:hover{background:#047857}</style></head><body><main><div class="logo">K</div><h1>You're offline</h1><p>Please check your internet connection and try again.</p><button onclick="location.reload()">Retry</button></main></body></html>`,
+        {
+          status: 200,
+          headers: { "Content-Type": "text/html" },
         }
-        return caches.match(request);
-      }).catch(() => {
-        return caches.match(request).then((cached) => {
-          return cached || caches.match('/');
-        });
-      })
-    );
-    return;
+      );
+    }
+
+    return new Response("Offline", { status: 503 });
   }
-
-  // Everything else (JS, CSS, fonts): cache-first with network update
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      const fetchPromise = fetch(request).then((response) => {
-        if (response && response.status === 200 && response.type !== 'opaque') {
-          const clone = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => {
-            cache.put(request, clone);
-          });
-        }
-        return response;
-      }).catch(() => cached);
-
-      return cached || fetchPromise;
-    })
-  );
-});
-
-// Background sync for offline form submissions (future use)
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-offline-data') {
-    event.waitUntil(
-      // Process any queued offline actions
-      Promise.resolve()
-    );
-  }
-});
-
-// Push notification support (future use)
-self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
-  const title = data.title || 'Flexora Fitnes';
-  const options = {
-    body: data.body || 'Your workout is ready!',
-    icon: '/flexora-icon-192.png',
-    badge: '/flexora-icon-72.png',
-    data: data.url || '/',
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url === event.notification.data && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(event.notification.data || '/');
-      }
-    })
-  );
-});
+}
