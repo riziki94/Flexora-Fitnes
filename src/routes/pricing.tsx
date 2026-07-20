@@ -1,0 +1,361 @@
+import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { SUBSCRIPTION_TIERS, type TierKey, type BillingOption } from "~/lib/subscription";
+import { formatPrice } from "~/lib/currency";
+
+type BillingMode = "oneTime" | "monthly" | "annual";
+
+export const Route = createFileRoute("/pricing")({
+  component: PricingPage,
+});
+
+const TIER_ORDER: TierKey[] = ["kitoslight", "zongosol", "dashboard"];
+
+const TIER_DESCRIPTIONS: Record<TierKey, string> = {
+  kitoslight:
+    "Sanntids miljøovervåking med kartvisualisering, CO₂- og gassmåling, energiproduksjon og IP-enhetsintegrasjon.",
+  zongosol:
+    "Komplett containerbolig-designverktøy med 3D-visualisering, skreddersydde romløsninger, materialvalg og bestilling.",
+  dashboard:
+    "Fullt admin-dashbord med IP-integrasjon av alle enheter, sanntidsdata, ESG-rapportgenerering og team-administrasjon.",
+};
+
+const TIER_COLORS: Record<
+  TierKey,
+  {
+    bg: string;
+    text: string;
+    btn: string;
+    border: string;
+    accent: string;
+    badge: string;
+    ring: string;
+    gradient: string;
+  }
+> = {
+  kitoslight: {
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    btn: "bg-blue-600 hover:bg-blue-700",
+    border: "border-blue-200",
+    accent: "bg-blue-600",
+    badge: "bg-blue-100 text-blue-700",
+    ring: "ring-blue-500",
+    gradient: "from-blue-500 to-sky-400",
+  },
+  zongosol: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    btn: "bg-emerald-600 hover:bg-emerald-700",
+    border: "border-emerald-300",
+    accent: "bg-emerald-600",
+    badge: "bg-emerald-100 text-emerald-700",
+    ring: "ring-emerald-500",
+    gradient: "from-emerald-500 to-green-400",
+  },
+  dashboard: {
+    bg: "bg-purple-50",
+    text: "text-purple-700",
+    btn: "bg-purple-600 hover:bg-purple-700",
+    border: "border-purple-200",
+    accent: "bg-purple-600",
+    badge: "bg-purple-100 text-purple-700",
+    ring: "ring-purple-500",
+    gradient: "from-purple-500 to-indigo-400",
+  },
+};
+
+function PricingPage() {
+  const [billingMode, setBillingMode] = useState<BillingMode>("monthly");
+  return (
+    <main className="flex-1 bg-gradient-to-b from-slate-50 to-white min-h-screen">
+      {/* Header */}
+      <section className="bg-white border-b border-gray-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 mb-6">
+            <svg
+              className="h-8 w-8 text-emerald-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            Priser og abonnement
+          </h1>
+          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+            Velg produktet og betalingsmodellen som passer deg. Betaling skjer
+            sikkert via Stripe — engangsbetaling eller abonnement.
+          </p>
+        </div>
+      </section>
+
+      {/* Pricing Cards */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+        {/* Billing Toggle */}
+        <div className="flex justify-center mb-12">
+          <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+            <button
+              onClick={() => setBillingMode("oneTime")}
+              className={`rounded-lg px-6 py-3 text-sm font-semibold transition-all ${
+                billingMode === "oneTime"
+                  ? "bg-emerald-600 text-white shadow-md"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Engangsbetaling
+            </button>
+            <button
+              onClick={() => setBillingMode("monthly")}
+              className={`rounded-lg px-6 py-3 text-sm font-semibold transition-all ${
+                billingMode === "monthly"
+                  ? "bg-emerald-600 text-white shadow-md"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Månedlig
+            </button>
+            <button
+              onClick={() => setBillingMode("annual")}
+              className={`rounded-lg px-6 py-3 text-sm font-semibold transition-all ${
+                billingMode === "annual"
+                  ? "bg-emerald-600 text-white shadow-md"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Årlig (spar 15%)
+            </button>
+          </div>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-3">
+          {TIER_ORDER.map((tierKey) => {
+            const tier = SUBSCRIPTION_TIERS[tierKey];
+            const isPopular = tierKey === "zongosol";
+            const colors = TIER_COLORS[tierKey];
+            const billing = tier.billingOptions;
+
+            // Get active billing for CTA (Dashboard only has monthly)
+            const activeBilling: BillingOption | undefined =
+              billingMode === "oneTime"
+                ? billing.oneTime
+                : billingMode === "annual"
+                  ? billing.annual
+                  : billing.monthly;
+            const active = activeBilling ?? billing.monthly;
+
+            return (
+              <div
+                key={tierKey}
+                className={`relative rounded-2xl border-2 ${
+                  isPopular
+                    ? "border-emerald-400 ring-4 ring-emerald-200 shadow-xl shadow-emerald-100 scale-[1.02]"
+                    : `${colors.border} shadow-lg`
+                } bg-white p-6 sm:p-8 flex flex-col transition-all duration-300`}
+              >
+                {/* Popular badge */}
+                {isPopular && (
+                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-lg">
+                    Mest populær
+                  </span>
+                )}
+
+                {/* Icon */}
+                <div
+                  className={`flex h-14 w-14 items-center justify-center rounded-xl ${colors.bg} mb-5`}
+                >
+                  <span className="text-2xl">{tier.icon}</span>
+                </div>
+
+                {/* Name + Description */}
+                <h3 className={`text-2xl font-bold ${colors.text}`}>
+                  {tier.name}
+                </h3>
+                <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                  {TIER_DESCRIPTIONS[tierKey]}
+                </p>
+
+                {/* Features */}
+                <ul className="mt-6 space-y-2.5 flex-1">
+                  {tier.features.map((f) => (
+                    <li
+                      key={f}
+                      className="flex items-start gap-2.5 text-sm text-gray-700"
+                    >
+                      <svg
+                        className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Divider */}
+                <hr className="my-6 border-gray-200" />
+
+                {/* All billing options */}
+                <div className="space-y-2 mb-4">
+                  {billing.oneTime && (
+                    <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-2 transition-colors ${
+                      billingMode === "oneTime" ? "bg-blue-50 ring-1 ring-blue-300" : "bg-gray-50"
+                    }`}>
+                      <span className="text-gray-600 font-medium">Engangsbetaling</span>
+                      <span className="font-bold text-gray-900">
+                        {formatPrice(billing.oneTime.priceNok)}
+                        <span className="text-xs text-gray-400 font-normal ml-1">eks. mva</span>
+                      </span>
+                    </div>
+                  )}
+                  <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-2 transition-colors ${
+                    billingMode === "monthly" ? "bg-emerald-50 ring-1 ring-emerald-300" : "bg-gray-50"
+                  }`}>
+                    <span className="text-gray-600 font-medium">Månedlig</span>
+                    <span className="font-bold text-gray-900">
+                      {formatPrice(billing.monthly.priceNok)}
+                      <span className="text-gray-500 font-medium">/md</span>
+                      <span className="text-xs text-gray-400 font-normal ml-1">eks. mva</span>
+                    </span>
+                  </div>
+                  {billing.annual && (
+                    <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-2 transition-colors ${
+                      billingMode === "annual" ? "bg-emerald-50 ring-1 ring-emerald-300" : "bg-gray-50"
+                    }`}>
+                      <span className="text-gray-600 font-medium">
+                        Årlig <span className="text-xs text-emerald-600 font-bold ml-1">Spar 15%</span>
+                      </span>
+                      <span className="font-bold text-emerald-700">
+                        {formatPrice(billing.annual.priceNok)}
+                        <span className="text-emerald-600 font-medium">/år</span>
+                        <span className="text-xs text-emerald-500 font-normal ml-1">eks. mva</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* CTA for active billing */}
+                <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
+                  <svg
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  {active.consultantLabel}
+                </p>
+                <a
+                  href={active.paymentLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`block w-full rounded-lg ${colors.btn} px-4 py-3 text-center text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all duration-200 active:scale-95`}
+                >
+                  Abonner på {tier.name} — {active.label}
+                </a>
+
+                {/* Bottom note */}
+                <p className="mt-4 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
+                  <svg
+                    className="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Sikker betaling via Stripe
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Consultant info */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="rounded-2xl bg-gradient-to-r from-gray-800 to-gray-700 p-8 sm:p-10 text-white">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="text-2xl"></span>
+              <h3 className="text-xl font-bold">Personlig konsulent inkludert</h3>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 text-left">
+              <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4">
+                <p className="text-sm font-semibold text-emerald-300 mb-1">
+                   Månedlig / Årlig abonnement
+                </p>
+                <p className="text-sm text-gray-300">
+                  En dedikert konsulent følger deg fra start til mål. Du får
+                  veiledning gjennom hele prosessen — fra design til ferdig
+                  produkt.
+                </p>
+              </div>
+              <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4">
+                <p className="text-sm font-semibold text-amber-300 mb-1">
+                   Engangsbetaling
+                </p>
+                <p className="text-sm text-gray-300">
+                  Du får full tilgang til produktet umiddelbart. Når du har
+                  sendt inn din bestilling, kobler vi på en konsulent for å
+                  hjelpe deg videre.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ / CTA */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16 text-center">
+        <div className="rounded-2xl bg-gradient-to-r from-emerald-600 to-green-500 p-8 sm:p-10 text-white shadow-xl">
+          <h2 className="text-2xl font-bold">Har du spørsmål?</h2>
+          <p className="mt-2 text-emerald-100 max-w-lg mx-auto">
+            Spør Hilde — vår AI-assistent nederst til høyre på siden. Hun kan
+            svare på alt om Kitoslight, Zongosol og Kitozon.
+          </p>
+          <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/zongosol"
+              className="rounded-xl bg-white px-8 py-3 text-base font-semibold text-emerald-700 hover:bg-emerald-50 transition-all duration-200 shadow-lg"
+            >
+              Prøv Zongosol
+            </Link>
+            <Link
+              to="/kitoslight"
+              className="rounded-xl border-2 border-white/30 bg-transparent px-8 py-3 text-base font-semibold text-white hover:bg-white/10 transition-all duration-200"
+            >
+              Utforsk Kitoslight
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

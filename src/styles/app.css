@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+/* Safe area insets for iOS notch devices */
+@layer utilities {
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@layer base {
+  html,
+  body {
+    @apply bg-white text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRINT STYLES — Documentation PDF Export
+   ═══════════════════════════════════════════════════════ */
+@media print {
+  /* Reset */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #1e293b !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  /* Hide everything except documentation */
+  nav,
+  footer,
+  .chat-widget,
+  header,
+  .no-print,
+  button:not(.print-keep),
+  .no-print *,
+  [role="banner"],
+  [role="contentinfo"],
+  .fixed,
+  .sticky {
+    display: none !important;
+  }
+
+  /* Show documentation content */
+  .documentation-panel {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Print sections */
+  .print-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 15mm !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: white !important;
+  }
+
+  /* Force page breaks between major sections */
+  .print-section:nth-of-type(2) {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /* Expand all details */
+  details,
+  [open] {
+    display: block !important;
+  }
+
+  /* Images and SVGs */
+  img,
+  svg {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Tables */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th,
+  td {
+    border: 0.5pt solid #cbd5e1 !important;
+    padding: 4pt 6pt !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Hide the main Zongosol hero, model selector, layout selector, etc. */
+  .bg-gradient-to-br.from-emerald-700,
+  section:has(> .grid > button),
+  .grid:has(> button > .text-left) {
+    display: none !important;
+  }
+
+  /* Hide tab buttons */
+  .flex.gap-2:has(> button) {
+    display: none !important;
+  }
+
+  /* Hide 3D view and floorplan */
+  .rounded-xl.border.border-gray-200.bg-white.overflow-hidden.shadow-sm:has(canvas),
+  .rounded-xl.border.border-gray-200.bg-white.overflow-hidden.shadow-sm:has(svg) {
+    display: none !important;
+  }
+
+  /* Hide SolarInfoPanel */
+  .rounded-xl.border.border-gray-200.bg-white.overflow-hidden.shadow-sm:has(.bg-gradient-to-r.from-blue-50) {
+    display: none !important;
+  }
+
+  /* Hide Summary panel */
+  .rounded-xl.border.border-gray-200.bg-white.overflow-hidden.shadow-sm.lg\:sticky {
+    display: none !important;
+  }
+
+  /* Show only documentation content */
+  .documentation-panel .print-section {
+    display: block !important;
+  }
+
+  /* Print-only elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Links */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #64748b !important;
+  }
+
+  /* Code */
+  code,
+  pre {
+    border: 0.5pt solid #cbd5e1 !important;
+    background: #f8fafc !important;
+    padding: 2pt 4pt !important;
+  }
+
+  /* Ensure no overflow */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+}
+
+/* Hide print-only elements on screen */
+.print-only {
+  display: none;
+}
+
+/* Documentation panel general styling */
+.documentation-panel h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.documentation-panel table th {
+  background-color: #f1f5f9;
+}
+
+.documentation-panel .bg-gray-50 td[colspan] {
+  background-color: #f8fafc;
+}
