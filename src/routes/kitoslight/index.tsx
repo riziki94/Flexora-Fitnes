@@ -9,6 +9,8 @@ import {
 } from "~/data/kitoslight-devices";
 import type { Device, DeviceType, GasMetrics } from "~/data/kitoslight-devices";
 import { MapView } from "~/components/KitoslightMap";
+import { formatPriceCurrency } from "~/lib/currency";
+import { useLanguage } from "~/lib/i18n.tsx";
 
 export const Route = createFileRoute("/kitoslight/")({
   component: KitoslightPage,
@@ -83,6 +85,7 @@ function useAggregateStats(devs: Device[]) {
 
 // ── Main page ──────────────────────────────────────────────────────────
 function KitoslightPage() {
+  const { t, currency } = useLanguage();
   const [filterCity, setFilterCity] = useState("All");
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [liveMode, setLiveMode] = useState(false);
@@ -332,6 +335,17 @@ function KitoslightPage() {
                       </li>
                     ))}
                   </ul>
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <p className="text-lg font-bold text-emerald-700">
+                      {t("From")}{" "}
+                      {type === "smart-bench"
+                        ? formatPriceCurrency(70000, currency)
+                        : type === "sensor-pole"
+                          ? formatPriceCurrency(49999, currency)
+                          : formatPriceCurrency(145000, currency)}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">{t("Price depends on materials")}</p>
+                  </div>
                 </div>
               </div>
             );
