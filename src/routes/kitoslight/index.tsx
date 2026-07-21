@@ -9,6 +9,7 @@ import {
 } from "~/data/kitoslight-devices";
 import type { Device, DeviceType, GasMetrics } from "~/data/kitoslight-devices";
 import { MapView } from "~/components/KitoslightMap";
+import { useLanguage, formatPriceCurrency } from "~/lib/currency";
 
 export const Route = createFileRoute("/kitoslight/")({
   component: KitoslightPage,
@@ -83,6 +84,7 @@ function useAggregateStats(devs: Device[]) {
 
 // ── Main page ──────────────────────────────────────────────────────────
 function KitoslightPage() {
+  const { t, currency } = useLanguage();
   const [filterCity, setFilterCity] = useState("All");
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [liveMode, setLiveMode] = useState(false);
@@ -286,7 +288,7 @@ function KitoslightPage() {
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">
           Kitoslight Products
         </h2>
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {(Object.keys(deviceTypeMeta) as DeviceType[]).map((type) => {
             const meta = deviceTypeMeta[type];
             const productImage =
@@ -336,8 +338,143 @@ function KitoslightPage() {
               </div>
             );
           })}
+
+          {/* Solar Panel System */}
+          <div className="rounded-xl border border-yellow-200 hover:border-yellow-400 hover:shadow-yellow-100 bg-white overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <img
+              src="/images/kitoslight-pole.png"
+              alt={t("Solar Panel System")}
+              className="w-full h-40 object-cover"
+            />
+            <div className="p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{t("Solar Panel System")}</h3>
+                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-700">
+                    10KW
+                  </span>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                {t("Let our AI design your optimal solar layout")}
+              </p>
+              <ul className="space-y-1.5">
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  10KW monocrystalline panels
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  25-year performance warranty
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Smart inverter included
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Grid-tie or off-grid capable
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Real-time production monitoring
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  CO₂ reduction: ~8.5 tons/year
+                </li>
+              </ul>
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <p className="text-lg font-bold text-emerald-700">
+                  From {formatPriceCurrency(30000, currency)}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">{t("Price depends on materials")}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Battery Storage */}
+          <div className="rounded-xl border border-indigo-200 hover:border-indigo-400 hover:shadow-indigo-100 bg-white overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <img
+              src="/images/kitoslight-pole.png"
+              alt={t("Battery Storage")}
+              className="w-full h-40 object-cover"
+            />
+            <div className="p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{t("Battery Storage")}</h3>
+                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700">
+                    20KWh
+                  </span>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                20KWh lithium-ion battery storage with smart load management for your solar system.
+              </p>
+              <ul className="space-y-1.5">
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  20KWh lithium-ion storage
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  10-year warranty / 6000 cycles
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Emergency backup power
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Smart load management
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Stackable up to 80KWh
+                </li>
+                <li className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  IP65 outdoor rated
+                </li>
+              </ul>
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <p className="text-lg font-bold text-emerald-700">
+                  From {formatPriceCurrency(15000, currency)}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">{t("Price depends on materials")}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* ── AI Solar Designer ────────────────────────────────────────── */}
+      <AISolarDesigner t={t} currency={currency} />
 
       {/* ── ESG Data Teaser ────────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
@@ -924,5 +1061,220 @@ function MetricTile({
       <p className="text-[10px] text-gray-500">{label}</p>
       <p className="text-sm font-bold mt-0.5">{value}</p>
     </div>
+  );
+}
+
+// ── AI Solar Designer ──────────────────────────────────────────────────
+function AISolarDesigner({ t, currency }: { t: (key: string) => string; currency: string }) {
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<{
+    production: string;
+    savings: string;
+    co2: string;
+    panelCount: number;
+  } | null>(null);
+
+  const handleGenerate = () => {
+    if (!imageFile && !description.trim()) return;
+    setLoading(true);
+    setResult(null);
+    // Simulate AI generation delay
+    setTimeout(() => {
+      setResult({
+        production: "~8,500 kWh/year",
+        savings: formatPriceCurrency(12750, currency),
+        co2: "~8.5 tons/year",
+        panelCount: 24,
+      });
+      setLoading(false);
+    }, 2000);
+  };
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <h2 className="text-2xl font-bold text-gray-900 text-center mb-4">
+        {t("AI Solar Designer")}
+      </h2>
+      <p className="text-center text-gray-500 mb-8 max-w-2xl mx-auto">
+        {t("Let our AI design your optimal solar layout")}
+      </p>
+
+      <div className="max-w-3xl mx-auto">
+        {/* Input card */}
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+          <div className="p-6 space-y-5">
+            <p className="text-sm text-gray-600">
+              {t("Upload a roof photo or describe your building")}
+            </p>
+
+            {/* Image upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload Roof Photo
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+              />
+              {imageFile && (
+                <p className="text-xs text-emerald-600 mt-1">
+                  Selected: {imageFile.name}
+                </p>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 border-t border-gray-200" />
+              <span className="text-xs text-gray-400 uppercase">or</span>
+              <div className="flex-1 border-t border-gray-200" />
+            </div>
+
+            {/* Text description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Describe Your Roof/Building
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="E.g., South-facing pitched roof, 120m², slate tiles, no shade..."
+                rows={3}
+                className="block w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none resize-none"
+              />
+            </div>
+
+            {/* Generate button */}
+            <button
+              onClick={handleGenerate}
+              disabled={loading || (!imageFile && !description.trim())}
+              className="w-full rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-emerald-200"
+            >
+              {loading ? (
+                <span className="inline-flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Generating...
+                </span>
+              ) : (
+                t("Generate Design")
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Results */}
+        {result && (
+          <div className="mt-6 rounded-2xl border border-emerald-200 bg-white shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3">
+              <h3 className="text-white font-semibold text-lg">
+                AI Generated Solar Design
+              </h3>
+            </div>
+            <div className="p-6">
+              {/* SVG roof visualization */}
+              <div className="mb-6 bg-slate-50 rounded-xl p-4 flex justify-center">
+                <svg viewBox="0 0 400 220" className="w-full max-w-md h-auto">
+                  {/* Roof shape */}
+                  <polygon points="60,120 200,30 340,120" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" />
+                  <polygon points="60,120 340,120 340,190 60,190" fill="#f1f5f9" stroke="#64748b" strokeWidth="2" />
+                  {/* Solar panels grid */}
+                  {Array.from({ length: 4 }).map((_, row) =>
+                    Array.from({ length: 6 }).map((_, col) => {
+                      const x = 85 + col * 42;
+                      const y = 130 + row * 14;
+                      return (
+                        <rect
+                          key={`${row}-${col}`}
+                          x={x}
+                          y={y}
+                          width="36"
+                          height="12"
+                          rx="1"
+                          fill="#3b82f6"
+                          stroke="#1d4ed8"
+                          strokeWidth="0.5"
+                          opacity="0.85"
+                        />
+                      );
+                    })
+                  )}
+                  {/* Grid lines on panels */}
+                  {Array.from({ length: 4 }).map((_, row) =>
+                    Array.from({ length: 5 }).map((_, col) => {
+                      const x = 121 + col * 42;
+                      const y = 130 + row * 14;
+                      return (
+                        <line
+                          key={`gl-${row}-${col}`}
+                          x1={x}
+                          y1={y}
+                          x2={x}
+                          y2={y + 12}
+                          stroke="#93c5fd"
+                          strokeWidth="0.5"
+                        />
+                      );
+                    })
+                  )}
+                  {/* Sun */}
+                  <circle cx="340" cy="45" r="20" fill="#fbbf24" opacity="0.8" />
+                  <circle cx="340" cy="45" r="14" fill="#fde68a" />
+                  {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => {
+                    const rad = (angle * Math.PI) / 180;
+                    const x1 = 340 + 16 * Math.cos(rad);
+                    const y1 = 45 + 16 * Math.sin(rad);
+                    const x2 = 340 + 28 * Math.cos(rad);
+                    const y2 = 45 + 28 * Math.sin(rad);
+                    return (
+                      <line
+                        key={`ray-${angle}`}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke="#fbbf24"
+                        strokeWidth="2"
+                        opacity="0.6"
+                      />
+                    );
+                  })}
+                </svg>
+              </div>
+
+              {/* Stats grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="rounded-xl bg-emerald-50 p-4 text-center">
+                  <p className="text-xs text-gray-500 mb-1">{t("Estimated production")}</p>
+                  <p className="text-lg font-bold text-emerald-700">{result.production}</p>
+                  <p className="text-[10px] text-gray-400">{t("kWh/year")}</p>
+                </div>
+                <div className="rounded-xl bg-blue-50 p-4 text-center">
+                  <p className="text-xs text-gray-500 mb-1">{t("Estimated savings")}</p>
+                  <p className="text-lg font-bold text-blue-700">{result.savings}</p>
+                  <p className="text-[10px] text-gray-400">{t("kWh/year")}</p>
+                </div>
+                <div className="rounded-xl bg-green-50 p-4 text-center">
+                  <p className="text-xs text-gray-500 mb-1">CO₂ Reduction</p>
+                  <p className="text-lg font-bold text-green-700">{result.co2}</p>
+                  <p className="text-[10px] text-gray-400">per year</p>
+                </div>
+                <div className="rounded-xl bg-amber-50 p-4 text-center">
+                  <p className="text-xs text-gray-500 mb-1">{t("Panel count")}</p>
+                  <p className="text-lg font-bold text-amber-700">{result.panelCount}</p>
+                  <p className="text-[10px] text-gray-400">{t("Recommended")}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

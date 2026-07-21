@@ -112,4 +112,18 @@ export function useTranslation() {
   return useContext(I18nContext);
 }
 
+// Alias for __root.tsx compatibility
+export { I18nProvider as LanguageProvider };
+
+// Combined language + currency hook (also available from currency.ts)
+export function useLanguage(): {
+  t: I18nContextValue["t"];
+  currency: string;
+  lang: Language;
+} {
+  const ctx = useContext(I18nContext);
+  const currency = ctx.lang === "no" ? "NOK" : "USD";
+  return { t: ctx.t, currency, lang: ctx.lang };
+}
+
 export { languages };
