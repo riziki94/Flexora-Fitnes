@@ -113,3 +113,11 @@ export function useTranslation() {
 }
 
 export { languages };
+
+export function useLanguage() {
+  const { t, lang } = useTranslation();
+  const currency = lang === "no" ? "NOK" : "USD";
+  return { t, lang, currency };
+}
+
+export const LanguageProvider = I18nProvider;

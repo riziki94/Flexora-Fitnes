@@ -177,6 +177,18 @@ export const translations = {
     // General
     "general.years": "years",
     "general.year": "year",
+
+    // Zongosol Save Design
+    "Save Design": "Save Design",
+    "Design Saved!": "Design Saved!",
+    "Send design to our team": "Send design to our team",
+    "Your name (optional)": "Your name (optional)",
+    "Your email (optional)": "Your email (optional)",
+    "Sending...": "Sending...",
+    "Send to patrick.kitolano@kitoslight.com": "Send to patrick.kitolano@kitoslight.com",
+    "Cancel": "Cancel",
+    "Price depends on materials": "Price depends on materials",
+    "From": "From",
   },
 
   no: {
@@ -331,6 +343,18 @@ export const translations = {
 
     "general.years": "år",
     "general.year": "år",
+
+    // Zongosol Save Design
+    "Save Design": "Lagre design",
+    "Design Saved!": "Design lagret!",
+    "Send design to our team": "Send design til vårt team",
+    "Your name (optional)": "Ditt navn (valgfritt)",
+    "Your email (optional)": "Din e-post (valgfritt)",
+    "Sending...": "Sender...",
+    "Send to patrick.kitolano@kitoslight.com": "Send til patrick.kitolano@kitoslight.com",
+    "Cancel": "Avbryt",
+    "Price depends on materials": "Pris avhenger av materialvalg",
+    "From": "Fra",
   },
 
   es: {
