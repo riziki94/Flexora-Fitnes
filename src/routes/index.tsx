@@ -125,7 +125,7 @@ function Home() {
               </ul>
               <div className="mt-8">
                 <span className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md group-hover:bg-emerald-700 transition-colors">
-                  {t("Explore Zongosol")}
+                  {t("home.exploreZongosol")}
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -170,7 +170,7 @@ function Home() {
               </ul>
               <div className="mt-8">
                 <span className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md group-hover:bg-blue-700 transition-colors">
-                  {t("Explore Kitoslight")}
+                  {t("home.exploreKitoslight")}
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -204,7 +204,7 @@ function Home() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                {t("One-time")}
+                {t("home.oneTime")}
               </button>
               <button
                 onClick={() => setBillingMode("monthly")}
@@ -214,7 +214,7 @@ function Home() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                {t("Monthly")}
+                {t("home.monthly")}
               </button>
               <button
                 onClick={() => setBillingMode("annual")}
@@ -224,7 +224,7 @@ function Home() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                {t("Yearly")}
+                {t("home.yearly")}
               </button>
             </div>
           </div>
@@ -259,7 +259,7 @@ function Home() {
                 >
                   {isPopular && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-4 py-1 text-xs font-semibold text-white">
-                      {t("Most popular")}
+                      {t("home.mostPopular")}
                     </span>
                   )}
                   <img src="/images/logo-original.png" alt="Kitozon" className="h-10 w-auto mb-4" />
@@ -271,31 +271,31 @@ function Home() {
                       <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-1.5 transition-colors ${
                         billingMode === "oneTime" ? "bg-emerald-50 ring-1 ring-emerald-300" : ""
                       }`}>
-                        <span className="text-gray-600 font-medium">{t("One-time")}</span>
+                        <span className="text-gray-600 font-medium">{t("home.oneTime")}</span>
                         <span className="font-bold text-gray-900">
                           {isNok ? formatPrice(tier.billingOptions.oneTime.priceNok) : formatPriceUsd(tier.billingOptions.oneTime.priceNok)}
-                          <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
+                          <span className="text-xs text-gray-400 font-normal ml-1">{t("home.exclVat")}</span>
                         </span>
                       </div>
                     )}
                     <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-1.5 transition-colors ${
                       billingMode === "monthly" ? "bg-emerald-50 ring-1 ring-emerald-300" : ""
                     }`}>
-                      <span className="text-gray-600 font-medium">{t("Monthly")}</span>
+                      <span className="text-gray-600 font-medium">{t("home.monthly")}</span>
                       <span className="font-bold text-gray-900">
                         {isNok ? formatPrice(tier.billingOptions.monthly.priceNok) : formatPriceUsd(tier.billingOptions.monthly.priceNok)}
-                        <span className="text-gray-500 font-medium">{t("/mo")}</span>
-                        <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
+                        <span className="text-gray-500 font-medium">{t("home.perMonth")}</span>
+                        <span className="text-xs text-gray-400 font-normal ml-1">{t("home.exclVat")}</span>
                       </span>
                     </div>
                     {tier.billingOptions.annual && (
                       <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-1.5 transition-colors ${
                         billingMode === "annual" ? "bg-emerald-50 ring-1 ring-emerald-300" : ""
                       }`}>
-                        <span className="text-gray-600 font-medium">{t("Yearly")}</span>
+                        <span className="text-gray-600 font-medium">{t("home.yearly")}</span>
                         <span className="font-bold text-emerald-700">
                           {isNok ? formatPrice(tier.billingOptions.annual.priceNok) : formatPriceUsd(tier.billingOptions.annual.priceNok)}
-                          <span className="text-emerald-600 font-medium">{t("/yr")}</span>
+                          <span className="text-emerald-600 font-medium">{t("home.perYear")}</span>
                           <span className="text-xs text-emerald-500 font-normal ml-1">(-15%)</span>
                         </span>
                       </div>
@@ -333,7 +333,7 @@ function Home() {
                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    {t("Secure payment via Stripe")}
+                    {t("home.securePayment")}
                   </p>
                 </div>
               );
