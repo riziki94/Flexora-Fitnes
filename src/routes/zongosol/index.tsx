@@ -1861,6 +1861,7 @@ function SolarInfoPanel({ state }: { state: DesignState }) {
 // ── Main Zongosol Page ─────────────────────────────────
 
 function ZongosolPage() {
+  const { t, currency } = useLanguage();
   const [state, dispatch] = useReducer(designReducer, null, initialDesignState);
   const [activeTab, setActiveTab] = useState<"design" | "exterior" | "energy" | "documentation">("design");
   const [viewMode, setViewMode] = useState<"3d" | "floorplan">("3d");
