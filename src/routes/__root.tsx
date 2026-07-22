@@ -185,7 +185,7 @@ function Navbar() {
                   onClick={handleSignOut}
                   className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                 >
-                  Logout
+                  {t("nav.logout")}
                 </button>
               </div>
             ) : (
@@ -193,7 +193,7 @@ function Navbar() {
                 to="/login"
                 className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors duration-200"
               >
-                Login
+                {t("nav.login")}
               </Link>
             )}
           </div>
@@ -263,7 +263,7 @@ function Navbar() {
 
             {/* Language Switcher (Mobile) */}
             <div className="flex items-center gap-2 px-3 py-2">
-              <span className="text-xs text-gray-400">Language:</span>
+              <span className="text-xs text-gray-400">{t("nav.language")}</span>
               <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 p-0.5">
                 <button
                   onClick={() => { setLang("en"); setMobileOpen(false); }}
@@ -295,7 +295,7 @@ function Navbar() {
                   className="px-3 py-3 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-gray-50 rounded-lg min-h-[44px] flex items-center gap-2"
                   onClick={() => setMobileOpen(false)}
                 >
-                  Account
+                  {t("nav.account")}
                   {tierInfo && (
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${tierBadgeColors[tierInfo.color] || "bg-gray-100 text-gray-700"}`}
@@ -313,7 +313,7 @@ function Navbar() {
                   onClick={handleSignOut}
                   className="rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 text-center min-h-[44px]"
                 >
-                  Logout
+                  {t("nav.logout")}
                 </button>
               </>
             ) : (
@@ -322,7 +322,7 @@ function Navbar() {
                 className="rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 text-center min-h-[44px] flex items-center justify-center"
                 onClick={() => setMobileOpen(false)}
               >
-                Login
+                {t("nav.login")}
               </Link>
             )}
           </div>

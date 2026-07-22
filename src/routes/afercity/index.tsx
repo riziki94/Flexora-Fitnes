@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useLanguage } from "~/lib/i18n";
 
 export const Route = createFileRoute("/afercity/")({
   component: AferCity,
@@ -295,6 +296,7 @@ function FeatureCard({
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 function AferCity() {
+  const { t } = useLanguage();
   return (
     <main className="flex-1">
       {/* Hero Section */}
@@ -318,7 +320,7 @@ function AferCity() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
               </span>
-              Smart City Simulator — Coming Soon
+              {t("afercity.comingSoon")}
             </span>
           </div>
 
@@ -329,8 +331,7 @@ function AferCity() {
               <span className="text-white">CITY</span>
             </h1>
             <p className="mt-4 text-lg text-emerald-200/80 max-w-2xl mx-auto">
-              Design and simulate your own sustainable smart city. Place container
-              homes, smart infrastructure, and green energy — all powered by Kitozon.
+              {t("afercity.subtitle")}
             </p>
           </div>
 
@@ -346,33 +347,32 @@ function AferCity() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center mb-14">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              What you can build with AferCity
+              {t("afercity.whatBuild")}
             </h2>
             <p className="mt-4 text-lg text-gray-500">
-              A complete smart city ecosystem — from housing to infrastructure,
-              all designed for sustainability.
+              {t("afercity.ecosystem")}
             </p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <FeatureCard
-              title="Container Homes"
-              description="Design modular container houses with integrated solar panels, customizable layouts, and zero-carbon operation."
+              title={t("afercity.containerHomes")}
+              description={t("afercity.containerDesc")}
               color="amber"
             />
             <FeatureCard
-              title="Smart Poles"
-              description="Solar-powered streetlights with environmental sensors — light, air quality, and energy data in real time."
+              title={t("afercity.smartPoles")}
+              description={t("afercity.polesDesc")}
               color="emerald"
             />
             <FeatureCard
-              title="Bus Shelters"
-              description="Smart shelters with live arrival info, USB charging, WiFi, and air quality monitoring for commuters."
+              title={t("afercity.busShelters")}
+              description={t("afercity.sheltersDesc")}
               color="cyan"
             />
             <FeatureCard
-              title="Smart Benches"
-              description="Solar-powered benches with USB charging ports, WiFi hotspots, and integrated environmental sensors."
+              title={t("afercity.smartBenches")}
+              description={t("afercity.benchesDesc")}
               color="blue"
             />
           </div>
@@ -384,9 +384,9 @@ function AferCity() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 md:grid-cols-3 text-center">
             {[
-              { value: "100%", label: "Renewable Energy", sub: "Solar-powered everything" },
-              { value: "0", label: "Carbon Emissions", sub: "Net-zero city design" },
-              { value: "24/7", label: "Real-Time Monitoring", sub: "Live data from every device" },
+              { value: "100%", label: t("afercity.renewableEnergy"), sub: t("afercity.solarEverything") },
+              { value: "0", label: t("afercity.carbonEmissions"), sub: t("afercity.netZero") },
+              { value: "24/7", label: t("afercity.realTimeMonitoring"), sub: t("afercity.liveData") },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -407,25 +407,23 @@ function AferCity() {
       <section className="bg-gradient-to-r from-emerald-700 to-green-600 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Ready to explore the future of smart cities?
+            {t("afercity.exploreFuture")}
           </h2>
           <p className="mt-4 text-lg text-emerald-100 max-w-2xl mx-auto">
-            AferCity is coming soon. In the meantime, explore our real-time
-            environmental monitoring platform Kitoslight — live data from smart
-            devices across your city.
+            {t("afercity.comingSoonDesc")}
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/kitoslight"
               className="rounded-xl bg-white px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg hover:bg-emerald-50 transition-all duration-200"
             >
-              Explore Kitoslight
+              {t("afercity.exploreKitoslight")}
             </Link>
             <Link
               to="/"
               className="rounded-xl border-2 border-white/30 bg-transparent px-8 py-4 text-base font-semibold text-white hover:bg-white/10 transition-all duration-200"
             >
-              Back to Home
+              {t("afercity.backToHome")}
             </Link>
           </div>
         </div>

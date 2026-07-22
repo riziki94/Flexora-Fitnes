@@ -344,7 +344,7 @@ function AccountPage() {
                   {tierInfo.name}
                 </span>
                 <span className="text-sm text-gray-500">
-                  {isNok ? formatPrice(tierInfo.billingOptions.monthly.priceNok) : formatPriceUsd(tierInfo.billingOptions.monthly.priceNok)} {t("excl. VAT")}{isNok ? "/md" : "/mo"}
+                  {isNok ? formatPrice(tierInfo.billingOptions.monthly.priceNok) : formatPriceUsd(tierInfo.billingOptions.monthly.priceNok)} {t("excl. VAT")} {t("/mo")}
                 </span>
                 <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
                   Active
@@ -412,7 +412,7 @@ function AccountPage() {
                             Current Plan
                           </span>
                         ) : (
-                          <>Switch to {tier.name} — {isNok ? formatPrice(tier.billingOptions.monthly.priceNok) : formatPriceUsd(tier.billingOptions.monthly.priceNok)} {t("excl. VAT")}{isNok ? "/md" : "/mo"}</>
+                          <>Switch to {tier.name} — {isNok ? formatPrice(tier.billingOptions.monthly.priceNok) : formatPriceUsd(tier.billingOptions.monthly.priceNok)} {t("excl. VAT")} {t("/mo")}</>
                         )}
                       </a>
                     );

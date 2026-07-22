@@ -115,15 +115,16 @@ export function useTranslation() {
 // Alias for __root.tsx compatibility
 export { I18nProvider as LanguageProvider };
 
-// Combined language + currency hook (also available from currency.ts)
+// Combined language + currency hook — the single source of truth.
 export function useLanguage(): {
   t: I18nContextValue["t"];
+  setLang: (lang: Language) => void;
   currency: string;
   lang: Language;
 } {
   const ctx = useContext(I18nContext);
   const currency = ctx.lang === "no" ? "NOK" : "USD";
-  return { t: ctx.t, currency, lang: ctx.lang };
+  return { t: ctx.t, setLang: ctx.setLang, currency, lang: ctx.lang };
 }
 
 export { languages };

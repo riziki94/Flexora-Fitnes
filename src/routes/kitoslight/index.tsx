@@ -9,7 +9,8 @@ import {
 } from "~/data/kitoslight-devices";
 import type { Device, DeviceType, GasMetrics } from "~/data/kitoslight-devices";
 import { MapView } from "~/components/KitoslightMap";
-import { useLanguage, formatPriceCurrency } from "~/lib/currency";
+import { useLanguage } from "~/lib/i18n.tsx";
+import { formatPriceCurrency } from "~/lib/currency";
 
 export const Route = createFileRoute("/kitoslight/")({
   component: KitoslightPage,
@@ -139,15 +140,15 @@ function KitoslightPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold text-gray-900">Kitoslight</h1>
-              <span className="text-xs text-gray-400 hidden sm:inline">Environmental Monitoring Platform</span>
+              <h1 className="text-lg font-bold text-gray-900">{t("kitoslight.title")}</h1>
+              <span className="text-xs text-gray-400 hidden sm:inline">{t("kitoslight.envPlatform")}</span>
             </div>
 
             {/* Live Mode Toggle */}
             <div className="flex items-center gap-3">
               {liveMode && (
                 <span className="text-xs text-gray-400 hidden sm:inline">
-                  Last updated: {secondsAgo}s ago
+                  {t("kitoslight.lastUpdated")} {secondsAgo}s ago
                 </span>
               )}
               <button
@@ -167,40 +168,40 @@ function KitoslightPage() {
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${liveMode ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`}
                 />
-                Live Mode {liveMode ? "ON" : "OFF"}
+                Live Mode {liveMode ? t("kitoslight.liveOn") : t("kitoslight.liveOff")}
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-3">
             <StatCard
-              label="Devices Online"
+              label={t("kitoslight.devicesOnline")}
               value={`${stats.onlineDevices}/${stats.totalDevices}`}
               icon=""
               color="emerald"
             />
             <StatCard
-              label=" Energy Today"
+              label={t("kitoslight.energyToday")}
               value={`${stats.totalEnergyKWh.toFixed(1)} kWh`}
               color="yellow"
             />
             <StatCard
-              label=" WiFi Users"
+              label={t("kitoslight.wifiUsers")}
               value={String(stats.totalWifi)}
               color="blue"
             />
             <StatCard
-              label=" Phones Charging"
+              label={t("kitoslight.phonesCharging")}
               value={String(stats.activeCharging)}
               color="indigo"
             />
             <StatCard
-              label=" CO₂ Reduced"
+              label={t("kitoslight.co2Reduced")}
               value={`${stats.co2ReducedKg} kg`}
               color="green"
             />
             <StatCard
-              label=" Gas Alerts"
+              label={t("kitoslight.gasAlerts")}
               value={String(stats.gasAlerts)}
               color={stats.gasAlerts > 0 ? "red" : "gray"}
             />
@@ -212,7 +213,7 @@ function KitoslightPage() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
         {/* City Filter Tabs */}
         <div className="flex items-center gap-2 mb-4 flex-wrap">
-          <span className="text-sm font-medium text-gray-500 mr-1">Filter:</span>
+          <span className="text-sm font-medium text-gray-500 mr-1">{t("kitoslight.filter")}</span>
           {cityTabs.map((city) => (
             <button
               key={city}
@@ -231,7 +232,7 @@ function KitoslightPage() {
             </button>
           ))}
           <span className="ml-auto text-xs text-gray-400">
-            {filteredDevices.length} device{filteredDevices.length !== 1 ? "s" : ""}
+            {filteredDevices.length} {filteredDevices.length !== 1 ? t("kitoslight.devices") : t("kitoslight.device")}
           </span>
         </div>
 
@@ -248,14 +249,14 @@ function KitoslightPage() {
               />
               <div className="absolute top-3 left-3 z-[1000] pointer-events-none">
                 <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm border border-gray-200">
-                  Click a marker for details
+                  {t("kitoslight.clickMarker")}
                 </div>
               </div>
               {/* DRC volcano note */}
               {filteredDevices.some((d) => d.country === "DRC Congo") && (
                 <div className="absolute top-3 right-3 z-[1000] pointer-events-none">
                   <div className="bg-red-100/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm border border-red-200">
-                     Nyiragongo Volcano Region — Hazardous Gas Monitoring Active
+                     {t("kitoslight.nyiragongoAlert")}
                   </div>
                 </div>
               )}
@@ -286,7 +287,7 @@ function KitoslightPage() {
       {/* ── Device Type Cards (merged with Products) ──────────────── */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">
-          Kitoslight Products
+          {t("kitoslight.products")}
         </h2>
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {(Object.keys(deviceTypeMeta) as DeviceType[]).map((type) => {
@@ -319,7 +320,7 @@ function KitoslightPage() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">{meta.label}</h3>
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colorBadges[meta.color]}`}>
-                        {typeCounts[type]} deployed
+                        {typeCounts[type]} {t("kitoslight.deployed")}
                       </span>
                     </div>
                   </div>
@@ -356,49 +357,49 @@ function KitoslightPage() {
                 </div>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                Professional-grade solar panel system for reliable, sustainable energy generation. Monitor production in real time through the Kitozon Dashboard.
+                {t("kitoslight.solarDescription")}
               </p>
               <ul className="space-y-1.5">
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  10KW monocrystalline panels
+                  {t("kitoslight.solar10kw")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  25-year performance warranty
+                  {t("kitoslight.solarWarranty")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Smart inverter included
+                  {t("kitoslight.solarInverter")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Grid-tie or off-grid capable
+                  {t("kitoslight.solarGrid")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Real-time production monitoring
+                  {t("kitoslight.solarMonitor")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  CO₂ reduction: ~8.5 tons/year
+                  {t("kitoslight.solarCo2")}
                 </li>
               </ul>
               <div className="mt-4 pt-3 border-t border-gray-100">
                 <p className="text-lg font-bold text-emerald-700">
-                  From {formatPriceCurrency(30000, currency)}
+                  {t("kitoslight.from")} {formatPriceCurrency(30000, currency)}
                 </p>
                 <p className="text-xs text-gray-400 mt-0.5">{t("Price depends on materials")}</p>
               </div>
@@ -422,49 +423,49 @@ function KitoslightPage() {
                 </div>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                20KWh lithium-ion battery storage with smart load management for your solar system.
+                {t("kitoslight.batteryDescription")}
               </p>
               <ul className="space-y-1.5">
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  20KWh lithium-ion storage
+                  {t("kitoslight.battery20kwh")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  10-year warranty / 6000 cycles
+                  {t("kitoslight.batteryWarranty")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Emergency backup power
+                  {t("kitoslight.batteryBackup")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Smart load management
+                  {t("kitoslight.batterySmart")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Stackable up to 80KWh
+                  {t("kitoslight.batteryStack")}
                 </li>
                 <li className="flex items-center gap-2 text-sm text-gray-700">
                   <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  IP65 outdoor rated
+                  {t("kitoslight.batteryIp65")}
                 </li>
               </ul>
               <div className="mt-4 pt-3 border-t border-gray-100">
                 <p className="text-lg font-bold text-emerald-700">
-                  From {formatPriceCurrency(15000, currency)}
+                  {t("kitoslight.from")} {formatPriceCurrency(15000, currency)}
                 </p>
                 <p className="text-xs text-gray-400 mt-0.5">{t("Price depends on materials")}</p>
               </div>
@@ -482,19 +483,17 @@ function KitoslightPage() {
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                <h3 className="text-xl font-bold">ESG Reporting Ready</h3>
+                <h3 className="text-xl font-bold">{t("kitoslight.esgTitle")}</h3>
               </div>
               <p className="text-emerald-100 max-w-lg">
-                Connect all Kitoslight devices to the Kitozon Dashboard for automated ESG report generation.
-                Track CO₂ reduction, energy production, and air quality improvements — all with IP-based device
-                integration and real-time data feeds.
+                {t("kitoslight.esgDescription")}
               </p>
             </div>
             <Link
               to="/dashboard"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition-all duration-200 shadow-lg flex-shrink-0"
             >
-              Open Dashboard
+              {t("kitoslight.openDashboard")}
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
@@ -510,19 +509,17 @@ function KitoslightPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl"></span>
-                <h3 className="text-xl font-bold">AFER CITY — Smart City Simulator</h3>
+                <h3 className="text-xl font-bold">{t("kitoslight.afercityTitle")}</h3>
               </div>
               <p className="text-amber-100 max-w-lg">
-                Build and simulate your own smart city. Place solar street lights, smart benches,
-                bus shelters, EV chargers, and container homes on an interactive map. Run energy
-                simulations and optimize your city layout.
+                {t("kitoslight.afercityDesc")}
               </p>
             </div>
             <Link
               to="/afercity"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-orange-700 hover:bg-orange-50 transition-all duration-200 shadow-lg flex-shrink-0"
             >
-              Open AFER CITY
+              {t("kitoslight.openAfercity")}
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
@@ -582,6 +579,7 @@ function StatCard({
 
 // ── Gas Monitoring Panel ───────────────────────────────────────────────
 function GasMonitoringPanel({ devices }: { devices: Device[] }) {
+  const { t } = useLanguage();
   const online = devices.filter((d) => d.status === "online");
   if (online.length === 0) return null;
 
@@ -610,14 +608,15 @@ function GasMonitoringPanel({ devices }: { devices: Device[] }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl"></span>
-            <h3 className="font-semibold text-gray-900">Hazardous Gas Monitoring</h3>
+            <h3 className="font-semibold text-gray-900">{t("kitoslight.gasMonitoring")}</h3>
           </div>
-          <span className="text-xs text-gray-400">{online.length} devices reporting</span>
+          <span className="text-xs text-gray-400">{t("kitoslight.devicesReporting", { count: online.length })}</span>
         </div>
         <p className="text-xs text-gray-500 mt-1">
-          WHO/Health safety thresholds — color coded: <span className="text-emerald-600 font-medium">safe</span>,{" "}
-          <span className="text-amber-600 font-medium">warning</span>,{" "}
-          <span className="text-red-600 font-medium">dangerous</span>
+          {t("kitoslight.gasThresholds")}{" "}
+          <span className="text-emerald-600 font-medium">{t("kitoslight.safe")}</span>,{" "}
+          <span className="text-amber-600 font-medium">{t("kitoslight.warning")}</span>,{" "}
+          <span className="text-red-600 font-medium">{t("kitoslight.dangerous")}</span>
         </p>
       </div>
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -652,7 +651,7 @@ function GasMonitoringPanel({ devices }: { devices: Device[] }) {
                   <span className="text-sm font-semibold text-gray-900">{t.gas}</span>
                 </div>
                 <span className={`text-xs font-bold ${sc.text}`}>
-                  {status === "danger" ? " DANGER" : status === "warning" ? " WARNING" : " SAFE"}
+                  {status === "danger" ? t("kitoslight.dangerStatus") : status === "warning" ? t("kitoslight.warningStatus") : t("kitoslight.safeStatus")}
                 </span>
               </div>
               <div className="flex items-baseline gap-1 mb-2">
@@ -687,6 +686,7 @@ function GasMonitoringPanel({ devices }: { devices: Device[] }) {
 
 // ── Device Detail Panel ────────────────────────────────────────────────
 function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () => void }) {
+  const { t } = useLanguage();
   const meta = deviceTypeMeta[device.type];
   const isOnline = device.status === "online";
   const hasCharging = (device.type === "smart-bench" || device.type === "bus-shelter") && isOnline;
@@ -706,7 +706,7 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
           <h3 className="font-semibold text-gray-900 truncate">{device.name}</h3>
           {isGasDanger && (
             <span className="inline-flex items-center gap-1 rounded bg-red-200 px-1.5 py-0.5 text-[10px] font-bold text-red-800 flex-shrink-0">
-               GAS
+               {t("kitoslight.gas")}
             </span>
           )}
         </div>
@@ -723,10 +723,10 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
       <div className="p-4 space-y-3 max-h-[750px] overflow-y-auto">
         {/* Device info */}
         <div className="grid grid-cols-2 gap-2 text-sm">
-          <InfoRow label="Type" value={meta.label} />
-          <InfoRow label="City" value={`${device.city}, ${device.country}`} />
-          <InfoRow label="IP Address" value={device.ipAddress} mono />
-          <InfoRow label="Status" value={device.status} capitalize />
+          <InfoRow label={t("kitoslight.type")} value={meta.label} />
+          <InfoRow label={t("kitoslight.city")} value={`${device.city}, ${device.country}`} />
+          <InfoRow label={t("kitoslight.ipAddress")} value={device.ipAddress} mono />
+          <InfoRow label={t("kitoslight.status")} value={device.status} capitalize />
         </div>
 
         {/* Solar & Temp */}
@@ -734,8 +734,8 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
           <>
             <hr className="border-gray-100" />
             <div className="grid grid-cols-2 gap-2">
-              <MetricTile label="Solar Energy" value={`${device.metrics.solarEnergyKW.toFixed(2)} kW`} color="emerald" />
-              <MetricTile label="Temperature" value={`${device.metrics.temperatureC}°C`} color="gray" />
+              <MetricTile label={t("kitoslight.solarEnergy")} value={`${device.metrics.solarEnergyKW.toFixed(2)} kW`} color="emerald" />
+              <MetricTile label={t("kitoslight.temperature")} value={`${device.metrics.temperatureC}\u00b0C`} color="gray" />
             </div>
           </>
         )}
@@ -746,17 +746,17 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
             <hr className="border-gray-100" />
             <div>
               <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                 Phone Charging
+                 {t("kitoslight.phoneCharging")}
                 {device.charging.phonesCharging > 0 && (
                   <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 kitoslight-charging-dot" />
                 )}
               </h4>
               <div className="grid grid-cols-2 gap-2">
-                <MetricTile label="Charging Now" value={String(device.charging.phonesCharging)} color="emerald" />
-                <MetricTile label="Avg Time" value={`${device.charging.avgChargeTimeMin} min`} color="blue" />
-                <MetricTile label="Power/Port" value={`${device.charging.powerOutputW}W`} color="gray" />
+                <MetricTile label={t("kitoslight.chargingNow")} value={String(device.charging.phonesCharging)} color="emerald" />
+                <MetricTile label={t("kitoslight.avgTime")} value={`${device.charging.avgChargeTimeMin} min`} color="blue" />
+                <MetricTile label={t("kitoslight.powerPort")} value={`${device.charging.powerOutputW}W`} color="gray" />
                 <MetricTile
-                  label="Ports Free"
+                  label={t("kitoslight.portsFree")}
                   value={`${device.charging.availablePorts}/${device.charging.totalPorts}`}
                   color={device.charging.availablePorts === 0 ? "red" : "emerald"}
                 />
@@ -769,7 +769,7 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
                     </svg>
                     <div className="flex-1">
                       <p className="text-xs text-gray-600">
-                        Est. charge: <span className="font-bold text-gray-800">0% → {Math.round(estimatedCharge)}%</span> in {device.charging.avgChargeTimeMin} min
+                        {t("kitoslight.estCharge")} <span className="font-bold text-gray-800">0% \u2192 {Math.round(estimatedCharge)}%</span> in {device.charging.avgChargeTimeMin} min
                       </p>
                       <div className="mt-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                         <div
@@ -791,11 +791,11 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
             <hr className="border-gray-100" />
             <div>
               <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                 WiFi Connectivity
+                 {t("kitoslight.wifiConnectivity")}
               </h4>
               <div className="grid grid-cols-2 gap-2">
-                <MetricTile label="Users Connected" value={String(device.wifi.usersConnected)} color="blue" />
-                <MetricTile label="Avg Session" value={`${device.wifi.avgSessionMin} min`} color="indigo" />
+                <MetricTile label={t("kitoslight.usersConnected")} value={String(device.wifi.usersConnected)} color="blue" />
+                <MetricTile label={t("kitoslight.avgSession")} value={`${device.wifi.avgSessionMin} min`} color="indigo" />
               </div>
             </div>
           </>
@@ -807,7 +807,7 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
             <hr className="border-gray-100" />
             <div>
               <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                 {device.connectedUsers.length} Users Nearby
+                 {t("kitoslight.usersNearby", { count: device.connectedUsers.length })}
               </h4>
               <div className="flex flex-wrap gap-1.5">
                 {device.connectedUsers.map((user) => {
@@ -847,8 +847,8 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
             <hr className="border-gray-100" />
             <div>
               <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                 Gas Readings
-                {isGasDanger && <span className="text-red-500 text-[10px] font-bold">DANGER</span>}
+                 {t("kitoslight.gasReadings")}
+                {isGasDanger && <span className="text-red-500 text-[10px] font-bold">{t("kitoslight.dangerStatus")}</span>}
               </h4>
               <div className="grid grid-cols-2 gap-2">
                 <GasMetricRow label="SO₂" value={device.gas.so2ppm} unit="ppm" safeMax={0.5} warnMax={2} />
@@ -866,13 +866,13 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
           to="/dashboard"
           className="block w-full text-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors duration-200 mt-2"
         >
-          View full data in Dashboard →
+          {t("kitoslight.viewDashboard")}
         </Link>
         <Link
           to="/afercity"
           className="block w-full text-center rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 transition-colors duration-200 mt-2"
         >
-          Open in AFER CITY 
+          {t("kitoslight.openInAfercity")}
         </Link>
       </div>
     </div>
@@ -924,10 +924,11 @@ function DeviceListPanel({
   onSelect: (d: Device) => void;
   typeCounts: Record<DeviceType, number>;
 }) {
+  const { t } = useLanguage();
   const typeLabels: Record<DeviceType, string> = {
-    "smart-bench": "Smart Benches",
-    "bus-shelter": "Bus Shelters",
-    "sensor-pole": "Sensor Poles",
+    "smart-bench": t("kitoslight.smartBenches"),
+    "bus-shelter": t("kitoslight.busShelters"),
+    "sensor-pole": t("kitoslight.sensorPoles"),
   };
   const typeIconLetters: Record<DeviceType, string> = {
     "smart-bench": "B",
@@ -943,9 +944,9 @@ function DeviceListPanel({
   return (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden">
       <div className="p-4 border-b border-gray-100 bg-gray-50">
-        <h3 className="font-semibold text-gray-900">Devices</h3>
+        <h3 className="font-semibold text-gray-900">{t("kitoslight.deviceListTitle")}</h3>
         <p className="text-xs text-gray-500 mt-1">
-          {devices.length} device{devices.length !== 1 ? "s" : ""} — click to view details
+          {devices.length} {devices.length !== 1 ? t("kitoslight.devices") : t("kitoslight.device")} — {t("kitoslight.clickToView")}
         </p>
       </div>
       <div className="flex gap-2 px-4 py-2.5 border-b border-gray-100 bg-white">
@@ -1002,7 +1003,7 @@ function DeviceListPanel({
         })}
         {devices.length === 0 && (
           <div className="px-4 py-8 text-center text-sm text-gray-400">
-            No devices in this city.
+            {t("kitoslight.noDevicesCity")}
           </div>
         )}
       </div>

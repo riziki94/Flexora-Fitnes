@@ -42,35 +42,33 @@ function Home() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              Sustainable living, powered by data
+              {t("home.sustainableTagline")}
             </span>
             <h1 className="mt-8 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-              Design your{" "}
+              {t("home.designYour")}{" "}
               <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
-                sustainable
+                {t("home.sustainable")}
               </span>{" "}
-              container home
+              {t("home.containerHome")}
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-gray-600 sm:text-xl">
-              {businessName} brings together container home design and real‑time
-              environmental monitoring in one platform. Design your dream home with
-              Zongosol, then power and monitor it with Kitoslight.
+              {t("home.bringsTogether", { name: businessName })}
             </p>
             <p className="mt-3 text-sm text-gray-400 flex items-center justify-center gap-2">
-              Norwegian Group — operating worldwide
+              {t("home.norwegianGroup")}
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link
                 to="/zongosol"
                 className="w-full sm:w-auto rounded-xl bg-emerald-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all duration-200 hover:shadow-xl hover:shadow-emerald-200"
               >
-                Start designing
+                {t("home.startDesigning")}
               </Link>
               <Link
                 to="/kitoslight"
                 className="w-full sm:w-auto rounded-xl border-2 border-emerald-200 bg-white px-8 py-4 text-base font-semibold text-emerald-700 hover:border-emerald-400 hover:bg-emerald-50 transition-all duration-200"
               >
-                Explore monitoring
+                {t("home.exploreMonitoring")}
               </Link>
             </div>
           </div>
@@ -82,11 +80,10 @@ function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center mb-16">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Two solutions, one platform
+              {t("home.twoSolutions")}
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Everything you need to design, build, and monitor sustainable living
-              spaces — with full admin control.
+              {t("home.everythingDesign")}
             </p>
           </div>
 
@@ -106,20 +103,17 @@ function Home() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900">Zongosol</h3>
               <p className="mt-2 text-sm font-medium text-emerald-600 uppercase tracking-wide">
-                Container Home Design
+                {t("home.containerHomeDesign")}
               </p>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                Design your custom container home with an intuitive 3D architectural
-                tool. Choose layouts, materials, windows, doors, and room
-                configurations. Visualize and order your sustainable container
-                dwelling — all from one interface.
+                {t("home.zongosolDesc")}
               </p>
               <ul className="mt-6 space-y-3">
                 {[
-                  "3D architectural design tool",
-                  "Custom room layouts & materials",
-                  "Solar panel integration planning",
-                  "Direct ordering from your design",
+                  t("home.feature3dTool"),
+                  t("home.featureCustomLayouts"),
+                  t("home.featureSolarIntegration"),
+                  t("home.featureDirectOrder"),
                 ].map((feature) => (
                   <li key={feature} className="flex items-start gap-3 text-sm text-gray-600">
                     <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,19 +148,17 @@ function Home() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900">Kitoslight</h3>
               <p className="mt-2 text-sm font-medium text-blue-600 uppercase tracking-wide">
-                Environmental Monitoring
+                {t("home.envMonitoring")}
               </p>
               <p className="mt-4 text-gray-600 leading-relaxed">
-                Real-time environmental data from connected devices across your city
-                or community. Monitor energy production, CO₂ levels, air quality, and
-                charging station usage — all visualized on an interactive map.
+                {t("home.kitoslightDesc")}
               </p>
               <ul className="mt-6 space-y-3">
                 {[
-                  "Real-time air quality & CO₂ monitoring",
-                  "Solar energy production tracking",
-                  "Interactive map visualization",
-                  "ESG report generation",
+                  t("home.featureRealtimeAir"),
+                  t("home.featureSolarTracking"),
+                  t("home.featureMapViz"),
+                  t("home.featureEsgReports"),
                 ].map((feature) => (
                   <li key={feature} className="flex items-start gap-3 text-sm text-gray-600">
                     <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,11 +186,10 @@ function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center mb-8">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Flexible subscriptions for every need
+              {t("home.flexibleSubs")}
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              Three subscription tiers that scale with your requirements — from
-              individual homeowners to enterprise ESG reporting.
+              {t("home.threeTiers")}
             </p>
           </div>
 
@@ -355,24 +346,23 @@ function Home() {
       <section className="bg-gradient-to-r from-emerald-600 to-green-500 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Ready to build sustainably?
+            {t("home.readyToBuild")}
           </h2>
           <p className="mt-4 text-lg text-emerald-100 max-w-2xl mx-auto">
-            Join {businessName} today and start designing your sustainable container
-            home with integrated environmental monitoring.
+            {t("home.joinToday", { name: businessName })}
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/zongosol"
               className="rounded-xl bg-white px-8 py-4 text-base font-semibold text-emerald-700 shadow-lg hover:bg-emerald-50 transition-all duration-200"
             >
-              Try Zongosol
+              {t("home.tryZongosol")}
             </Link>
             <Link
               to="/login"
               className="rounded-xl border-2 border-white/30 bg-transparent px-8 py-4 text-base font-semibold text-white hover:bg-white/10 transition-all duration-200"
             >
-              Sign in to Dashboard
+              {t("home.signInDashboard")}
             </Link>
           </div>
         </div>

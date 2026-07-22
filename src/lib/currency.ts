@@ -7,9 +7,6 @@
  * Conversion rate: 1 USD ≈ 10.5 NOK (approximate).
  */
 
-import { useTranslation } from "./i18n";
-import type { Language } from "./translations";
-
 export const CURRENCY_SYMBOLS: Record<string, string> = {
   NOK: "kr",
   USD: "$",
@@ -59,16 +56,5 @@ export function useCurrency() {
   return { formatPrice, formatPriceUsd, formatPriceCurrency };
 }
 
-/**
- * Combined language + currency hook.
- * Returns t (i18n), currency code (NOK/USD), and lang.
- */
-export function useLanguage(): {
-  t: ReturnType<typeof useTranslation>["t"];
-  currency: string;
-  lang: Language;
-} {
-  const { t, lang } = useTranslation();
-  const currency = lang === "no" ? "NOK" : "USD";
-  return { t, currency, lang };
-}
+// NOTE: useLanguage is now only in i18n.tsx — it returns { t, setLang, currency, lang }.
+// useCurrency is the only hook exported from this file.
