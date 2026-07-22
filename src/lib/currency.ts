@@ -22,7 +22,8 @@ export const USD_CONVERSION_RATE = 10.5;
  * Example: 4449 → "4 449 kr"
  */
 export function formatPrice(nokAmount: number): string {
-  return nokAmount.toLocaleString("nb-NO") + " kr";
+  const safe = isNaN(nokAmount) ? 0 : nokAmount;
+  return safe.toLocaleString("nb-NO") + " kr";
 }
 
 /**
@@ -30,7 +31,8 @@ export function formatPrice(nokAmount: number): string {
  * Example: 4449 → "$423.71"
  */
 export function formatPriceUsd(nokAmount: number): string {
-  const usdAmount = nokAmount / USD_CONVERSION_RATE;
+  const safe = isNaN(nokAmount) ? 0 : nokAmount;
+  const usdAmount = safe / USD_CONVERSION_RATE;
   return "$" + usdAmount.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,

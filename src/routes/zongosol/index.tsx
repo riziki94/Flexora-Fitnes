@@ -5,122 +5,33 @@ const Container3D = lazy(() => import("../../components/Container3D"));
 import RoomFullscreen from "../../components/RoomFullscreen";
 import EnergyPanel, { type EnergyState, type PanelType, type BatterySize, type InverterType, type WindSize, type HeatPumpType, type EVChargerPower, DEFAULT_ENERGY_STATE } from "../../components/EnergyPanel";
 import DocumentationPanel from "../../components/DocumentationPanel";
-import { formatPrice, formatPriceExMva } from "../../lib/currency";
+import { formatPrice, formatPriceCurrency } from "../../lib/currency";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
+import { useLanguage } from "../../lib/i18n";
+import { sendDesignEmail } from "../../lib/zongosol-actions";
+import type {
+  RoomType,
+  ContainerSize,
+  ExteriorColor,
+  KitchenLayout,
+  CountertopMaterial,
+  KitchenAppliance,
+  BathFixture,
+  LivingItem,
+  BedroomItem,
+  SmartHomeType,
+  Wall,
+  LayoutType,
+  Window_,
+  Door_,
+  RoomDef,
+  DesignState,
+  DesignAction,
+} from "../../types/zongosol";
 
 export const Route = createFileRoute("/zongosol/")({
   component: ZongosolPage,
 });
-
-// ── Types ──────────────────────────────────────────────
-
-type RoomType = "kitchen" | "bathroom" | "living" | "bedroom";
-type ContainerSize = "20ft" | "40ft" | "double" | "custom";
-type ExteriorColor = "wood" | "metal" | "white" | "green" | "charcoal";
-type KitchenLayout = "L-shape" | "galley" | "island";
-type KitchenBrand = "ikea" | "hth" | "epoq" | "custom";
-type CountertopMaterial = "wood" | "granite" | "marble" | "laminate" | "steel";
-type KitchenAppliance = "refrigerator" | "oven" | "dishwasher" | "microwave" | "cooktop";
-type BathFixture = "shower" | "tub" | "double-sink" | "toilet" | "bidet";
-type LivingItem = "sofa-3" | "sofa-2" | "sectional" | "coffee-table" | "tv-unit" | "dining-4" | "dining-6" | "bookshelf";
-type BedroomItem = "bed-double" | "bed-queen" | "bed-single" | "wardrobe" | "nightstand" | "desk";
-type SmartHomeType = "none" | "knx" | "zigbee";
-type Wall = "top" | "bottom" | "left" | "right";
-type LayoutType = "single" | "side-by-side" | "l-shape" | "u-shape" | "stacked";
-
-interface Window_ {
-  id: string;
-  wall: Wall;
-  position: number;
-}
-
-interface Door_ {
-  id: string;
-  wall: Wall;
-  position: number;
-}
-
-interface RoomDef {
-  id: string;
-  type: RoomType;
-  label: string;
-}
-
-interface DesignState {
-  selectedModel: string | null;
-  containerSize: ContainerSize;
-  customLength: number;
-  customWidth: number;
-  rooms: RoomDef[];
-  windows: Window_[];
-  doors: Door_[];
-  exteriorColor: ExteriorColor;
-  solarPanels: boolean;
-  deck: boolean;
-  kitchenLayout: KitchenLayout;
-  kitchenBrand: KitchenBrand;
-  kitchenCountertop: CountertopMaterial;
-  kitchenAppliances: KitchenAppliance[];
-  bathFixtures: BathFixture[];
-  livingItems: LivingItem[];
-  bedroomItems: BedroomItem[];
-  electricalOutlets: number;
-  electricalLights: number;
-  smartHome: SmartHomeType;
-  evCharger: boolean;
-  layoutType: LayoutType;
-  stairs: boolean;
-  balcony: boolean;
-  roofTerrace: boolean;
-  // Energy Phase 5
-  panelType: PanelType;
-  batterySize: BatterySize;
-  inverterType: InverterType;
-  windTurbine: boolean;
-  windTurbineSize: WindSize;
-  heatPumpType: HeatPumpType;
-  evChargerPower: EVChargerPower;
-}
-
-type Action =
-  | { type: "SELECT_MODEL"; model: string }
-  | { type: "SET_SIZE"; size: ContainerSize }
-  | { type: "SET_CUSTOM_LENGTH"; length: number }
-  | { type: "SET_CUSTOM_WIDTH"; width: number }
-  | { type: "ADD_WINDOW"; wall: Wall }
-  | { type: "REMOVE_WINDOW"; id: string }
-  | { type: "ADD_DOOR"; wall: Wall }
-  | { type: "REMOVE_DOOR"; id: string }
-  | { type: "SET_EXTERIOR_COLOR"; color: ExteriorColor }
-  | { type: "TOGGLE_SOLAR" }
-  | { type: "TOGGLE_DECK" }
-  | { type: "SET_KITCHEN_LAYOUT"; layout: KitchenLayout }
-  | { type: "SET_KITCHEN_BRAND"; brand: KitchenBrand }
-  | { type: "SET_KITCHEN_COUNTERTOP"; material: CountertopMaterial }
-  | { type: "TOGGLE_KITCHEN_APPLIANCE"; appliance: KitchenAppliance }
-  | { type: "TOGGLE_BATH_FIXTURE"; fixture: BathFixture }
-  | { type: "TOGGLE_LIVING_ITEM"; item: LivingItem }
-  | { type: "TOGGLE_BEDROOM_ITEM"; item: BedroomItem }
-  | { type: "CLEAR_LIVING" }
-  | { type: "CLEAR_BEDROOM" }
-  | { type: "SET_ELECTRICAL_OUTLETS"; count: number }
-  | { type: "SET_ELECTRICAL_LIGHTS"; count: number }
-  | { type: "SET_SMART_HOME"; system: SmartHomeType }
-  | { type: "TOGGLE_EV_CHARGER" }
-  | { type: "LOAD_STATE"; state: DesignState }
-  | { type: "RESET" }
-  | { type: "SET_LAYOUT_TYPE"; layoutType: LayoutType }
-  | { type: "TOGGLE_STAIRS" }
-  | { type: "TOGGLE_BALCONY" }
-  | { type: "TOGGLE_ROOF_TERRACE" }
-  // Energy Phase 5
-  | { type: "SET_PANEL_TYPE"; panelType: PanelType }
-  | { type: "SET_BATTERY_SIZE"; batterySize: BatterySize }
-  | { type: "SET_INVERTER_TYPE"; inverterType: InverterType }
-  | { type: "TOGGLE_WIND_TURBINE" }
-  | { type: "SET_WIND_TURBINE_SIZE"; windTurbineSize: WindSize }
-  | { type: "SET_HEAT_PUMP_TYPE"; heatPumpType: HeatPumpType }
-  | { type: "SET_EV_CHARGER_POWER"; evChargerPower: EVChargerPower };
 
 // ── Model definitions ──────────────────────────────────
 
@@ -146,7 +57,7 @@ const MODELS: ModelDef[] = [
       { id: "liv-studio", type: "living", label: "Living / Bed" },
     ],
     basePrice: 150000,
-    description: "Perfekt lite hjem. En åpen stue/soverom med kompakt kjøkken og bad.",
+    description: "Perfect small home. An open living/bedroom with compact kitchen and bath.",
     defaultWindows: [{ id: "ws1", wall: "bottom", position: 30 }, { id: "ws2", wall: "bottom", position: 70 }],
     defaultDoors: [{ id: "ds1", wall: "left", position: 50 }],
   },
@@ -161,7 +72,7 @@ const MODELS: ModelDef[] = [
       { id: "bed2-family", type: "bedroom", label: "Bedroom 2" },
     ],
     basePrice: 280000,
-    description: "Fullverdig familiehjem med to soverom, separat stue, komplett kjøkken og bad.",
+    description: "Full family home with two bedrooms, separate living room, complete kitchen and bath.",
     defaultWindows: [{ id: "wf1", wall: "bottom", position: 20 }, { id: "wf2", wall: "bottom", position: 50 }, { id: "wf3", wall: "bottom", position: 80 }],
     defaultDoors: [{ id: "df1", wall: "left", position: 50 }, { id: "df2", wall: "right", position: 60 }],
   },
@@ -178,7 +89,7 @@ const MODELS: ModelDef[] = [
       { id: "bed3-prem", type: "bedroom", label: "Bedroom 3" },
     ],
     basePrice: 480000,
-    description: "Romslig dobbel-containerbolig. Tre soverom, to bad, komplett kjøkken og stor stue.",
+    description: "Spacious double-container home. Three bedrooms, two baths, complete kitchen and large living room.",
     defaultWindows: [{ id: "wp1", wall: "top", position: 25 }, { id: "wp2", wall: "top", position: 75 }, { id: "wp3", wall: "bottom", position: 30 }, { id: "wp4", wall: "bottom", position: 70 }],
     defaultDoors: [{ id: "dp1", wall: "left", position: 40 }, { id: "dp2", wall: "left", position: 75 }],
   },
@@ -192,7 +103,7 @@ const MODELS: ModelDef[] = [
       { id: "bed1-cust", type: "bedroom", label: "Bedroom" },
     ],
     basePrice: 200000,
-    description: "Design fra bunnen av. Velg containerstørrelse, romløsning og alle detaljer selv.",
+    description: "Design from scratch. Choose container size, room layout and all details yourself.",
     defaultWindows: [{ id: "wc1", wall: "bottom", position: 50 }],
     defaultDoors: [{ id: "dc1", wall: "left", position: 50 }],
   },
@@ -202,7 +113,6 @@ const MODELS: ModelDef[] = [
 
 const COLOR_PRICE: Record<ExteriorColor, number> = { wood: 5000, metal: 3000, white: 0, green: 2000, charcoal: 3500 };
 const KITCHEN_LAYOUT_PRICE: Record<KitchenLayout, number> = { "L-shape": 8000, galley: 6000, island: 12000 };
-const KITCHEN_BRAND_PRICE: Record<KitchenBrand, number> = { ikea: 15000, hth: 25000, epoq: 20000, custom: 35000 };
 const KITCHEN_COUNTERTOP_PRICE: Record<CountertopMaterial, number> = { wood: 2000, granite: 5000, marble: 7000, laminate: 500, steel: 3000 };
 const KITCHEN_APPLIANCE_PRICE: Record<KitchenAppliance, number> = { refrigerator: 4000, oven: 3000, dishwasher: 2500, microwave: 1000, cooktop: 2500 };
 const BATH_FIXTURE_PRICE: Record<BathFixture, number> = { shower: 5000, tub: 8000, "double-sink": 3000, toilet: 2000, bidet: 1500 };
@@ -218,9 +128,8 @@ function calcTotal(state: DesignState): number {
   const model = MODELS.find((m) => m.id === state.selectedModel);
   let total = model?.basePrice ?? 0;
   total += COLOR_PRICE[state.exteriorColor];
-  total += KITCHEN_LAYOUT_PRICE[state.kitchenLayout];
-  total += KITCHEN_BRAND_PRICE[state.kitchenBrand];
-  total += KITCHEN_COUNTERTOP_PRICE[state.kitchenCountertop];
+  total += KITCHEN_LAYOUT_PRICE[state.kitchenLayout] ?? 0;
+  total += KITCHEN_COUNTERTOP_PRICE[state.kitchenCountertop] ?? 0;
   total += state.kitchenAppliances.reduce((s, a) => s + KITCHEN_APPLIANCE_PRICE[a], 0);
   total += state.bathFixtures.reduce((s, f) => s + BATH_FIXTURE_PRICE[f], 0);
   total += state.livingItems.reduce((s, i) => s + LIVING_ITEM_PRICE[i], 0);
@@ -265,8 +174,8 @@ const DEFAULT_DESIGN_STATE: DesignState = {
   selectedModel: null, containerSize: "20ft", customLength: 20, customWidth: 8,
   rooms: [], windows: [], doors: [],
   exteriorColor: "white", solarPanels: false, deck: false,
-  kitchenLayout: "galley", kitchenBrand: "ikea", kitchenCountertop: "laminate",
   kitchenAppliances: ["refrigerator", "cooktop"],
+  kitchenLayout: "L-shape", kitchenCountertop: "laminate",
   bathFixtures: ["shower", "toilet"],
   livingItems: [], bedroomItems: [],
   electricalOutlets: 8, electricalLights: 4,
@@ -296,7 +205,7 @@ function initialDesignState(): DesignState {
   return { ...DEFAULT_DESIGN_STATE };
 }
 
-function designReducer(state: DesignState, action: Action): DesignState {
+function designReducer(state: DesignState, action: DesignAction): DesignState {
   switch (action.type) {
     case "SELECT_MODEL": {
       const model = MODELS.find((m) => m.id === action.model);
@@ -322,7 +231,6 @@ function designReducer(state: DesignState, action: Action): DesignState {
     case "TOGGLE_SOLAR": return { ...state, solarPanels: !state.solarPanels };
     case "TOGGLE_DECK": return { ...state, deck: !state.deck };
     case "SET_KITCHEN_LAYOUT": return { ...state, kitchenLayout: action.layout };
-    case "SET_KITCHEN_BRAND": return { ...state, kitchenBrand: action.brand };
     case "SET_KITCHEN_COUNTERTOP": return { ...state, kitchenCountertop: action.material };
     case "TOGGLE_KITCHEN_APPLIANCE": {
       const has = state.kitchenAppliances.includes(action.appliance);
@@ -537,7 +445,8 @@ function FloorPlan({ state }: { state: DesignState }) {
 
 // ── Model Selector ────────────────────────────────────
 
-function ModelSelector({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<Action> }) {
+function ModelSelector({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<DesignAction> }) {
+  const { t, currency } = useLanguage();
   return (
     <section className="mb-8">
       <div className="flex items-center gap-3 mb-4">
@@ -570,9 +479,9 @@ function ModelSelector({ state, dispatch }: { state: DesignState; dispatch: Reac
               </div>
               <p className="text-xs text-gray-500 mb-2">{model.subtitle}</p>
               <p className="text-xs text-gray-500 mb-1">{model.size === "20ft" ? "20ft Container" : model.size === "40ft" ? "40ft Container" : model.size === "double" ? "2x 40ft Double-Wide" : "Custom Size"}{" · "}{model.rooms.length} rooms</p>
-              <p className="text-xs text-gray-600 leading-relaxed mb-2">{model.description}</p>
-              <p className="text-lg font-bold text-emerald-700">{formatPriceExMva(model.basePrice)}</p>
-              <p className="text-xs text-gray-400">Starting price eks. mva</p>
+              <p className="text-xs text-gray-600 leading-relaxed mb-2">{t(model.description)}</p>
+              <p className="text-lg font-bold text-emerald-700">{formatPriceCurrency(model.basePrice, currency)}</p>
+              <p className="text-xs text-gray-400">{t("Starting price excl. VAT")}</p>
             </button>
           );
         })}
@@ -591,7 +500,7 @@ const LAYOUT_OPTIONS: { value: LayoutType; label: string; icon: string; desc: st
   { value: "stacked", label: "Stacked", icon: "⬆", desc: "Two-story" },
 ];
 
-function LayoutSelector({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<Action> }) {
+function LayoutSelector({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<DesignAction> }) {
   if (!state.selectedModel) return null;
   return (
     <section className="mb-8">
@@ -623,15 +532,6 @@ function LayoutSelector({ state, dispatch }: { state: DesignState; dispatch: Rea
   );
 }
 
-// ── Kitchen Brand colors ─────────────────────────────────
-
-const BRAND_COLORS: Record<KitchenBrand, { primary: string; secondary: string; label: string }> = {
-  ikea: { primary: "#f5f0e8", secondary: "#d4c5a9", label: "IKEA — White/Light Wood" },
-  hth: { primary: "#5C3A1E", secondary: "#3E2710", label: "HTH — Dark Wood" },
-  epoq: { primary: "#9CA3AF", secondary: "#6B7280", label: "Epoq — Modern Grey" },
-  custom: { primary: "#E5E7EB", secondary: "#D1D5DB", label: "Custom — Bespoke" },
-};
-
 const COUNTERTOP_SWATCHES: { value: CountertopMaterial; label: string; color: string; price: number }[] = [
   { value: "wood", label: "Wood", color: "#8B5E3C", price: 5000 },
   { value: "granite", label: "Granite", color: "#4A4A4A", price: 15000 },
@@ -650,7 +550,8 @@ const APPLIANCE_LIST: { value: KitchenAppliance; label: string; icon: string }[]
 
 // ── Interior Designer Panel ────────────────────────────
 
-function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<Action> }) {
+function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<DesignAction> }) {
+  const { t, currency } = useLanguage();
   const [tab, setTab] = useState<"kitchen" | "bathroom" | "furniture" | "electrical" | "windows" | "doors" | "size">("kitchen");
   const wallOptions: { value: Wall; label: string }[] = [
     { value: "top", label: "Top Wall" }, { value: "bottom", label: "Bottom Wall" },
@@ -701,23 +602,6 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                   >{layout === "L-shape" ? " L-Shape" : layout === "galley" ? "⬛ Galley" : "▣ Island"}</button>
                 ))}
               </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-gray-700 block mb-2">Kitchen Brand</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {(Object.keys(BRAND_COLORS) as KitchenBrand[]).map((brand) => (
-                  <button key={brand} onClick={() => dispatch({ type: "SET_KITCHEN_BRAND", brand })}
-                    className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all ${
-                      state.kitchenBrand === brand ? "border-emerald-500 bg-emerald-50 ring-1 ring-emerald-300" : "border-gray-200 hover:border-gray-300"
-                    }`}
-                  >
-                    <span className="w-8 h-6 rounded" style={{ backgroundColor: BRAND_COLORS[brand].primary, border: `2px solid ${BRAND_COLORS[brand].secondary}` }} />
-                    <span className="text-[10px] font-semibold text-gray-700 uppercase">{brand}</span>
-                  </button>
-                ))}
-              </div>
-              <p className="text-[10px] text-gray-400 mt-1">{BRAND_COLORS[state.kitchenBrand]?.label ?? ""} · {formatPrice(KITCHEN_BRAND_PRICE[state.kitchenBrand] ?? 0)}</p>
             </div>
 
             <div>
@@ -777,7 +661,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                       <span className="text-xl">{fixture.icon}</span>
                       <div className="text-left">
                         <p className="text-sm font-semibold text-gray-800">{fixture.label}</p>
-                        <p className="text-xs text-gray-500">{fixture.desc} · {formatPrice(fixture.price)}</p>
+                        <p className="text-xs text-gray-500">{fixture.desc} · {formatPriceCurrency(fixture.price, currency)}</p>
                       </div>
                     </div>
                     <span className={`inline-flex h-6 w-10 items-center rounded-full transition-colors ${active ? "bg-blue-500" : "bg-gray-300"}`}>
@@ -812,7 +696,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                     >
                       <span className="text-lg">{LIVING_ICONS[item]}</span>
                       <span className="text-[10px] font-medium text-gray-700 leading-tight">{LIVING_LABELS[item]}</span>
-                      <span className="text-[10px] text-gray-400">{formatPrice(LIVING_ITEM_PRICE[item])}</span>
+                      <span className="text-[10px] text-gray-400">{formatPriceCurrency(LIVING_ITEM_PRICE[item], currency)}</span>
                     </button>
                   );
                 })}
@@ -840,7 +724,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                     >
                       <span className="text-lg">{BEDROOM_ICONS[item]}</span>
                       <span className="text-[10px] font-medium text-gray-700 leading-tight">{BEDROOM_LABELS[item]}</span>
-                      <span className="text-[10px] text-gray-400">{formatPrice(BEDROOM_ITEM_PRICE[item])}</span>
+                      <span className="text-[10px] text-gray-400">{formatPriceCurrency(BEDROOM_ITEM_PRICE[item], currency)}</span>
                     </button>
                   );
                 })}
@@ -860,7 +744,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                 <span className="text-lg font-bold text-gray-900 w-8 text-center">{state.electricalOutlets}</span>
                 <button onClick={() => dispatch({ type: "SET_ELECTRICAL_OUTLETS", count: state.electricalOutlets + 1 })}
                   className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 font-bold">+</button>
-                <span className="text-xs text-gray-500">× 500 kr = {formatPrice((state.electricalOutlets * 500))}</span>
+                <span className="text-xs text-gray-500">× {currency === "NOK" ? "500 kr" : "$47.62"} = {formatPriceCurrency((state.electricalOutlets * 500), currency)}</span>
               </div>
             </div>
 
@@ -872,7 +756,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                 <span className="text-lg font-bold text-gray-900 w-8 text-center">{state.electricalLights}</span>
                 <button onClick={() => dispatch({ type: "SET_ELECTRICAL_LIGHTS", count: state.electricalLights + 1 })}
                   className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 font-bold">+</button>
-                <span className="text-xs text-gray-500">× 1 500 kr = {formatPrice((state.electricalLights * 1500))}</span>
+                <span className="text-xs text-gray-500">× {currency === "NOK" ? "1 500 kr" : "$142.86"} = {formatPriceCurrency((state.electricalLights * 1500), currency)}</span>
               </div>
             </div>
 
@@ -893,7 +777,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                   >
                     <span className="text-lg">{opt.icon}</span>
                     <span className="text-[11px] font-semibold text-gray-700">{opt.label}</span>
-                    {opt.value !== "none" && <span className="text-[10px] text-gray-400">+{formatPrice((opt as any).price)}</span>}
+                    {opt.value !== "none" && <span className="text-[10px] text-gray-400">+{formatPriceCurrency((opt as any).price, currency)}</span>}
                   </button>
                 ))}
               </div>
@@ -908,7 +792,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                 <span className="text-xl"></span>
                 <div className="text-left">
                   <p className="text-sm font-semibold text-gray-800">EV Charger</p>
-                  <p className="text-xs text-gray-500">Wall-mounted charger · +{formatPrice(8000)}</p>
+                  <p className="text-xs text-gray-500">Wall-mounted charger · +{formatPriceCurrency(8000, currency)}</p>
                 </div>
               </div>
               <span className={`inline-flex h-6 w-10 items-center rounded-full transition-colors ${state.evCharger ? "bg-emerald-500" : "bg-gray-300"}`}>
@@ -923,7 +807,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                 <p>Smart home: {state.smartHome === "none" ? "None" : state.smartHome === "knx" ? "KNX System" : "Zigbee Hub"}</p>
                 <p>EV Charger: {state.evCharger ? "Yes" : "No"}</p>
                 <p className="font-semibold mt-1">
-                  Electrical total: {formatPrice((state.electricalOutlets * 500 + state.electricalLights * 1500 + (state.smartHome === "knx" ? 15000 : state.smartHome === "zigbee" ? 8000 : 0) + (state.evCharger ? 8000 : 0)))}
+                  Electrical total: {formatPriceCurrency((state.electricalOutlets * 500 + state.electricalLights * 1500 + (state.smartHome === "knx" ? 15000 : state.smartHome === "zigbee" ? 8000 : 0) + (state.evCharger ? 8000 : 0)), currency)}
                 </p>
               </div>
             </div>
@@ -1020,7 +904,8 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
 
 // ── Exterior Designer Panel ────────────────────────────
 
-function ExteriorPanel({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<Action> }) {
+function ExteriorPanel({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<DesignAction> }) {
+  const { t, currency } = useLanguage();
   return (
     <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
@@ -1079,7 +964,7 @@ function ExteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
               <span className="text-lg"></span>
               <div className="text-left">
                 <p className="text-sm font-semibold text-gray-800">Solar Panels</p>
-                <p className="text-xs text-gray-500">+{formatPrice(15000)} · Rooftop array</p>
+                <p className="text-xs text-gray-500">+{formatPriceCurrency(15000, currency)} · Rooftop array</p>
               </div>
             </div>
             <span className={`inline-flex h-6 w-10 items-center rounded-full transition-colors ${state.solarPanels ? "bg-emerald-500" : "bg-gray-300"}`}>
@@ -1096,7 +981,7 @@ function ExteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
               <span className="text-lg"></span>
               <div className="text-left">
                 <p className="text-sm font-semibold text-gray-800">Deck / Terrace</p>
-                <p className="text-xs text-gray-500">+{formatPrice(8000)} · Outdoor living</p>
+                <p className="text-xs text-gray-500">+{formatPriceCurrency(8000, currency)} · Outdoor living</p>
               </div>
             </div>
             <span className={`inline-flex h-6 w-10 items-center rounded-full transition-colors ${state.deck ? "bg-emerald-500" : "bg-gray-300"}`}>
@@ -1166,9 +1051,16 @@ function ExteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
 
 // ── Summary & Order Panel ──────────────────────────────
 
-function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<Action> }) {
+function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<DesignAction> }) {
   const total = calcTotal(state);
   const [saved, setSaved] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [showSaveForm, setShowSaveForm] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const { t, currency } = useLanguage();
+  const isNok = currency === "NOK";
   const [showDeposit, setShowDeposit] = useState(false);
   const [depositPaid, setDepositPaid] = useState(false);
   const [showLogistics, setShowLogistics] = useState(false);
@@ -1182,9 +1074,34 @@ function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React
 
   const handleSave = useCallback(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setShowSaveForm(true);
   }, [state]);
+
+  const handleSendDesign = useCallback(async () => {
+    setSending(true);
+    setSendError(null);
+    try {
+      const designWithTotal = { ...state, _totalEstimate: total };
+      const result = await sendDesignEmail({
+        data: {
+          design: designWithTotal,
+          customerName: customerName || undefined,
+          customerEmail: customerEmail || undefined,
+        },
+      });
+      if (result.success) {
+        setSaved(true);
+        setShowSaveForm(false);
+        setTimeout(() => setSaved(false), 3000);
+      } else {
+        setSendError("Failed to send. Please try again.");
+      }
+    } catch (err) {
+      setSendError("Network error. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  }, [state, total, customerName, customerEmail]);
 
   const handleOrder = useCallback(() => {
     setShowDeposit(true);
@@ -1213,7 +1130,7 @@ function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">{model?.name} base</span>
-                <span className="font-medium text-gray-800">{formatPriceExMva(model?.basePrice)}</span>
+                <span className="font-medium text-gray-800">{formatPriceCurrency(model?.basePrice, currency)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Layout</span>
@@ -1222,125 +1139,133 @@ function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React
               {state.exteriorColor !== "white" && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">{EXTERIOR_LABELS[state.exteriorColor]} exterior</span>
-                  <span className="text-gray-700">+{formatPrice(COLOR_PRICE[state.exteriorColor])}</span>
+                  <span className="text-gray-700">+{formatPriceCurrency(COLOR_PRICE[state.exteriorColor], currency)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className="text-gray-600">Kitchen Layout</span>
-                <span className="text-gray-700">{formatPrice(KITCHEN_LAYOUT_PRICE[state.kitchenLayout])}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Kitchen Brand ({state.kitchenBrand.toUpperCase()})</span>
-                <span className="text-gray-700">{formatPrice(KITCHEN_BRAND_PRICE[state.kitchenBrand])}</span>
+                <span className="text-gray-700">{formatPriceCurrency(KITCHEN_LAYOUT_PRICE[state.kitchenLayout], currency)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Countertop ({state.kitchenCountertop})</span>
-                <span className="text-gray-700">{formatPrice(KITCHEN_COUNTERTOP_PRICE[state.kitchenCountertop])}</span>
+                <span className="text-gray-700">{formatPriceCurrency(KITCHEN_COUNTERTOP_PRICE[state.kitchenCountertop], currency)}</span>
               </div>
               {state.kitchenAppliances.map((a) => (
                 <div key={a} className="flex justify-between">
                   <span className="text-gray-600 capitalize">{a}</span>
-                  <span className="text-gray-700">{formatPrice(KITCHEN_APPLIANCE_PRICE[a])}</span>
+                  <span className="text-gray-700">{formatPriceCurrency(KITCHEN_APPLIANCE_PRICE[a], currency)}</span>
                 </div>
               ))}
               {state.bathFixtures.map((f) => (
                 <div key={f} className="flex justify-between">
                   <span className="text-gray-600 capitalize">{f.replace("-", " ")}</span>
-                  <span className="text-gray-700">{formatPrice(BATH_FIXTURE_PRICE[f])}</span>
+                  <span className="text-gray-700">{formatPriceCurrency(BATH_FIXTURE_PRICE[f], currency)}</span>
                 </div>
               ))}
               {state.livingItems.map((item) => (
                 <div key={item} className="flex justify-between">
                   <span className="text-gray-600">{LIVING_LABELS[item]}</span>
-                  <span className="text-gray-700">{formatPrice(LIVING_ITEM_PRICE[item])}</span>
+                  <span className="text-gray-700">{formatPriceCurrency(LIVING_ITEM_PRICE[item], currency)}</span>
                 </div>
               ))}
               {state.bedroomItems.map((item) => (
                 <div key={item} className="flex justify-between">
                   <span className="text-gray-600">{BEDROOM_LABELS[item]}</span>
-                  <span className="text-gray-700">{formatPrice(BEDROOM_ITEM_PRICE[item])}</span>
+                  <span className="text-gray-700">{formatPriceCurrency(BEDROOM_ITEM_PRICE[item], currency)}</span>
                 </div>
               ))}
               {state.electricalOutlets > 0 && (
-                <div className="flex justify-between"><span className="text-gray-600">{state.electricalOutlets} outlets</span><span className="text-gray-700">{formatPrice((state.electricalOutlets * 500))}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">{state.electricalOutlets} outlets</span><span className="text-gray-700">{formatPriceCurrency((state.electricalOutlets * 500), currency)}</span></div>
               )}
               {state.electricalLights > 0 && (
-                <div className="flex justify-between"><span className="text-gray-600">{state.electricalLights} lights</span><span className="text-gray-700">{formatPrice((state.electricalLights * 1500))}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">{state.electricalLights} lights</span><span className="text-gray-700">{formatPriceCurrency((state.electricalLights * 1500), currency)}</span></div>
               )}
               {state.smartHome !== "none" && (
-                <div className="flex justify-between"><span className="text-gray-600">{state.smartHome === "knx" ? "KNX System" : "Zigbee Hub"}</span><span className="text-gray-700">{formatPrice(state.smartHome === "knx" ? 15000 : 8000)}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">{state.smartHome === "knx" ? "KNX System" : "Zigbee Hub"}</span><span className="text-gray-700">{formatPriceCurrency(state.smartHome === "knx" ? 15000 : 8000, currency)}</span></div>
               )}
-              {state.evCharger && <div className="flex justify-between"><span className="text-gray-600">EV Charger</span><span className="text-gray-700">{formatPrice(5000)}</span></div>}
+              {state.evCharger && <div className="flex justify-between"><span className="text-gray-600">EV Charger</span><span className="text-gray-700">{formatPriceCurrency(5000, currency)}</span></div>}
               {state.windows.length > 0 && (
-                <div className="flex justify-between"><span className="text-gray-600">{state.windows.length} window{state.windows.length > 1 ? "s" : ""}</span><span className="text-gray-700">{formatPrice((state.windows.length * 800))}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">{state.windows.length} window{state.windows.length > 1 ? "s" : ""}</span><span className="text-gray-700">{formatPriceCurrency((state.windows.length * 800), currency)}</span></div>
               )}
               {state.doors.length > 0 && (
-                <div className="flex justify-between"><span className="text-gray-600">{state.doors.length} door{state.doors.length > 1 ? "s" : ""}</span><span className="text-gray-700">{formatPrice((state.doors.length * 600))}</span></div>
+                <div className="flex justify-between"><span className="text-gray-600">{state.doors.length} door{state.doors.length > 1 ? "s" : ""}</span><span className="text-gray-700">{formatPriceCurrency((state.doors.length * 600), currency)}</span></div>
               )}
-              {state.solarPanels && <div className="flex justify-between text-amber-700"><span>Solar panel array ({(() => { let rm = 6.058*2.438; if (state.containerSize === "40ft") rm = 12.192*2.438; else if (state.containerSize === "double") rm = 12.192*4.876; else if (state.containerSize === "custom") rm = (state.customLength*0.3048)*(state.customWidth*0.3048); return Math.max(1, Math.floor((rm*0.85)/1.7)); })()} panels)</span><span>+{(() => { let rm = 6.058*2.438; if (state.containerSize === "40ft") rm = 12.192*2.438; else if (state.containerSize === "double") rm = 12.192*4.876; else if (state.containerSize === "custom") rm = (state.customLength*0.3048)*(state.customWidth*0.3048); return Math.max(1, Math.floor((rm*0.85)/1.7)) * 3500; })()}</span></div>}
-              {state.batterySize !== "none" && <div className="flex justify-between text-green-700"><span>Battery ({state.batterySize} kWh)</span><span>+{formatPrice((parseInt(state.batterySize) * 5000))}</span></div>}
-              {state.windTurbine && <div className="flex justify-between text-sky-700"><span>Wind turbine ({state.windTurbineSize} kW)</span><span>+{formatPrice((state.windTurbineSize === "1" ? 30000 : state.windTurbineSize === "3" ? 50000 : 80000))}</span></div>}
-              {state.heatPumpType !== "none" && <div className="flex justify-between text-orange-700"><span>Heat pump ({state.heatPumpType})</span><span>+{formatPrice((state.heatPumpType === "air-air" ? 50000 : state.heatPumpType === "air-water" ? 80000 : 150000))}</span></div>}
-              {state.deck && <div className="flex justify-between text-amber-700"><span>Deck / terrace</span><span>+{formatPrice(5000)}</span></div>}
-              {state.stairs && <div className="flex justify-between text-gray-700"><span>External stairs</span><span>+{formatPrice(5000)}</span></div>}
-              {state.balcony && <div className="flex justify-between text-gray-700"><span>Balcony</span><span>+{formatPrice(6000)}</span></div>}
-              {state.roofTerrace && <div className="flex justify-between text-gray-700"><span>Roof terrace</span><span>+{formatPrice(7500)}</span></div>}
+              {state.solarPanels && <div className="flex justify-between text-amber-700"><span>Solar panel array ({(() => { let rm = 6.058*2.438; if (state.containerSize === "40ft") rm = 12.192*2.438; else if (state.containerSize === "double") rm = 12.192*4.876; else if (state.containerSize === "custom") rm = (state.customLength*0.3048)*(state.customWidth*0.3048); return Math.max(1, Math.floor((rm*0.85)/1.7)); })()} panels)</span><span>+{formatPriceCurrency((() => { let rm = 6.058*2.438; if (state.containerSize === "40ft") rm = 12.192*2.438; else if (state.containerSize === "double") rm = 12.192*4.876; else if (state.containerSize === "custom") rm = (state.customLength*0.3048)*(state.customWidth*0.3048); return Math.max(1, Math.floor((rm*0.85)/1.7)) * 3500; })(), currency)}</span></div>}
+              {state.batterySize !== "none" && <div className="flex justify-between text-green-700"><span>Battery ({state.batterySize} kWh)</span><span>+{formatPriceCurrency((parseInt(state.batterySize) * 5000), currency)}</span></div>}
+              {state.windTurbine && <div className="flex justify-between text-sky-700"><span>Wind turbine ({state.windTurbineSize} kW)</span><span>+{formatPriceCurrency((state.windTurbineSize === "1" ? 30000 : state.windTurbineSize === "3" ? 50000 : 80000), currency)}</span></div>}
+              {state.heatPumpType !== "none" && <div className="flex justify-between text-orange-700"><span>Heat pump ({state.heatPumpType})</span><span>+{formatPriceCurrency((state.heatPumpType === "air-air" ? 50000 : state.heatPumpType === "air-water" ? 80000 : 150000), currency)}</span></div>}
+              {state.deck && <div className="flex justify-between text-amber-700"><span>Deck / terrace</span><span>+{formatPriceCurrency(5000, currency)}</span></div>}
+              {state.stairs && <div className="flex justify-between text-gray-700"><span>External stairs</span><span>+{formatPriceCurrency(5000, currency)}</span></div>}
+              {state.balcony && <div className="flex justify-between text-gray-700"><span>Balcony</span><span>+{formatPriceCurrency(6000, currency)}</span></div>}
+              {state.roofTerrace && <div className="flex justify-between text-gray-700"><span>Roof terrace</span><span>+{formatPriceCurrency(7500, currency)}</span></div>}
             </div>
 
             <hr className="border-gray-200" />
 
             <div className="flex justify-between items-baseline">
               <span className="text-sm font-semibold text-gray-900">Estimated Total</span>
-              <span className="text-2xl font-extrabold text-emerald-700">{formatPrice(total)}</span>
+              <span className="text-2xl font-extrabold text-emerald-700">{formatPriceCurrency(total, currency)}</span>
             </div>
-            <p className="text-xs text-gray-400">* All prices eks. mva. Excludes delivery, site prep, and permits</p>
+            <p className="text-xs text-gray-400">* {t("All prices excl. VAT")}. Excludes delivery, site prep, and permits</p>
 
             <div className="space-y-2">
               <button onClick={handleSave}
                 className={`w-full py-3 rounded-lg text-sm font-semibold transition-all ${
                   saved ? "bg-green-500 text-white" : "bg-emerald-600 text-white hover:bg-emerald-700"
                 }`}
-              >{saved ? " Design Saved!" : " Save Design"}</button>
+              >{saved ? "✓ " + t("Design Saved!") : t("Save Design")}</button>
+              {showSaveForm && (
+                <div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 space-y-3">
+                  <p className="text-sm font-semibold text-emerald-800">Send design to our team</p>
+                  <input type="text" placeholder="Your name (optional)" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-emerald-400" />
+                  <input type="email" placeholder="Your email (optional)" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-emerald-400" />
+                  {sendError && <p className="text-xs text-red-600">{sendError}</p>}
+                  <div className="flex gap-2">
+                    <button onClick={handleSendDesign} disabled={sending} className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">{sending ? "Sending..." : "Send to patrick.kitolano@kitoslight.com"}</button>
+                    <button onClick={() => setShowSaveForm(false)} className="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
+                  </div>
+                </div>
+              )}
               <button onClick={handleOrder}
                 className="w-full py-3 rounded-lg text-sm font-semibold border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 transition-all"
               >
-                Bestill nå — 50% depositum
+                {t("Order now — 50% deposit")}
               </button>
 
               {showDeposit && !depositPaid && (
                 <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span className="text-sm font-bold text-amber-800">Depositum — 50%</span>
+                    <span className="text-sm font-bold text-amber-800">{t("Deposit — 50%")}</span>
                   </div>
                   <div className="space-y-1.5 text-sm">
-                    <div className="flex justify-between"><span className="text-gray-600">Totalpris</span><span className="font-bold text-gray-900">{formatPrice(total)}</span></div>
-                    <div className="flex justify-between"><span className="text-amber-700 font-semibold">Depositum (50%)</span><span className="font-bold text-amber-700">{formatPrice(deposit)}</span></div>
-                    <div className="flex justify-between border-t border-amber-200 pt-1.5"><span className="text-gray-500">Resterende ved levering</span><span className="font-semibold text-gray-700">{formatPrice(remaining)}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-600">{t("Total price")}</span><span className="font-bold text-gray-900">{formatPriceCurrency(total, currency)}</span></div>
+                    <div className="flex justify-between"><span className="text-amber-700 font-semibold">{t("Deposit — 50%")}</span><span className="font-bold text-amber-700">{formatPriceCurrency(deposit, currency)}</span></div>
+                    <div className="flex justify-between border-t border-amber-200 pt-1.5"><span className="text-gray-500">{t("Remaining upon delivery")}</span><span className="font-semibold text-gray-700">{formatPriceCurrency(remaining, currency)}</span></div>
                   </div>
-                  <p className="text-xs text-amber-600">Alle priser eks. mva</p>
-                  <a href={depositPaymentLink} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-amber-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-amber-700 transition-all shadow-md">Betal {formatPrice(deposit)} depositum via Stripe</a>
-                  <button onClick={handleDepositPaid} className="block w-full rounded-lg border border-amber-300 px-4 py-2 text-center text-xs text-amber-600 hover:bg-amber-100 transition-all">Simuler: Jeg har betalt depositum</button>
+                  <p className="text-xs text-amber-600">{t("All prices excl. VAT")}</p>
+                  <a href={depositPaymentLink} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-amber-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-amber-700 transition-all shadow-md">{t("Pay {deposit} deposit via Stripe", { deposit: formatPriceCurrency(deposit, currency) })}</a>
+                  <button onClick={handleDepositPaid} className="block w-full rounded-lg border border-amber-300 px-4 py-2 text-center text-xs text-amber-600 hover:bg-amber-100 transition-all">{t("Simulate: I have paid the deposit")}</button>
                 </div>
               )}
 
               {showLogistics && depositPaid && (
                 <div className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 space-y-3 mt-3">
-                  <div className="flex items-center gap-2"><svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg><span className="text-sm font-bold text-emerald-800">Logistikk — Transportvalg</span></div>
-                  <p className="text-xs text-emerald-700">Depositum bekreftet! Velg transport for din containerbolig.</p>
+                  <div className="flex items-center gap-2"><svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg><span className="text-sm font-bold text-emerald-800">{t("Logistics — Transport Options")}</span></div>
+                  <p className="text-xs text-emerald-700">{t("Deposit confirmed! Choose transport for your container home.")}</p>
                   {!logisticsChoice ? (
                     <div className="space-y-2">
-                      <button onClick={() => setLogisticsChoice("self")} className="w-full text-left rounded-lg border-2 border-gray-200 bg-white p-3 hover:border-emerald-400 transition-all"><p className="text-sm font-bold text-gray-900"> Jeg ordner transport selv</p><p className="text-xs text-gray-500 mt-0.5">Ingen ekstra kostnad.</p></button>
-                      <button onClick={() => setLogisticsChoice("kitozon")} className="w-full text-left rounded-lg border-2 border-gray-200 bg-white p-3 hover:border-emerald-400 transition-all"><p className="text-sm font-bold text-gray-900"> Kitozon ordner transport</p><p className="text-xs text-gray-500 mt-0.5">Pris gis etter avtale med konsulent.</p></button>
+                      <button onClick={() => setLogisticsChoice("self")} className="w-full text-left rounded-lg border-2 border-gray-200 bg-white p-3 hover:border-emerald-400 transition-all"><p className="text-sm font-bold text-gray-900"> {t("I will arrange transport myself")}</p><p className="text-xs text-gray-500 mt-0.5">{t("No extra cost.")}</p></button>
+                      <button onClick={() => setLogisticsChoice("kitozon")} className="w-full text-left rounded-lg border-2 border-gray-200 bg-white p-3 hover:border-emerald-400 transition-all"><p className="text-sm font-bold text-gray-900"> {t("Kitozon arranges transport")}</p><p className="text-xs text-gray-500 mt-0.5">{t("Price given after agreement with consultant.")}</p></button>
                     </div>
                   ) : (
                     <div className="rounded-lg bg-white border border-emerald-200 p-3">
-                      <p className="text-sm font-semibold text-emerald-700">{logisticsChoice === "self" ? " Du ordner transport selv" : " Kitozon ordner transport — konsulent kontakter deg"}</p>
-                      <p className="text-xs text-gray-500 mt-1">{logisticsChoice === "self" ? "Ingen ekstra kostnad. Produksjon starter nå." : "Konsulent tar kontakt for transport-avtale."}</p>
-                      <button onClick={() => setLogisticsChoice(null)} className="mt-2 text-xs text-gray-400 hover:text-gray-600 underline">Endre valg</button>
+                      <p className="text-sm font-semibold text-emerald-700">{logisticsChoice === "self" ? t("You arrange transport yourself") : t("Kitozon arranges transport — consultant will contact you")}</p>
+                      <p className="text-xs text-gray-500 mt-1">{logisticsChoice === "self" ? t("No extra cost. Production starts now.") : t("Consultant will contact you for transport agreement.")}</p>
+                      <button onClick={() => setLogisticsChoice(null)} className="mt-2 text-xs text-gray-400 hover:text-gray-600 underline">{t("Change choice")}</button>
                     </div>
                   )}
-                  {logisticsChoice && <div className="rounded-lg bg-emerald-600 p-3 text-white text-center"><p className="text-sm font-bold"> Produksjon starter!</p><p className="text-xs text-emerald-100 mt-1">Din bestilling er bekreftet. Konsulent følger opp videre.</p></div>}
+                  {logisticsChoice && <div className="rounded-lg bg-emerald-600 p-3 text-white text-center"><p className="text-sm font-bold">{t("Production starts!")}</p><p className="text-xs text-emerald-100 mt-1">{t("Your order is confirmed. Consultant will follow up.")}</p></div>}
                 </div>
               )}
             </div>
@@ -1354,6 +1279,7 @@ function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React
 // ── Solar & CO2 Info Panel ─────────────────────────────
 
 function SolarInfoPanel({ state }: { state: DesignState }) {
+  const { t, currency } = useLanguage();
   const { annualKwh, co2Saved, panels } = estimateSolar(state);
 
   return (
@@ -1395,7 +1321,7 @@ function SolarInfoPanel({ state }: { state: DesignState }) {
               </div>
               <div className="flex justify-between">
                 <span>Estimated savings</span>
-                <span className="font-semibold text-gray-800">~{formatPrice(Math.round(annualKwh * 0.14))}/yr</span>
+                <span className="font-semibold text-gray-800">~{formatPriceCurrency(Math.round(annualKwh * 0.14), currency)}{t("/yr")}</span>
               </div>
               <div className="flex justify-between">
                 <span>Grid independence</span>
@@ -1420,14 +1346,87 @@ function ZongosolPage() {
   const [fullscreenRoomId, setFullscreenRoomId] = useState<string | null>(null);
   const [tourActive, setTourActive] = useState(false);
 
+  // ── Undo/Redo history ──────────────────────────────
+  const MAX_HISTORY = 50;
+  const historyRef = useRef<DesignState[]>([]);
+  const futureRef = useRef<DesignState[]>([]);
+
+  // Track state changes for history
+  const stateRef = useRef<DesignState>(state);
+  const lastActionRef = useRef<DesignAction["type"] | null>(null);
+  
+  useEffect(() => {
+    const prevState = stateRef.current;
+    const actionType = lastActionRef.current;
+    
+    // Push previous state to history before state-changing actions
+    if (actionType && actionType !== "LOAD_STATE" && actionType !== "RESET" && actionType !== "UNDO" && actionType !== "REDO") {
+      historyRef.current = [...historyRef.current.slice(-(MAX_HISTORY - 1)), prevState];
+      futureRef.current = []; // Clear redo stack on new action
+    }
+    
+    stateRef.current = state;
+  }, [state]);
+
+  // Wrap dispatch to track action types
+  const trackedDispatch = useCallback((action: DesignAction) => {
+    if (action.type === "UNDO") {
+      const past = historyRef.current;
+      if (past.length === 0) return;
+      const prev = past[past.length - 1];
+      historyRef.current = past.slice(0, -1);
+      futureRef.current = [...futureRef.current, stateRef.current].slice(-MAX_HISTORY);
+      lastActionRef.current = "LOAD_STATE";
+      dispatch({ type: "LOAD_STATE", state: prev });
+      return;
+    }
+    if (action.type === "REDO") {
+      const future = futureRef.current;
+      if (future.length === 0) return;
+      const next = future[future.length - 1];
+      futureRef.current = future.slice(0, -1);
+      historyRef.current = [...historyRef.current, stateRef.current].slice(-MAX_HISTORY);
+      lastActionRef.current = "LOAD_STATE";
+      dispatch({ type: "LOAD_STATE", state: next });
+      return;
+    }
+    if (action.type === "RESET") {
+      historyRef.current = [];
+      futureRef.current = [];
+    }
+    lastActionRef.current = action.type;
+    dispatch(action);
+  }, [dispatch]);
+
+  // ── Keyboard shortcuts for undo/redo ────────────────
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (fullscreenRoomId) return; // Don't intercept when RoomFullscreen is open
+      // Skip if user is typing in an input
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          trackedDispatch({ type: "REDO" });
+        } else {
+          trackedDispatch({ type: "UNDO" });
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [trackedDispatch, fullscreenRoomId]);
+
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
   }, [state]);
 
   const handleReset = useCallback(() => {
-    dispatch({ type: "RESET" });
+    trackedDispatch({ type: "RESET" });
     localStorage.removeItem(STORAGE_KEY);
-  }, []);
+  }, [trackedDispatch]);
 
   return (
     <ErrorBoundary>
@@ -1437,41 +1436,40 @@ function ZongosolPage() {
           roomId={fullscreenRoomId}
           onClose={() => setFullscreenRoomId(null)}
           onStateChange={(updates) => {
-            if (updates.kitchenLayout !== undefined) dispatch({ type: "SET_KITCHEN_LAYOUT", layout: updates.kitchenLayout });
-            if (updates.kitchenBrand !== undefined) dispatch({ type: "SET_KITCHEN_BRAND", brand: updates.kitchenBrand });
-            if (updates.kitchenCountertop !== undefined) dispatch({ type: "SET_KITCHEN_COUNTERTOP", material: updates.kitchenCountertop });
+            if (updates.kitchenLayout !== undefined) trackedDispatch({ type: "SET_KITCHEN_LAYOUT", layout: updates.kitchenLayout });
+            if (updates.kitchenCountertop !== undefined) trackedDispatch({ type: "SET_KITCHEN_COUNTERTOP", material: updates.kitchenCountertop });
             if (updates.kitchenAppliances !== undefined) {
               // Replace entire array
               const current = state.kitchenAppliances;
               const next = updates.kitchenAppliances;
               const toRemove = current.filter(a => !next.includes(a));
               const toAdd = next.filter(a => !current.includes(a));
-              toRemove.forEach(a => dispatch({ type: "TOGGLE_KITCHEN_APPLIANCE", appliance: a }));
-              toAdd.forEach(a => dispatch({ type: "TOGGLE_KITCHEN_APPLIANCE", appliance: a }));
+              toRemove.forEach(a => trackedDispatch({ type: "TOGGLE_KITCHEN_APPLIANCE", appliance: a }));
+              toAdd.forEach(a => trackedDispatch({ type: "TOGGLE_KITCHEN_APPLIANCE", appliance: a }));
             }
             if (updates.bathFixtures !== undefined) {
               const current = state.bathFixtures;
               const next = updates.bathFixtures;
               const toRemove = current.filter(f => !next.includes(f));
               const toAdd = next.filter(f => !current.includes(f));
-              toRemove.forEach(f => dispatch({ type: "TOGGLE_BATH_FIXTURE", fixture: f }));
-              toAdd.forEach(f => dispatch({ type: "TOGGLE_BATH_FIXTURE", fixture: f }));
+              toRemove.forEach(f => trackedDispatch({ type: "TOGGLE_BATH_FIXTURE", fixture: f }));
+              toAdd.forEach(f => trackedDispatch({ type: "TOGGLE_BATH_FIXTURE", fixture: f }));
             }
             if (updates.livingItems !== undefined) {
               const current = state.livingItems;
               const next = updates.livingItems;
               const toRemove = current.filter(i => !next.includes(i));
               const toAdd = next.filter(i => !current.includes(i));
-              toRemove.forEach(i => dispatch({ type: "TOGGLE_LIVING_ITEM", item: i }));
-              toAdd.forEach(i => dispatch({ type: "TOGGLE_LIVING_ITEM", item: i }));
+              toRemove.forEach(i => trackedDispatch({ type: "TOGGLE_LIVING_ITEM", item: i }));
+              toAdd.forEach(i => trackedDispatch({ type: "TOGGLE_LIVING_ITEM", item: i }));
             }
             if (updates.bedroomItems !== undefined) {
               const current = state.bedroomItems;
               const next = updates.bedroomItems;
               const toRemove = current.filter(i => !next.includes(i));
               const toAdd = next.filter(i => !current.includes(i));
-              toRemove.forEach(i => dispatch({ type: "TOGGLE_BEDROOM_ITEM", item: i }));
-              toAdd.forEach(i => dispatch({ type: "TOGGLE_BEDROOM_ITEM", item: i }));
+              toRemove.forEach(i => trackedDispatch({ type: "TOGGLE_BEDROOM_ITEM", item: i }));
+              toAdd.forEach(i => trackedDispatch({ type: "TOGGLE_BEDROOM_ITEM", item: i }));
             }
           }}
         />
@@ -1488,17 +1486,39 @@ function ZongosolPage() {
                 Configure your sustainable container home — from layout to solar.
               </p>
             </div>
-            <button onClick={handleReset}
-              className="px-4 py-2 rounded-lg text-sm font-medium border border-white/30 text-white hover:bg-white/10 transition-all"
-            >Start Over</button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => trackedDispatch({ type: "UNDO" })}
+                disabled={historyRef.current.length === 0}
+                title="Undo (Ctrl+Z)"
+                className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                  historyRef.current.length === 0
+                    ? "border-white/20 text-white/40 cursor-not-allowed"
+                    : "border-white/30 text-white hover:bg-white/10"
+                }`}
+              >↩ Undo</button>
+              <button
+                onClick={() => trackedDispatch({ type: "REDO" })}
+                disabled={futureRef.current.length === 0}
+                title="Redo (Ctrl+Shift+Z)"
+                className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                  futureRef.current.length === 0
+                    ? "border-white/20 text-white/40 cursor-not-allowed"
+                    : "border-white/30 text-white hover:bg-white/10"
+                }`}
+              >↪ Redo</button>
+              <button onClick={handleReset}
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-white/30 text-white hover:bg-white/10 transition-all"
+              >Start Over</button>
+            </div>
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <ModelSelector state={state} dispatch={dispatch} />
+        <ModelSelector state={state} dispatch={trackedDispatch} />
 
-        <LayoutSelector state={state} dispatch={dispatch} />
+        <LayoutSelector state={state} dispatch={trackedDispatch} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
@@ -1543,8 +1563,8 @@ function ZongosolPage() {
               > Docs</button>
             </div>
 
-            {activeTab === "design" && <InteriorPanel state={state} dispatch={dispatch} />}
-            {activeTab === "exterior" && <ExteriorPanel state={state} dispatch={dispatch} />}
+            {activeTab === "design" && <InteriorPanel state={state} dispatch={trackedDispatch} />}
+            {activeTab === "exterior" && <ExteriorPanel state={state} dispatch={trackedDispatch} />}
             {activeTab === "energy" && (
               <EnergyPanel
                 energyState={{
@@ -1559,15 +1579,15 @@ function ZongosolPage() {
                   evChargerPower: state.evChargerPower,
                 }}
                 onEnergyUpdate={(u) => {
-                  if (u.solarPanels !== undefined) dispatch({ type: "TOGGLE_SOLAR" });
-                  if (u.panelType !== undefined) dispatch({ type: "SET_PANEL_TYPE", panelType: u.panelType });
-                  if (u.batterySize !== undefined) dispatch({ type: "SET_BATTERY_SIZE", batterySize: u.batterySize });
-                  if (u.inverterType !== undefined) dispatch({ type: "SET_INVERTER_TYPE", inverterType: u.inverterType });
-                  if (u.windTurbine !== undefined) dispatch({ type: "TOGGLE_WIND_TURBINE" });
-                  if (u.windTurbineSize !== undefined) dispatch({ type: "SET_WIND_TURBINE_SIZE", windTurbineSize: u.windTurbineSize });
-                  if (u.heatPumpType !== undefined) dispatch({ type: "SET_HEAT_PUMP_TYPE", heatPumpType: u.heatPumpType });
-                  if (u.evCharger !== undefined) dispatch({ type: "TOGGLE_EV_CHARGER" });
-                  if (u.evChargerPower !== undefined) dispatch({ type: "SET_EV_CHARGER_POWER", evChargerPower: u.evChargerPower });
+                  if (u.solarPanels !== undefined) trackedDispatch({ type: "TOGGLE_SOLAR" });
+                  if (u.panelType !== undefined) trackedDispatch({ type: "SET_PANEL_TYPE", panelType: u.panelType });
+                  if (u.batterySize !== undefined) trackedDispatch({ type: "SET_BATTERY_SIZE", batterySize: u.batterySize });
+                  if (u.inverterType !== undefined) trackedDispatch({ type: "SET_INVERTER_TYPE", inverterType: u.inverterType });
+                  if (u.windTurbine !== undefined) trackedDispatch({ type: "TOGGLE_WIND_TURBINE" });
+                  if (u.windTurbineSize !== undefined) trackedDispatch({ type: "SET_WIND_TURBINE_SIZE", windTurbineSize: u.windTurbineSize });
+                  if (u.heatPumpType !== undefined) trackedDispatch({ type: "SET_HEAT_PUMP_TYPE", heatPumpType: u.heatPumpType });
+                  if (u.evCharger !== undefined) trackedDispatch({ type: "TOGGLE_EV_CHARGER" });
+                  if (u.evChargerPower !== undefined) trackedDispatch({ type: "SET_EV_CHARGER_POWER", evChargerPower: u.evChargerPower });
                 }}
                 containerSize={state.containerSize}
                 customLength={state.customLength}
@@ -1583,7 +1603,7 @@ function ZongosolPage() {
           </div>
 
           <div>
-            <SummaryPanel state={state} dispatch={dispatch} />
+            <SummaryPanel state={state} dispatch={trackedDispatch} />
           </div>
         </div>
 
