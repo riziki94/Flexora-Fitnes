@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "~/lib/auth.tsx";
+import { useLanguage } from "~/lib/i18n.tsx";
 import { getDevices, type DbDevice } from "~/lib/db-devices";
 import { setupDatabase } from "~/lib/db-setup";
 import {
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/dashboard/")({
 // ── Main Page ────────────────────────────────────────────────────────
 function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [tierLoading, setTierLoading] = useState(true);
@@ -73,10 +75,10 @@ function DashboardPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Sign in required</h2>
-          <p className="text-gray-600 mb-6">Please sign in to access the admin dashboard.</p>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t("dashboard.signInRequired")}</h2>
+          <p className="text-gray-600 mb-6">{t("dashboard.signInToAccess")}</p>
           <Link to="/subscribe" className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors">
-            View Plans
+            {t("dashboard.viewPlans")}
           </Link>
         </div>
       </main>

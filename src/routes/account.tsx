@@ -118,10 +118,10 @@ function AccountPage() {
             </svg>
           </div>
           <h1 className="mt-6 text-2xl font-bold text-gray-900">
-            Sign in required
+            {t("dashboard.signInRequired")}
           </h1>
           <p className="mt-2 text-gray-600">
-            Please sign in to view your account and subscription details.
+            {t("dashboard.signInToViewAccount")}
           </p>
           <Link
             to="/login"
