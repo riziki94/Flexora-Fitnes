@@ -901,19 +901,19 @@ function LayoutSelector({ state, dispatch }: { state: DesignState; dispatch: Rea
 }
 
 const COUNTERTOP_SWATCHES: { value: CountertopMaterial; label: string; color: string; price: number }[] = [
-  { value: "wood", label: "Wood", color: "#8B5E3C", price: 5000 },
-  { value: "granite", label: "Granite", color: "#4A4A4A", price: 15000 },
-  { value: "marble", label: "Marble", color: "#F5F5F0", price: 20000 },
-  { value: "laminate", label: "Laminate", color: "#E5E7EB", price: 2000 },
-  { value: "steel", label: "Steel", color: "#9CA3AF", price: 8000 },
+  { value: "wood", label: t("zongosol.wood"), color: "#8B5E3C", price: 5000 },
+  { value: "granite", label: t("zongosol.granite"), color: "#4A4A4A", price: 15000 },
+  { value: "marble", label: t("zongosol.marble"), color: "#F5F5F0", price: 20000 },
+  { value: "laminate", label: t("zongosol.laminate"), color: "#E5E7EB", price: 2000 },
+  { value: "steel", label: t("zongosol.steel"), color: "#9CA3AF", price: 8000 },
 ];
 
 const APPLIANCE_LIST: { value: KitchenAppliance; label: string; icon: string }[] = [
-  { value: "refrigerator", label: "Refrigerator", icon: "" },
-  { value: "oven", label: "Oven", icon: "" },
-  { value: "dishwasher", label: "Dishwasher", icon: "" },
-  { value: "microwave", label: "Microwave", icon: "" },
-  { value: "cooktop", label: "Cooktop", icon: "" },
+  { value: "refrigerator", label: t("zongosol.refrigerator"), icon: "" },
+  { value: "oven", label: t("zongosol.oven"), icon: "" },
+  { value: "dishwasher", label: t("zongosol.dishwasher"), icon: "" },
+  { value: "microwave", label: t("zongosol.microwave"), icon: "" },
+  { value: "cooktop", label: t("zongosol.cooktop"), icon: "" },
 ];
 
 // ── Interior Designer Panel ────────────────────────────
@@ -927,13 +927,13 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
   ];
 
   const tabs: { key: typeof tab; label: string; icon: string }[] = [
-    { key: "kitchen", label: "Kitchen", icon: "" },
-    { key: "bathroom", label: "Bathroom", icon: "" },
-    { key: "furniture", label: "Furniture", icon: "" },
-    { key: "electrical", label: "Electrical", icon: "" },
-    { key: "windows", label: "Windows", icon: "" },
-    { key: "doors", label: "Doors", icon: "" },
-    { key: "size", label: "Size", icon: "" },
+    { key: "kitchen", label: t("zongosol.kitchenTab"), icon: "" },
+    { key: "bathroom", label: t("zongosol.bathroomTab"), icon: "" },
+    { key: "furniture", label: t("zongosol.furnitureTab"), icon: "" },
+    { key: "electrical", label: t("zongosol.electricalTab"), icon: "" },
+    { key: "windows", label: t("zongosol.windowsTab"), icon: "" },
+    { key: "doors", label: t("zongosol.doorsTab"), icon: "" },
+    { key: "size", label: t("zongosol.sizeTab"), icon: "" },
   ];
 
   return (
@@ -943,7 +943,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
           <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
           </svg>
-          Interior Designer
+          {t("zongosol.interiorDesigner")}
         </span>
       </div>
       <div className="flex border-b border-gray-100 overflow-x-auto">

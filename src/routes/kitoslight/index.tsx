@@ -168,7 +168,7 @@ function KitoslightPage() {
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${liveMode ? "bg-emerald-500 animate-pulse" : "bg-gray-400"}`}
                 />
-                Live Mode {liveMode ? t("kitoslight.liveOn") : t("kitoslight.liveOff")}
+                {t("kitoslight.liveMode")} {liveMode ? t("kitoslight.liveOn") : t("kitoslight.liveOff")}
               </button>
             </div>
           </div>
@@ -227,7 +227,7 @@ function KitoslightPage() {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              {city}
+              {city === "All" ? t("kitoslight.filterAll") : city}
               {city === "Goma" && <span className="ml-1"></span>}
             </button>
           ))}
@@ -312,26 +312,26 @@ function KitoslightPage() {
               >
                 <img
                   src={`/images/kitoslight-${productImage}.png`}
-                  alt={meta.label}
+                  alt={t(meta.label)}
                   className="w-full h-40 object-cover"
                 />
                 <div className="p-5">
                   <div className="flex items-center gap-3 mb-3">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{meta.label}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{t(meta.label)}</h3>
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colorBadges[meta.color]}`}>
                         {typeCounts[type]} {t("kitoslight.deployed")}
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">{meta.description}</p>
+                  <p className="text-sm text-gray-600 mb-4">{t(meta.description)}</p>
                   <ul className="space-y-1.5">
                     {meta.features.map((feat) => (
                       <li key={feat} className="flex items-center gap-2 text-sm text-gray-700">
                         <svg className="h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        {feat}
+                        {t(feat)}
                       </li>
                     ))}
                   </ul>
@@ -621,13 +621,13 @@ function GasMonitoringPanel({ devices }: { devices: Device[] }) {
       </div>
       <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-3">
         {gasEntries.map((entry) => {
-          const t = entry.threshold;
+          const threshold = entry.threshold;
           const val = entry.value;
-          const status = val > t.warningMax ? "danger" : val > t.safeMax ? "warning" : "safe";
-          const maxBar = Math.max(t.warningMax * 1.5, val * 1.2);
+          const status = val > threshold.warningMax ? "danger" : val > threshold.safeMax ? "warning" : "safe";
+          const maxBar = Math.max(threshold.warningMax * 1.5, val * 1.2);
           const barPct = Math.min((val / maxBar) * 100, 100);
-          const warnPct = (t.safeMax / maxBar) * 100;
-          const dangerPct = (t.warningMax / maxBar) * 100;
+          const warnPct = (threshold.safeMax / maxBar) * 100;
+          const dangerPct = (threshold.warningMax / maxBar) * 100;
 
           const statusColors = {
             safe: { bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700", bar: "bg-emerald-500", dot: "bg-emerald-500" },
@@ -637,7 +637,7 @@ function GasMonitoringPanel({ devices }: { devices: Device[] }) {
           const sc = statusColors[status];
 
           // Trend arrow (random for demo — simulated from the data)
-          const trend = val > t.safeMax ? "↑" : val < t.safeMax * 0.3 ? "↓" : "→";
+          const trend = val > threshold.safeMax ? "↑" : val < threshold.safeMax * 0.3 ? "↓" : "→";
           const trendColor = trend === "↑" ? "text-red-500" : trend === "↓" ? "text-emerald-500" : "text-gray-400";
 
           return (
@@ -648,7 +648,7 @@ function GasMonitoringPanel({ devices }: { devices: Device[] }) {
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm">{entry.icon}</span>
-                  <span className="text-sm font-semibold text-gray-900">{t.gas}</span>
+                  <span className="text-sm font-semibold text-gray-900">{t(threshold.gas)}</span>
                 </div>
                 <span className={`text-xs font-bold ${sc.text}`}>
                   {status === "danger" ? t("kitoslight.dangerStatus") : status === "warning" ? t("kitoslight.warningStatus") : t("kitoslight.safeStatus")}
@@ -658,7 +658,7 @@ function GasMonitoringPanel({ devices }: { devices: Device[] }) {
                 <span className={`text-xl font-extrabold ${sc.text}`}>
                   {val < 1 ? val.toFixed(3) : val.toFixed(1)}
                 </span>
-                <span className="text-xs text-gray-400">{t.unit}</span>
+                <span className="text-xs text-gray-400">{threshold.unit}</span>
                 <span className={`ml-auto text-xs font-bold ${trendColor}`}>{trend}</span>
               </div>
               {/* Bar gauge */}
@@ -675,7 +675,7 @@ function GasMonitoringPanel({ devices }: { devices: Device[] }) {
                   style={{ width: `${barPct}%` }}
                 />
               </div>
-              <p className="text-[10px] text-gray-400 mt-1.5 truncate">{t.description}</p>
+              <p className="text-[10px] text-gray-400 mt-1.5 truncate">{t(threshold.description)}</p>
             </div>
           );
         })}
@@ -723,10 +723,10 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
       <div className="p-4 space-y-3 max-h-[750px] overflow-y-auto">
         {/* Device info */}
         <div className="grid grid-cols-2 gap-2 text-sm">
-          <InfoRow label={t("kitoslight.type")} value={meta.label} />
-          <InfoRow label={t("kitoslight.city")} value={`${device.city}, ${device.country}`} />
+          <InfoRow label={t("kitoslight.type")} value={t(meta.label)} />
+          <InfoRow label={t("kitoslight.city")} value={`${device.city}, ${device.country === "Norway" ? t("kitoslight.countryNorway") : device.country === "DRC Congo" ? t("kitoslight.countryDrc") : device.country}`} />
           <InfoRow label={t("kitoslight.ipAddress")} value={device.ipAddress} mono />
-          <InfoRow label={t("kitoslight.status")} value={device.status} capitalize />
+          <InfoRow label={t("kitoslight.status")} value={t(device.status === "online" ? "kitoslight.statusOnline" : "kitoslight.statusOffline")} capitalize />
         </div>
 
         {/* Solar & Temp */}
@@ -982,7 +982,7 @@ function DeviceListPanel({
                   )}
                 </p>
                 <p className="text-xs text-gray-500 flex items-center gap-1">
-                  {device.city}, {device.country} · {device.type.replace("-", " ")}
+                  {device.city}, {device.country === "Norway" ? t("kitoslight.countryNorway") : device.country === "DRC Congo" ? t("kitoslight.countryDrc") : device.country} · {(() => { const dtMap: Record<string, string> = { "smart-bench": t("kitoslight.deviceTypeSmartBench"), "bus-shelter": t("kitoslight.deviceTypeBusShelter"), "sensor-pole": t("kitoslight.deviceTypeSensorPole") }; return dtMap[device.type] || device.type; })()}
                   {isOnline && device.type !== "sensor-pole" && device.wifi.usersConnected > 0 && (
                     <span className="inline-flex items-center gap-0.5 text-blue-500">
                       ·  {device.wifi.usersConnected}
