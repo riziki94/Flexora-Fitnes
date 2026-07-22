@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { useLanguage } from "~/lib/i18n.tsx";
 import type {
   RoomType,
   ContainerSize,
@@ -89,6 +90,7 @@ interface RoomFullscreenProps {
 }
 
 export default function RoomFullscreen({ state, roomId, onClose, onStateChange }: RoomFullscreenProps) {
+  const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const animFrameRef = useRef<number>(0);
@@ -98,7 +100,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
 
   const room = state.rooms.find((r) => r.id === roomId);
   const roomType = room?.type ?? "living";
-  const roomLabel = room?.label ?? "Room";
+  const roomLabel = room?.label ?? t("Room");
 
   // ── Room-specific design options ─────────────────────
   const isKitchen = roomType === "kitchen";
@@ -107,13 +109,13 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
   const isBedroom = roomType === "bedroom";
 
   const tabs: { key: string; label: string; icon: string }[] = [];
-  if (isKitchen) tabs.push({ key: "design", label: "Kitchen", icon: "🍳" });
-  if (isBathroom) tabs.push({ key: "design", label: "Bath", icon: "🛁" });
-  if (isLiving) tabs.push({ key: "design", label: "Living", icon: "🛋️" });
-  if (isBedroom) tabs.push({ key: "design", label: "Bedroom", icon: "🛏️" });
-  tabs.push({ key: "electrical", label: "Electrical", icon: "⚡" });
-  tabs.push({ key: "smart", label: "Smart", icon: "🏠" });
-  tabs.push({ key: "colors", label: "Colors", icon: "🎨" });
+  if (isKitchen) tabs.push({ key: "design", label: t("Kitchen"), icon: "🍳" });
+  if (isBathroom) tabs.push({ key: "design", label: t("Bath"), icon: "🛁" });
+  if (isLiving) tabs.push({ key: "design", label: t("Living"), icon: "🛋️" });
+  if (isBedroom) tabs.push({ key: "design", label: t("Bedroom"), icon: "🛏️" });
+  tabs.push({ key: "electrical", label: t("Electrical"), icon: "⚡" });
+  tabs.push({ key: "smart", label: t("Smart"), icon: "🏠" });
+  tabs.push({ key: "colors", label: t("Colors"), icon: "🎨" });
 
   // ── 3D Scene ────────────────────────────────────────
   useEffect(() => {
@@ -407,7 +409,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
                         className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${
                           state.kitchenLayout === layout ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
                         }`}
-                      >{layout === "L-shape" ? "L-Shape" : layout === "galley" ? "Galley" : "Island"}</button>
+                      >{layout === "L-shape" ? t("L-Shape") : layout === "galley" ? t("Galley") : t("Island")}</button>
                     ))}
                   </div>
                 </div>
@@ -642,7 +644,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
             <div className="bg-gray-50 rounded-lg p-3 text-[11px] text-gray-600">
               <p className="font-semibold mb-1">Summary</p>
               <p>Outlets: {state.electrical.outlets.length} · Lights: {state.electrical.lights.length} · Switches: {state.electrical.switches.length}</p>
-              <p>Panel: {state.electrical.panel ? "Yes" : "No"} · EV Charger: {state.evCharger ? "Yes" : "No"}</p>
+              <p>Panel: {state.electrical.panel ? t("Yes") : t("No")} · EV Charger: {state.evCharger ? t("Yes") : t("No")}</p>
             </div>
           </div>
         )}
@@ -731,10 +733,10 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
               <label className="text-xs font-semibold text-gray-700 block mb-2">Voice Assistant</label>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  { value: "none" as const, label: "None", icon: "❌" },
-                  { value: "alexa" as const, label: "Alexa", icon: "🟠" },
-                  { value: "google" as const, label: "Google", icon: "🔵" },
-                  { value: "homekit" as const, label: "HomeKit", icon: "⚪" },
+                  { value: "none" as const, label: t("None"), icon: "❌" },
+                  { value: "alexa" as const, label: t("Alexa"), icon: "🟠" },
+                  { value: "google" as const, label: t("Google"), icon: "🔵" },
+                  { value: "homekit" as const, label: t("HomeKit"), icon: "⚪" },
                 ]).map((opt) => (
                   <button key={opt.value} onClick={() => onStateChange?.({ voiceAssistant: opt.value })}
                     className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-medium border transition-all ${

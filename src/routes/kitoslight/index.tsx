@@ -148,7 +148,7 @@ function KitoslightPage() {
             <div className="flex items-center gap-3">
               {liveMode && (
                 <span className="text-xs text-gray-400 hidden sm:inline">
-                  {t("kitoslight.lastUpdated")} {secondsAgo}s ago
+                  {t("kitoslight.lastUpdated")} {secondsAgo}{t("kitoslight.secondsAgo")}
                 </span>
               )}
               <button
