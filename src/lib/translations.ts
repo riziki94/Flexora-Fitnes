@@ -697,6 +697,11 @@ export const translations = {
     "afercity.exploreKitoslight": "Utforsk Kitoslight",
     "afercity.backToHome": "Tilbake til hjem",
 
+    // Kitoslight products
+    "Solar Panel System": "Solcellepanelsystem",
+    "Battery Storage": "Batterilagring",
+    "Price depends on materials": "Pris avhenger av materialer",
+
     "auth.signIn": "Logg inn",
     "auth.signingIn": "Logger inn...",
     "auth.email": "E-post",
