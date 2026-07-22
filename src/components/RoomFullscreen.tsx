@@ -106,12 +106,14 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
   const isLiving = roomType === "living";
   const isBedroom = roomType === "bedroom";
 
-  const tabs: { key: string; label: string }[] = [];
-  if (isKitchen) tabs.push({ key: "design", label: "Kitchen" });
-  if (isBathroom) tabs.push({ key: "design", label: "Bathroom" });
-  if (isLiving) tabs.push({ key: "design", label: "Living Room" });
-  if (isBedroom) tabs.push({ key: "design", label: "Bedroom" });
-  tabs.push({ key: "colors", label: "Colors" });
+  const tabs: { key: string; label: string; icon: string }[] = [];
+  if (isKitchen) tabs.push({ key: "design", label: "Kitchen", icon: "🍳" });
+  if (isBathroom) tabs.push({ key: "design", label: "Bath", icon: "🛁" });
+  if (isLiving) tabs.push({ key: "design", label: "Living", icon: "🛋️" });
+  if (isBedroom) tabs.push({ key: "design", label: "Bedroom", icon: "🛏️" });
+  tabs.push({ key: "electrical", label: "Electrical", icon: "⚡" });
+  tabs.push({ key: "smart", label: "Smart", icon: "🏠" });
+  tabs.push({ key: "colors", label: "Colors", icon: "🎨" });
 
   // ── 3D Scene ────────────────────────────────────────
   useEffect(() => {
@@ -363,9 +365,9 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
           {tabs.map((t) => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                activeTab === t.key ? "bg-white text-emerald-700" : "bg-white/10 text-white/80 hover:bg-white/20"
+                activeTab === t.key ? "bg-white text-emerald-700 shadow-md scale-105" : "bg-white/10 text-white/80 hover:bg-white/20"
               }`}
-            >{t.label}</button>
+            ><span className="mr-1">{t.icon}</span>{t.label}</button>
           ))}
         </div>
       </div>
@@ -507,24 +509,290 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
           </div>
         )}
 
+        {/* Electrical tab */}
+        {activeTab === "electrical" && (
+          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
+            <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+              <span>⚡</span> Electrical Planning
+            </h3>
+            
+            {/* Outlet placement */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Power Outlets</label>
+              <p className="text-[10px] text-gray-400 mb-2">Click walls to add outlets</p>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {(["left","right","bottom","top"] as const).map((wall) => (
+                  <button key={wall} onClick={() => {
+                    const newOutlet = { id: `eo${Date.now()}`, wall, position: 50 };
+                    onStateChange?.({ electrical: { ...state.electrical, outlets: [...state.electrical.outlets, newOutlet] } });
+                  }}
+                    className="px-2 py-1.5 rounded-lg text-[10px] font-medium border border-gray-200 text-gray-600 hover:border-amber-400 hover:bg-amber-50 transition-all"
+                  >+ {wall}</button>
+                ))}
+              </div>
+              {state.electrical.outlets.length > 0 && (
+                <div className="space-y-1">
+                  {state.electrical.outlets.map((o) => (
+                    <div key={o.id} className="flex items-center justify-between bg-amber-50 rounded-lg px-2.5 py-1.5 text-xs">
+                      <span className="text-gray-700">{o.wall} wall · {o.position}%</span>
+                      <button onClick={() => onStateChange?.({ electrical: { ...state.electrical, outlets: state.electrical.outlets.filter(x => x.id !== o.id) } })}
+                        className="text-red-500 hover:text-red-700 text-[10px] font-medium">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-[10px] text-gray-400 mt-1">{state.electrical.outlets.length} outlets placed</p>
+            </div>
+
+            {/* Light fixtures */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Light Fixtures</label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {(["ceiling","track","pendant","sconce"] as const).map((lt) => (
+                  <button key={lt} onClick={() => {
+                    const newLight = { id: `el${Date.now()}`, lightType: lt, wall: "top", position: 50 };
+                    onStateChange?.({ electrical: { ...state.electrical, lights: [...state.electrical.lights, newLight] } });
+                  }}
+                    className={`px-2 py-1.5 rounded-lg text-[10px] font-medium border transition-all ${
+                      state.electrical.lights.some(l => l.lightType === lt) ? "border-yellow-500 bg-yellow-50 text-yellow-700" : "border-gray-200 text-gray-600 hover:border-yellow-400 hover:bg-yellow-50"
+                    }`}
+                  >+ {lt}</button>
+                ))}
+              </div>
+              {state.electrical.lights.length > 0 && (
+                <div className="space-y-1">
+                  {state.electrical.lights.map((l) => (
+                    <div key={l.id} className="flex items-center justify-between bg-yellow-50 rounded-lg px-2.5 py-1.5 text-xs">
+                      <span className="text-gray-700">💡 {l.lightType} · {l.wall}</span>
+                      <button onClick={() => onStateChange?.({ electrical: { ...state.electrical, lights: state.electrical.lights.filter(x => x.id !== l.id) } })}
+                        className="text-red-500 hover:text-red-700 text-[10px] font-medium">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-[10px] text-gray-400 mt-1">{state.electrical.lights.length} fixtures placed</p>
+            </div>
+
+            {/* Switches */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Light Switches</label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {(["left","right","bottom","top"] as const).map((wall) => (
+                  <button key={wall} onClick={() => {
+                    const newSwitch = { id: `es${Date.now()}`, wall, position: 50 };
+                    onStateChange?.({ electrical: { ...state.electrical, switches: [...state.electrical.switches, newSwitch] } });
+                  }}
+                    className="px-2 py-1.5 rounded-lg text-[10px] font-medium border border-gray-200 text-gray-600 hover:border-gray-400 hover:bg-gray-50 transition-all"
+                  >+ {wall}</button>
+                ))}
+              </div>
+              {state.electrical.switches.length > 0 && (
+                <div className="space-y-1">
+                  {state.electrical.switches.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-2.5 py-1.5 text-xs">
+                      <span className="text-gray-700">🔘 {s.wall} wall</span>
+                      <button onClick={() => onStateChange?.({ electrical: { ...state.electrical, switches: state.electrical.switches.filter(x => x.id !== s.id) } })}
+                        className="text-red-500 hover:text-red-700 text-[10px] font-medium">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-[10px] text-gray-400 mt-1">{state.electrical.switches.length} switches placed</p>
+            </div>
+
+            <hr className="border-gray-200" />
+
+            {/* Electrical Panel */}
+            <button onClick={() => onStateChange?.({ electrical: { ...state.electrical, panel: !state.electrical.panel } })}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all ${
+                state.electrical.panel ? "border-emerald-400 bg-emerald-50" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>⚙️</span>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-gray-800">Electrical Panel</p>
+                  <p className="text-[10px] text-gray-500">+3 000 kr</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-5 w-9 items-center rounded-full transition-colors ${state.electrical.panel ? "bg-emerald-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${state.electrical.panel ? "translate-x-4" : "translate-x-0.5"}`} />
+              </span>
+            </button>
+
+            {/* EV Charger */}
+            <button onClick={() => onStateChange?.({ evCharger: !state.evCharger })}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all ${
+                state.evCharger ? "border-amber-400 bg-amber-50" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>🔌</span>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-gray-800">EV Charger</p>
+                  <p className="text-[10px] text-gray-500">Wall-mounted · +5 000 kr</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-5 w-9 items-center rounded-full transition-colors ${state.evCharger ? "bg-emerald-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${state.evCharger ? "translate-x-4" : "translate-x-0.5"}`} />
+              </span>
+            </button>
+
+            {/* Electrical Summary */}
+            <div className="bg-gray-50 rounded-lg p-3 text-[11px] text-gray-600">
+              <p className="font-semibold mb-1">Summary</p>
+              <p>Outlets: {state.electrical.outlets.length} · Lights: {state.electrical.lights.length} · Switches: {state.electrical.switches.length}</p>
+              <p>Panel: {state.electrical.panel ? "Yes" : "No"} · EV Charger: {state.evCharger ? "Yes" : "No"}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Smart Home tab */}
+        {activeTab === "smart" && (
+          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
+            <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+              <span>🏠</span> Smart Home
+            </h3>
+
+            {/* Smart Thermostat */}
+            <button onClick={() => onStateChange?.({ smartThermostat: !state.smartThermostat })}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all ${
+                state.smartThermostat ? "border-orange-400 bg-orange-50 ring-1 ring-orange-200" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>🌡️</span>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-gray-800">Smart Thermostat</p>
+                  <p className="text-[10px] text-gray-500">+3 000 kr</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-5 w-9 items-center rounded-full transition-colors ${state.smartThermostat ? "bg-emerald-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${state.smartThermostat ? "translate-x-4" : "translate-x-0.5"}`} />
+              </span>
+            </button>
+
+            {/* Smart Lighting */}
+            <button onClick={() => onStateChange?.({ smartLighting: !state.smartLighting })}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all ${
+                state.smartLighting ? "border-yellow-400 bg-yellow-50 ring-1 ring-yellow-200" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>💡</span>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-gray-800">Smart Lighting</p>
+                  <p className="text-[10px] text-gray-500">+5 000 kr</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-5 w-9 items-center rounded-full transition-colors ${state.smartLighting ? "bg-emerald-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${state.smartLighting ? "translate-x-4" : "translate-x-0.5"}`} />
+              </span>
+            </button>
+
+            {/* Smart Locks */}
+            <button onClick={() => onStateChange?.({ smartLocks: !state.smartLocks })}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all ${
+                state.smartLocks ? "border-blue-400 bg-blue-50 ring-1 ring-blue-200" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>🔐</span>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-gray-800">Smart Locks</p>
+                  <p className="text-[10px] text-gray-500">+4 000 kr</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-5 w-9 items-center rounded-full transition-colors ${state.smartLocks ? "bg-emerald-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${state.smartLocks ? "translate-x-4" : "translate-x-0.5"}`} />
+              </span>
+            </button>
+
+            {/* Security System */}
+            <button onClick={() => onStateChange?.({ smartSecurity: !state.smartSecurity })}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all ${
+                state.smartSecurity ? "border-red-400 bg-red-50 ring-1 ring-red-200" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>📹</span>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-gray-800">Security System</p>
+                  <p className="text-[10px] text-gray-500">+8 000 kr</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-5 w-9 items-center rounded-full transition-colors ${state.smartSecurity ? "bg-emerald-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${state.smartSecurity ? "translate-x-4" : "translate-x-0.5"}`} />
+              </span>
+            </button>
+
+            {/* Voice Assistant */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Voice Assistant</label>
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  { value: "none" as const, label: "None", icon: "❌" },
+                  { value: "alexa" as const, label: "Alexa", icon: "🟠" },
+                  { value: "google" as const, label: "Google", icon: "🔵" },
+                  { value: "homekit" as const, label: "HomeKit", icon: "⚪" },
+                ]).map((opt) => (
+                  <button key={opt.value} onClick={() => onStateChange?.({ voiceAssistant: opt.value })}
+                    className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      state.voiceAssistant === opt.value ? "border-purple-500 bg-purple-50 ring-1 ring-purple-200 text-purple-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  ><span>{opt.icon}</span> {opt.label}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Smart Blinds */}
+            <button onClick={() => onStateChange?.({ smartBlinds: !state.smartBlinds })}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all ${
+                state.smartBlinds ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-200" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>🪟</span>
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-gray-800">Smart Blinds</p>
+                  <p className="text-[10px] text-gray-500">+6 000 kr</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-5 w-9 items-center rounded-full transition-colors ${state.smartBlinds ? "bg-emerald-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${state.smartBlinds ? "translate-x-4" : "translate-x-0.5"}`} />
+              </span>
+            </button>
+
+            {/* Smart Summary */}
+            <div className="bg-gray-50 rounded-lg p-3 text-[11px] text-gray-600">
+              <p className="font-semibold mb-1">Smart Home Summary</p>
+              <p>Thermostat: {state.smartThermostat ? "✓" : "—"} · Lighting: {state.smartLighting ? "✓" : "—"}</p>
+              <p>Locks: {state.smartLocks ? "✓" : "—"} · Security: {state.smartSecurity ? "✓" : "—"}</p>
+              <p>Voice: {state.voiceAssistant !== "none" ? state.voiceAssistant : "—"} · Blinds: {state.smartBlinds ? "✓" : "—"}</p>
+            </div>
+          </div>
+        )}
+
         {/* Colors tab */}
         {activeTab === "colors" && (
-          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4">
-            <h3 className="text-sm font-bold text-gray-800">Farger &amp; Materialer</h3>
-            <p className="text-xs text-gray-500">Fargevalg for {roomLabel.toLowerCase()}. Nåværende: <span className="inline-block w-4 h-4 rounded-full border border-gray-300 align-middle ml-1" style={{ backgroundColor: roomColor }} /></p>
+          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
+            <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+              <span>🎨</span> Colors &amp; Materials
+            </h3>
+            <p className="text-xs text-gray-500">Floor color for {roomLabel.toLowerCase()}. Current: <span className="inline-block w-4 h-4 rounded-full border border-gray-300 align-middle ml-1" style={{ backgroundColor: roomColor }} /></p>
             <div className="grid grid-cols-5 gap-2">
               {["#f5f5f0","#e8e0d8","#d4c5a9","#c0b8a8","#a89880","#8B7355","#6B5B4E","#5C4A3E","#D4E4F0","#B8D4E8"].map((color) => (
                 <button key={color}
                   onClick={() => setRoomColor(color)}
                   className={`w-10 h-10 rounded-lg border-2 transition-all hover:scale-110 ${
-                    roomColor === color ? "border-emerald-500 ring-2 ring-emerald-300 scale-110" : "border-gray-200 hover:border-emerald-400"
+                    roomColor === color ? "border-emerald-500 ring-2 ring-emerald-300 scale-110 shadow-lg" : "border-gray-200 hover:border-emerald-400"
                   }`}
                   style={{ backgroundColor: color }}
                   title={color}
                 />
               ))}
             </div>
-            <p className="text-[10px] text-gray-400 italic">Gulvfarge oppdateres i sanntid i 3D-visningen.</p>
+            <p className="text-[10px] text-gray-400 italic">Floor color updates in real-time in 3D view.</p>
           </div>
         )}
       </div>

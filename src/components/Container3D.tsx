@@ -757,48 +757,102 @@ function addElectricalMarkers(group: THREE.Group, containerGroup: THREE.Group, s
   const floorY = 0.06;
   const elecGroup = new THREE.Group();
 
-  // Outlet dots along walls
+  // Phase 4: Outlets from state.electrical.outlets
   const outletMat = new THREE.MeshStandardMaterial({ color: "#FFD700", roughness: 0.2, metalness: 0.5, emissive: "#553300", emissiveIntensity: 0.3 });
-  const wallH = 0.3; // height on wall
-  for (let i = 0; i < state.electricalOutlets; i++) {
-    const frac = (i + 1) / (state.electricalOutlets + 1);
-    // Distribute along bottom wall
-    const ox = frac * l;
-    const oz = -0.02;
+  const wallH = 0.3;
+  const wallOffsets: Record<string, { ox: number; oz: number }> = {
+    bottom: { ox: 0, oz: -0.02 },
+    top: { ox: 0, oz: w + 0.02 },
+    left: { ox: -0.02, oz: 0 },
+    right: { ox: l + 0.02, oz: 0 },
+  };
+  state.electrical.outlets.forEach((outletDef, i) => {
+    const frac = (outletDef.position / 100);
+    const wo = wallOffsets[outletDef.wall] ?? wallOffsets.bottom;
+    const ox = wo.ox || frac * l;
+    const oz = wo.oz || frac * w;
     const outletGeo = new THREE.BoxGeometry(0.06, 0.08, 0.02);
-    const outlet = new THREE.Mesh(outletGeo, outletMat);
-    outlet.position.set(ox, floorY + wallH, oz);
-    elecGroup.add(outlet);
-  }
+    const outletMesh = new THREE.Mesh(outletGeo, outletMat);
+    outletMesh.position.set(ox || frac * l, floorY + wallH, oz || frac * w);
+    elecGroup.add(outletMesh);
+  });
 
-  // Light fixtures (ceiling)
-  const lightMat = new THREE.MeshStandardMaterial({ color: "#FFFF88", roughness: 0.1, metalness: 0.2, emissive: "#ffffaa", emissiveIntensity: 0.6 });
-  for (let i = 0; i < state.electricalLights; i++) {
-    const frac = (i + 1) / (state.electricalLights + 1);
+  // Phase 4: Lights from state.electrical.lights
+  const lightColorMap: Record<string, string> = { ceiling: "#FFFF88", track: "#FFEEAA", pendant: "#FFDD66", sconce: "#FFCC88" };
+  state.electrical.lights.forEach((ltDef, i) => {
+    const frac = (ltDef.position / 100);
     const lx = frac * l;
-    const lz = w / 2;
-    const lightGeo = new THREE.SphereGeometry(0.08, 8, 8);
-    const light = new THREE.Mesh(lightGeo, lightMat);
-    light.position.set(lx, h - 0.05, lz);
-    elecGroup.add(light);
+    const lz = frac * w;
+    const lightColor = lightColorMap[ltDef.lightType] ?? "#FFFF88";
+    const lightMat = new THREE.MeshStandardMaterial({ color: lightColor, roughness: 0.1, metalness: 0.2, emissive: lightColor, emissiveIntensity: 0.6 });
+    
+    if (ltDef.lightType === "ceiling" || ltDef.lightType === "track") {
+      // Cylinder on ceiling
+      const lightGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.06, 8);
+      const light = new THREE.Mesh(lightGeo, lightMat);
+      light.position.set(lx, h - 0.04, lz);
+      elecGroup.add(light);
+    } else if (ltDef.lightType === "pendant") {
+      // Sphere hanging from ceiling with a small rod
+      const rodGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.3, 8);
+      const rod = new THREE.Mesh(rodGeo, new THREE.MeshStandardMaterial({ color: "#333", roughness: 0.3, metalness: 0.8 }));
+      rod.position.set(lx, h - 0.15, lz);
+      elecGroup.add(rod);
+      const bulbGeo = new THREE.SphereGeometry(0.06, 8, 8);
+      const bulb = new THREE.Mesh(bulbGeo, lightMat);
+      bulb.position.set(lx, h - 0.32, lz);
+      elecGroup.add(bulb);
+    } else {
+      // Sconce - small wall-mounted sphere
+      const lightGeo = new THREE.SphereGeometry(0.05, 8, 8);
+      const light = new THREE.Mesh(lightGeo, lightMat);
+      light.position.set(lx, floorY + 1.8, lz);
+      elecGroup.add(light);
+    }
+  });
+
+  // Phase 4: Switches from state.electrical.switches
+  const switchMat = new THREE.MeshStandardMaterial({ color: "#EEEEEE", roughness: 0.3, metalness: 0.2 });
+  state.electrical.switches.forEach((sw, i) => {
+    const frac = (sw.position / 100);
+    const sx = frac * l;
+    const sz = frac * w;
+    const switchGeo = new THREE.BoxGeometry(0.05, 0.07, 0.015);
+    const switchMesh = new THREE.Mesh(switchGeo, switchMat);
+    switchMesh.position.set(sx, floorY + 1.2, sz);
+    elecGroup.add(switchMesh);
+  });
+
+  // Electrical panel
+  if (state.electrical.panel) {
+    const panelGeo = new THREE.BoxGeometry(0.25, 0.35, 0.08);
+    const panelMat = new THREE.MeshStandardMaterial({ color: "#888888", roughness: 0.3, metalness: 0.7 });
+    const panel = new THREE.Mesh(panelGeo, panelMat);
+    panel.position.set(l * 0.05, floorY + 1.0, w * 0.95);
+    elecGroup.add(panel);
   }
 
-  // Smart home hub
-  if (state.smartHome !== "none") {
-    const hubColor = state.smartHome === "knx" ? "#00AA00" : "#0088CC";
-    const hubMat = new THREE.MeshStandardMaterial({ color: hubColor, roughness: 0.2, metalness: 0.6, emissive: hubColor, emissiveIntensity: 0.3 });
-    const hubGeo = new THREE.BoxGeometry(0.15, 0.1, 0.1);
-    const hub = new THREE.Mesh(hubGeo, hubMat);
-    hub.position.set(l * 0.1, floorY + 0.6, w * 0.9);
-    elecGroup.add(hub);
-    // Antenna
-    const antGeo = new THREE.CylinderGeometry(0.01, 0.01, 0.08, 8);
-    const ant = new THREE.Mesh(antGeo, hubMat);
-    ant.position.set(l * 0.1, floorY + 0.68, w * 0.9);
-    elecGroup.add(ant);
+  // Smart home indicator (green blinking dot for active smart features)
+  const hasSmart = state.smartThermostat || state.smartLighting || state.smartLocks || state.smartSecurity || state.voiceAssistant !== "none" || state.smartBlinds;
+  if (hasSmart) {
+    const smartHubGeo = new THREE.BoxGeometry(0.12, 0.08, 0.08);
+    const smartColor = state.smartSecurity ? "#FF4444" : "#00CC44";
+    const smartHubMat = new THREE.MeshStandardMaterial({ color: smartColor, roughness: 0.2, metalness: 0.5, emissive: smartColor, emissiveIntensity: 0.5 });
+    const smartHub = new THREE.Mesh(smartHubGeo, smartHubMat);
+    smartHub.position.set(l * 0.1, floorY + 0.5, w * 0.9);
+    smartHub.name = "smartHub";
+    elecGroup.add(smartHub);
+    
+    // Small green indicator LED
+    const ledGeo = new THREE.SphereGeometry(0.02, 6, 6);
+    const ledMat = new THREE.MeshStandardMaterial({ color: "#00FF00", roughness: 0.1, emissive: "#00FF00", emissiveIntensity: 0.8 });
+    const led = new THREE.Mesh(ledGeo, ledMat);
+    led.position.set(l * 0.1 + 0.05, floorY + 0.55, w * 0.94);
+    led.name = "smartLED";
+    elecGroup.add(led);
   }
 
-  // EV Charger
+  // EV Charger (Phase 4 enhanced)
   if (state.evCharger) {
     const chargerMat = new THREE.MeshStandardMaterial({ color: "#00AA66", roughness: 0.2, metalness: 0.5, emissive: "#003322", emissiveIntensity: 0.2 });
     const chargerBox = createBox(0.3, 0.45, 0.15, "#00AA66", 0.2, 0.5);
@@ -810,6 +864,11 @@ function addElectricalMarkers(group: THREE.Group, containerGroup: THREE.Group, s
     cable.position.set(l - 0.2, floorY + 0.65, w + 0.1);
     cable.rotation.x = Math.PI / 4;
     elecGroup.add(cable);
+    // Status LED on charger
+    const chargerLedGeo = new THREE.SphereGeometry(0.015, 6, 6);
+    const chargerLed = new THREE.Mesh(chargerLedGeo, new THREE.MeshStandardMaterial({ color: "#00FF88", roughness: 0.1, emissive: "#00FF88", emissiveIntensity: 0.9 }));
+    chargerLed.position.set(l - 0.2, floorY + 1.22, w + 0.1);
+    elecGroup.add(chargerLed);
   }
 
   containerGroup.add(elecGroup);

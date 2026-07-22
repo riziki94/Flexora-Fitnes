@@ -1680,16 +1680,32 @@ function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React
                   <span className="text-gray-700">{formatPriceCurrency(BEDROOM_ITEM_PRICE[item], currency)}</span>
                 </div>
               ))}
-              {state.electricalOutlets > 0 && (
-                <div className="flex justify-between"><span className="text-gray-600">{state.electricalOutlets} outlets</span><span className="text-gray-700">{formatPriceCurrency((state.electricalOutlets * 500), currency)}</span></div>
+              {state.electrical.outlets.length > 0 && (
+                <div className="flex justify-between"><span className="text-gray-600">{state.electrical.outlets.length} outlets</span><span className="text-gray-700">{formatPriceCurrency((state.electrical.outlets.length * OUTLET_PRICE), currency)}</span></div>
               )}
-              {state.electricalLights > 0 && (
-                <div className="flex justify-between"><span className="text-gray-600">{state.electricalLights} lights</span><span className="text-gray-700">{formatPriceCurrency((state.electricalLights * 1500), currency)}</span></div>
+              {state.electrical.lights.length > 0 && (
+                <div className="flex justify-between"><span className="text-gray-600">{state.electrical.lights.length} lights</span><span className="text-gray-700">{formatPriceCurrency(state.electrical.lights.reduce((s, l) => s + (LIGHT_PRICE[l.lightType] ?? 0), 0), currency)}</span></div>
               )}
-              {state.smartHome !== "none" && (
-                <div className="flex justify-between"><span className="text-gray-600">{state.smartHome === "knx" ? "KNX System" : "Zigbee Hub"}</span><span className="text-gray-700">{formatPriceCurrency(state.smartHome === "knx" ? 15000 : 8000, currency)}</span></div>
+              {state.electrical.switches.length > 0 && (
+                <div className="flex justify-between"><span className="text-gray-600">{state.electrical.switches.length} switches</span><span className="text-gray-700">{formatPriceCurrency((state.electrical.switches.length * SWITCH_PRICE), currency)}</span></div>
               )}
-              {state.evCharger && <div className="flex justify-between"><span className="text-gray-600">EV Charger</span><span className="text-gray-700">{formatPriceCurrency(5000, currency)}</span></div>}
+              {state.electrical.panel && <div className="flex justify-between"><span className="text-gray-600">Electrical panel</span><span className="text-gray-700">{formatPriceCurrency(ELECTRICAL_PANEL_PRICE, currency)}</span></div>}
+              {state.evCharger && <div className="flex justify-between"><span className="text-gray-600">EV Charger</span><span className="text-gray-700">{formatPriceCurrency(8000, currency)}</span></div>}
+              {state.smartThermostat && <div className="flex justify-between text-orange-700"><span>Smart thermostat</span><span>+{formatPriceCurrency(SMART_THERMOSTAT_PRICE, currency)}</span></div>}
+              {state.smartLighting && <div className="flex justify-between text-yellow-700"><span>Smart lighting</span><span>+{formatPriceCurrency(SMART_LIGHTING_PRICE, currency)}</span></div>}
+              {state.smartLocks && <div className="flex justify-between text-blue-700"><span>Smart locks</span><span>+{formatPriceCurrency(SMART_LOCKS_PRICE, currency)}</span></div>}
+              {state.smartSecurity && <div className="flex justify-between text-red-700"><span>Security system</span><span>+{formatPriceCurrency(SMART_SECURITY_PRICE, currency)}</span></div>}
+              {state.voiceAssistant !== "none" && <div className="flex justify-between text-purple-700"><span>Voice ({state.voiceAssistant})</span><span>+{formatPriceCurrency(VOICE_ASSISTANT_PRICE[state.voiceAssistant] ?? 0, currency)}</span></div>}
+              {state.smartBlinds && <div className="flex justify-between text-indigo-700"><span>Smart blinds</span><span>+{formatPriceCurrency(SMART_BLINDS_PRICE, currency)}</span></div>}
+              {state.cabinetStyle !== "modern" && <div className="flex justify-between"><span className="text-gray-600">Cabinet style ({state.cabinetStyle})</span><span className="text-gray-700">{formatPriceCurrency(CABINET_STYLE_PRICE[state.cabinetStyle], currency)}</span></div>}
+              {state.cabinetColor !== "white" && <div className="flex justify-between"><span className="text-gray-600">Cabinet color ({state.cabinetColor})</span><span className="text-gray-700">{formatPriceCurrency(CABINET_COLOR_PRICE[state.cabinetColor], currency)}</span></div>}
+              {state.sinkType !== "single" && <div className="flex justify-between"><span className="text-gray-600">Sink ({state.sinkType})</span><span className="text-gray-700">{formatPriceCurrency(SINK_TYPE_PRICE[state.sinkType], currency)}</span></div>}
+              {state.backsplash !== "none" && <div className="flex justify-between"><span className="text-gray-600">Backsplash ({state.backsplash})</span><span className="text-gray-700">{formatPriceCurrency(BACKSPLASH_PRICE[state.backsplash], currency)}</span></div>}
+              {state.hasIsland && <div className="flex justify-between text-amber-700"><span>Kitchen island</span><span>+{formatPriceCurrency(ISLAND_PRICE, currency)}</span></div>}
+              {state.vanityStyle !== "freestanding" && <div className="flex justify-between"><span className="text-gray-600">Vanity ({state.vanityStyle})</span><span className="text-gray-700">{formatPriceCurrency(VANITY_STYLE_PRICE[state.vanityStyle], currency)}</span></div>}
+              {state.mirrorType !== "standard" && <div className="flex justify-between"><span className="text-gray-600">Mirror ({state.mirrorType})</span><span className="text-gray-700">{formatPriceCurrency(MIRROR_TYPE_PRICE[state.mirrorType], currency)}</span></div>}
+              {state.hasTowelRail && <div className="flex justify-between text-orange-700"><span>Heated towel rail</span><span>+{formatPriceCurrency(TOWEL_RAIL_PRICE, currency)}</span></div>}
+              {state.showerType !== "enclosed" && <div className="flex justify-between"><span className="text-gray-600">Shower ({state.showerType})</span><span className="text-gray-700">{formatPriceCurrency(SHOWER_TYPE_PRICE[state.showerType], currency)}</span></div>}
               {state.windows.length > 0 && (
                 <div className="flex justify-between"><span className="text-gray-600">{state.windows.length} window{state.windows.length > 1 ? "s" : ""}</span><span className="text-gray-700">{formatPriceCurrency((state.windows.length * 800), currency)}</span></div>
               )}
