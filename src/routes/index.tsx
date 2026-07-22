@@ -307,7 +307,7 @@ function Home() {
                     <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    {active.consultantLabel}
+                    {t(active.consultantLabel)}
                   </p>
 
                   <ul className="mt-4 space-y-3">
@@ -316,7 +316,7 @@ function Home() {
                         <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        {f}
+                        {t(f)}
                       </li>
                     ))}
                   </ul>
