@@ -1,81 +1,32 @@
 import { useEffect, useRef, useCallback, useState, forwardRef, useImperativeHandle } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-
-// ── Types ──────────────────────────────────────────────
-type ContainerSize = "20ft" | "40ft" | "double" | "custom";
-type ExteriorColor = "wood" | "metal" | "white" | "green" | "charcoal";
-type RoomType = "kitchen" | "bathroom" | "living" | "bedroom";
-type Wall = "top" | "bottom" | "left" | "right";
-type LayoutType = "single" | "side-by-side" | "l-shape" | "u-shape" | "stacked";
-type KitchenLayout = "L-shape" | "galley" | "island";
-type KitchenBrand = "ikea" | "hth" | "epoq" | "custom";
-type CountertopMaterial = "wood" | "granite" | "marble" | "laminate" | "steel";
-type KitchenAppliance = "refrigerator" | "oven" | "dishwasher" | "microwave" | "cooktop";
-type BathFixture = "shower" | "tub" | "double-sink" | "toilet" | "bidet";
-type LivingItem = "sofa-3" | "sofa-2" | "sectional" | "coffee-table" | "tv-unit" | "dining-4" | "dining-6" | "bookshelf";
-type BedroomItem = "bed-double" | "bed-queen" | "bed-single" | "wardrobe" | "nightstand" | "desk";
-type SmartHomeType = "none" | "knx" | "zigbee";
-
-interface Window_ {
-  id: string;
-  wall: Wall;
-  position: number;
-}
-
-interface Door_ {
-  id: string;
-  wall: Wall;
-  position: number;
-}
-
-interface RoomDef {
-  id: string;
-  type: RoomType;
-  label: string;
-}
-
-interface DesignState {
-  selectedModel: string | null;
-  containerSize: ContainerSize;
-  customLength: number;
-  customWidth: number;
-  rooms: RoomDef[];
-  windows: Window_[];
-  doors: Door_[];
-  exteriorColor: ExteriorColor;
-  solarPanels: boolean;
-  deck: boolean;
-  kitchenLayout: KitchenLayout;
-  kitchenBrand: KitchenBrand;
-  kitchenCountertop: CountertopMaterial;
-  kitchenAppliances: KitchenAppliance[];
-  bathFixtures: BathFixture[];
-  livingItems: LivingItem[];
-  bedroomItems: BedroomItem[];
-  electricalOutlets: number;
-  electricalLights: number;
-  smartHome: SmartHomeType;
-  evCharger: boolean;
-  layoutType: LayoutType;
-  stairs: boolean;
-  balcony: boolean;
-  roofTerrace: boolean;
-}
-
-type ViewPreset = "front" | "back" | "top" | "bird" | "walk" | "drone";
-type TimeOfDay = "sunrise" | "day" | "sunset" | "night";
-type Weather = "clear" | "rain" | "snow";
-type EnvironmentPreset = "morning-tour" | "golden-hour" | "cozy-evening" | "winter-wonderland" | "stormy-day";
-
-interface TimeConfig {
-  skyColor: string; sunColor: string; sunIntensity: number; ambientIntensity: number;
-  hemiSkyColor: string; hemiGroundColor: string; hemiIntensity: number;
-  fogColor: string; fogNear: number; fogFar: number; groundColor: string;
-}
-interface WeatherConfig {
-  skyTint: string; ambientMult: number; sunMult: number; particleType: "none" | "rain" | "snow"; groundColor: string;
-}
+import type {
+  ContainerSize,
+  ExteriorColor,
+  RoomType,
+  Wall,
+  LayoutType,
+  KitchenLayout,
+  CountertopMaterial,
+  KitchenAppliance,
+  BathFixture,
+  LivingItem,
+  BedroomItem,
+  SmartHomeType,
+  Window_,
+  Door_,
+  RoomDef,
+  DesignState,
+  ViewPreset,
+  TimeOfDay,
+  Weather,
+  EnvironmentPreset,
+  TimeConfig,
+  WeatherConfig,
+  ContainerPos,
+  RoomLayout3D,
+} from "../types/zongosol";
 
 // ── Constants ──────────────────────────────────────────
 const EXTERIOR_HEX: Record<ExteriorColor, string> = {
@@ -84,13 +35,6 @@ const EXTERIOR_HEX: Record<ExteriorColor, string> = {
 
 const ROOM_COLORS: Record<RoomType, string> = {
   kitchen: "#FF8C42", bathroom: "#4A90D9", living: "#5CB85C", bedroom: "#9B59B6",
-};
-
-const BRAND_COLORS: Record<KitchenBrand, { primary: string; secondary: string }> = {
-  ikea: { primary: "#f5f0e8", secondary: "#d4c5a9" },
-  hth: { primary: "#5C3A1E", secondary: "#3E2710" },
-  epoq: { primary: "#9CA3AF", secondary: "#6B7280" },
-  custom: { primary: "#E5E7EB", secondary: "#D1D5DB" },
 };
 
 const COUNTERTOP_HEX: Record<CountertopMaterial, string> = {
@@ -170,10 +114,6 @@ function getDimensions(state: DesignState): { length: number; width: number; hei
 
 // ── Container builder helper ───────────────────────────
 
-interface ContainerPos {
-  ox: number; oy: number; oz: number; rotY: number;
-}
-
 function getContainerPositions(layoutType: LayoutType, length: number, width: number, height: number): ContainerPos[] {
   switch (layoutType) {
     case "single": return [{ ox: 0, oy: 0, oz: 0, rotY: 0 }];
@@ -208,10 +148,6 @@ function getLayoutCenter(positions: ContainerPos[], length: number, width: numbe
 }
 
 // ── Room layout computation (shared) ──────────────────
-
-interface RoomLayout3D {
-  x: number; z: number; rw: number; rd: number; room: RoomDef;
-}
 
 function computeRoomLayouts3D(rooms: RoomDef[], l: number, w: number): RoomLayout3D[] {
   const roomCount = rooms.length;
@@ -266,13 +202,13 @@ function createCylinder(r: number, h: number, color: string, roughness = 0.3, me
 
 function addKitchen3D(group: THREE.Group, roomLayout: RoomLayout3D, state: DesignState, l: number, w: number) {
   const { x: rx, z: rz, rw, rd } = roomLayout;
-  const brandColor = BRAND_COLORS[state.kitchenBrand].primary;
-  const brandDark = BRAND_COLORS[state.kitchenBrand].secondary;
   const counterColor = COUNTERTOP_HEX[state.kitchenCountertop];
   const floorY = 0.06;
   const counterH = 0.9;
   const counterD = 0.6;
   const counterTopH = 0.04;
+  const brandColor = "#f5f0e8";
+  const brandDark = "#d4c5a9";
 
   const kitchenGroup = new THREE.Group();
 
@@ -1783,7 +1719,7 @@ const Container3D = forwardRef<Container3DHandle, Container3DProps>(function Con
 
       {/* ── Main 3D Canvas ────────────────────────────── */}
       <div style={{ display: viewMode === "3d" ? "block" : "none" }} className="relative">
-        <div className="relative" style={{ minHeight: "400px", height: "500px" }}>
+        <div className="relative min-h-[60vh] sm:min-h-[70vh] lg:min-h-[500px]">
           <canvas ref={canvasRef} className="w-full h-full" style={{ touchAction: "none" }} />
 
           {/* Environment panel overlay (left side) */}

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SUBSCRIPTION_TIERS, type TierKey, type BillingOption } from "~/lib/subscription";
-import { formatPrice } from "~/lib/currency";
+import { formatPrice, formatPriceUsd } from "~/lib/currency";
+import { useLanguage } from "~/lib/i18n.tsx";
 
 type BillingMode = "oneTime" | "monthly" | "annual";
 
@@ -13,11 +14,11 @@ const TIER_ORDER: TierKey[] = ["kitoslight", "zongosol", "dashboard"];
 
 const TIER_DESCRIPTIONS: Record<TierKey, string> = {
   kitoslight:
-    "Sanntids miljøovervåking med kartvisualisering, CO₂- og gassmåling, energiproduksjon og IP-enhetsintegrasjon.",
+    "Real-time environmental monitoring with map visualization, CO₂ and gas measurement, energy production and IP device integration.",
   zongosol:
-    "Komplett containerbolig-designverktøy med 3D-visualisering, skreddersydde romløsninger, materialvalg og bestilling.",
+    "Complete container home design tool with 3D visualization, custom room solutions, material selection and ordering.",
   dashboard:
-    "Fullt admin-dashbord med IP-integrasjon av alle enheter, sanntidsdata, ESG-rapportgenerering og team-administrasjon.",
+    "Full admin dashboard with IP integration of all devices, real-time data, ESG report generation and team management.",
 };
 
 const TIER_COLORS: Record<
@@ -67,6 +68,9 @@ const TIER_COLORS: Record<
 
 function PricingPage() {
   const [billingMode, setBillingMode] = useState<BillingMode>("monthly");
+  const { t, currency } = useLanguage();
+  const isNok = currency === "NOK";
+
   return (
     <main className="flex-1 bg-gradient-to-b from-slate-50 to-white min-h-screen">
       {/* Header */}
@@ -88,11 +92,10 @@ function PricingPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            Priser og abonnement
+            {t("Pricing & Subscriptions")}
           </h1>
           <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            Velg produktet og betalingsmodellen som passer deg. Betaling skjer
-            sikkert via Stripe — engangsbetaling eller abonnement.
+            {t("Choose the product and payment model that fits you. Secure payment via Stripe — one-time payment or subscription.")}
           </p>
         </div>
       </section>
@@ -110,7 +113,7 @@ function PricingPage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Engangsbetaling
+              {t("One-time payment")}
             </button>
             <button
               onClick={() => setBillingMode("monthly")}
@@ -120,7 +123,7 @@ function PricingPage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Månedlig
+              {t("Monthly")}
             </button>
             <button
               onClick={() => setBillingMode("annual")}
@@ -130,7 +133,7 @@ function PricingPage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Årlig (spar 15%)
+              {t("Yearly (save 15%)")}
             </button>
           </div>
         </div>
@@ -142,7 +145,6 @@ function PricingPage() {
             const colors = TIER_COLORS[tierKey];
             const billing = tier.billingOptions;
 
-            // Get active billing for CTA (Dashboard only has monthly)
             const activeBilling: BillingOption | undefined =
               billingMode === "oneTime"
                 ? billing.oneTime
@@ -160,29 +162,25 @@ function PricingPage() {
                     : `${colors.border} shadow-lg`
                 } bg-white p-6 sm:p-8 flex flex-col transition-all duration-300`}
               >
-                {/* Popular badge */}
                 {isPopular && (
                   <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-lg">
-                    Mest populær
+                    {t("Most popular")}
                   </span>
                 )}
 
-                {/* Icon */}
                 <div
                   className={`flex h-14 w-14 items-center justify-center rounded-xl ${colors.bg} mb-5`}
                 >
                   <span className="text-2xl">{tier.icon}</span>
                 </div>
 
-                {/* Name + Description */}
                 <h3 className={`text-2xl font-bold ${colors.text}`}>
                   {tier.name}
                 </h3>
                 <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                  {TIER_DESCRIPTIONS[tierKey]}
+                  {t(TIER_DESCRIPTIONS[tierKey])}
                 </p>
 
-                {/* Features */}
                 <ul className="mt-6 space-y-2.5 flex-1">
                   {tier.features.map((f) => (
                     <li
@@ -207,7 +205,6 @@ function PricingPage() {
                   ))}
                 </ul>
 
-                {/* Divider */}
                 <hr className="my-6 border-gray-200" />
 
                 {/* All billing options */}
@@ -216,21 +213,21 @@ function PricingPage() {
                     <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-2 transition-colors ${
                       billingMode === "oneTime" ? "bg-blue-50 ring-1 ring-blue-300" : "bg-gray-50"
                     }`}>
-                      <span className="text-gray-600 font-medium">Engangsbetaling</span>
+                      <span className="text-gray-600 font-medium">{t("One-time payment")}</span>
                       <span className="font-bold text-gray-900">
-                        {formatPrice(billing.oneTime.priceNok)}
-                        <span className="text-xs text-gray-400 font-normal ml-1">eks. mva</span>
+                        {isNok ? formatPrice(billing.oneTime.priceNok) : formatPriceUsd(billing.oneTime.priceNok)}
+                        <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
                       </span>
                     </div>
                   )}
                   <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-2 transition-colors ${
                     billingMode === "monthly" ? "bg-emerald-50 ring-1 ring-emerald-300" : "bg-gray-50"
                   }`}>
-                    <span className="text-gray-600 font-medium">Månedlig</span>
+                    <span className="text-gray-600 font-medium">{t("Monthly")}</span>
                     <span className="font-bold text-gray-900">
-                      {formatPrice(billing.monthly.priceNok)}
-                      <span className="text-gray-500 font-medium">/md</span>
-                      <span className="text-xs text-gray-400 font-normal ml-1">eks. mva</span>
+                      {isNok ? formatPrice(billing.monthly.priceNok) : formatPriceUsd(billing.monthly.priceNok)}
+                      <span className="text-gray-500 font-medium">{t("/mo")}</span>
+                      <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
                     </span>
                   </div>
                   {billing.annual && (
@@ -238,18 +235,17 @@ function PricingPage() {
                       billingMode === "annual" ? "bg-emerald-50 ring-1 ring-emerald-300" : "bg-gray-50"
                     }`}>
                       <span className="text-gray-600 font-medium">
-                        Årlig <span className="text-xs text-emerald-600 font-bold ml-1">Spar 15%</span>
+                        {t("Yearly")} <span className="text-xs text-emerald-600 font-bold ml-1">{t("Save 15%")}</span>
                       </span>
                       <span className="font-bold text-emerald-700">
-                        {formatPrice(billing.annual.priceNok)}
-                        <span className="text-emerald-600 font-medium">/år</span>
-                        <span className="text-xs text-emerald-500 font-normal ml-1">eks. mva</span>
+                        {isNok ? formatPrice(billing.annual.priceNok) : formatPriceUsd(billing.annual.priceNok)}
+                        <span className="text-emerald-600 font-medium">{t("/yr")}</span>
+                        <span className="text-xs text-emerald-500 font-normal ml-1">{t("excl. VAT")}</span>
                       </span>
                     </div>
                   )}
                 </div>
 
-                {/* CTA for active billing */}
                 <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
                   <svg
                     className="h-3.5 w-3.5"
@@ -272,10 +268,9 @@ function PricingPage() {
                   rel="noopener noreferrer"
                   className={`block w-full rounded-lg ${colors.btn} px-4 py-3 text-center text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all duration-200 active:scale-95`}
                 >
-                  Abonner på {tier.name} — {active.label}
+                  {t("pricing.subscribeTo", { name: tier.name })} — {active.label}
                 </a>
 
-                {/* Bottom note */}
                 <p className="mt-4 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
                   <svg
                     className="h-3 w-3"
@@ -290,7 +285,7 @@ function PricingPage() {
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  Sikker betaling via Stripe
+                  {t("Secure payment via Stripe")}
                 </p>
               </div>
             );
@@ -304,27 +299,23 @@ function PricingPage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl"></span>
-              <h3 className="text-xl font-bold">Personlig konsulent inkludert</h3>
+              <h3 className="text-xl font-bold">{t("Personal consultant included")}</h3>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 text-left">
               <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4">
                 <p className="text-sm font-semibold text-emerald-300 mb-1">
-                   Månedlig / Årlig abonnement
+                   {t("Monthly / Yearly subscription")}
                 </p>
                 <p className="text-sm text-gray-300">
-                  En dedikert konsulent følger deg fra start til mål. Du får
-                  veiledning gjennom hele prosessen — fra design til ferdig
-                  produkt.
+                  {t("A dedicated consultant follows you from start to finish. You get guidance throughout the entire process — from design to finished product.")}
                 </p>
               </div>
               <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4">
                 <p className="text-sm font-semibold text-amber-300 mb-1">
-                   Engangsbetaling
+                   {t("One-time payment")}
                 </p>
                 <p className="text-sm text-gray-300">
-                  Du får full tilgang til produktet umiddelbart. Når du har
-                  sendt inn din bestilling, kobler vi på en konsulent for å
-                  hjelpe deg videre.
+                  {t("You get full access to the product immediately. Once you submit your order, we connect you with a consultant to help you further.")}
                 </p>
               </div>
             </div>
@@ -335,23 +326,22 @@ function PricingPage() {
       {/* FAQ / CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16 text-center">
         <div className="rounded-2xl bg-gradient-to-r from-emerald-600 to-green-500 p-8 sm:p-10 text-white shadow-xl">
-          <h2 className="text-2xl font-bold">Har du spørsmål?</h2>
+          <h2 className="text-2xl font-bold">{t("Have questions?")}</h2>
           <p className="mt-2 text-emerald-100 max-w-lg mx-auto">
-            Spør Hilde — vår AI-assistent nederst til høyre på siden. Hun kan
-            svare på alt om Kitoslight, Zongosol og Kitozon.
+            {t("Ask Hilde — our assistant at the bottom right of the page. She can answer anything about Kitoslight, Zongosol, and Kitozon.")}
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/zongosol"
               className="rounded-xl bg-white px-8 py-3 text-base font-semibold text-emerald-700 hover:bg-emerald-50 transition-all duration-200 shadow-lg"
             >
-              Prøv Zongosol
+              {t("Try Zongosol")}
             </Link>
             <Link
               to="/kitoslight"
               className="rounded-xl border-2 border-white/30 bg-transparent px-8 py-3 text-base font-semibold text-white hover:bg-white/10 transition-all duration-200"
             >
-              Utforsk Kitoslight
+              {t("Explore Kitoslight")}
             </Link>
           </div>
         </div>

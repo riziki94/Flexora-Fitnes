@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { loginUser } from "~/lib/auth-actions";
-import { useTranslation } from "~/lib/i18n";
+import { useTranslation } from "~/lib/i18n.tsx";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,

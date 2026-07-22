@@ -1,49 +1,23 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-
-// ── Types ──────────────────────────────────────────────
-type RoomType = "kitchen" | "bathroom" | "living" | "bedroom";
-type ContainerSize = "20ft" | "40ft" | "double" | "custom";
-type ExteriorColor = "wood" | "metal" | "white" | "green" | "charcoal";
-type KitchenLayout = "L-shape" | "galley" | "island";
-type KitchenBrand = "ikea" | "hth" | "epoq" | "custom";
-type CountertopMaterial = "wood" | "granite" | "marble" | "laminate" | "steel";
-type KitchenAppliance = "refrigerator" | "oven" | "dishwasher" | "microwave" | "cooktop";
-type BathFixture = "shower" | "tub" | "double-sink" | "toilet" | "bidet";
-type LivingItem = "sofa-3" | "sofa-2" | "sectional" | "coffee-table" | "tv-unit" | "dining-4" | "dining-6" | "bookshelf";
-type BedroomItem = "bed-double" | "bed-queen" | "bed-single" | "wardrobe" | "nightstand" | "desk";
-
-interface DesignState {
-  selectedModel: string | null;
-  containerSize: ContainerSize;
-  customLength: number;
-  customWidth: number;
-  rooms: { id: string; type: RoomType; label: string }[];
-  exteriorColor: ExteriorColor;
-  solarPanels: boolean;
-  deck: boolean;
-  kitchenLayout: KitchenLayout;
-  kitchenBrand: KitchenBrand;
-  kitchenCountertop: CountertopMaterial;
-  kitchenAppliances: KitchenAppliance[];
-  bathFixtures: BathFixture[];
-  livingItems: LivingItem[];
-  bedroomItems: BedroomItem[];
-  electricalOutlets: number;
-  electricalLights: number;
-}
+import type {
+  RoomType,
+  ContainerSize,
+  ExteriorColor,
+  KitchenLayout,
+  CountertopMaterial,
+  KitchenAppliance,
+  BathFixture,
+  LivingItem,
+  BedroomItem,
+  DesignState,
+  RoomLayout3D,
+} from "../types/zongosol";
 
 // ── Constants ──────────────────────────────────────────
 const ROOM_COLORS: Record<RoomType, string> = {
   kitchen: "#FF8C42", bathroom: "#4A90D9", living: "#5CB85C", bedroom: "#9B59B6",
-};
-
-const BRAND_COLORS: Record<KitchenBrand, { primary: string; secondary: string }> = {
-  ikea: { primary: "#f5f0e8", secondary: "#d4c5a9" },
-  hth: { primary: "#5C3A1E", secondary: "#3E2710" },
-  epoq: { primary: "#9CA3AF", secondary: "#6B7280" },
-  custom: { primary: "#E5E7EB", secondary: "#D1D5DB" },
 };
 
 const COUNTERTOP_HEX: Record<CountertopMaterial, string> = {
@@ -76,7 +50,6 @@ function getDimensions(state: DesignState) {
   return { length: l, width: w, height: 2.59 };
 }
 
-interface RoomLayout3D { x: number; z: number; rw: number; rd: number; room: { id: string; type: RoomType; label: string }; }
 function computeRoomLayouts3D(rooms: { id: string; type: RoomType; label: string }[], l: number, w: number): RoomLayout3D[] {
   const roomCount = rooms.length;
   let layouts: RoomLayout3D[] = [];
@@ -120,6 +93,8 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
   const sceneRef = useRef<THREE.Scene | null>(null);
   const animFrameRef = useRef<number>(0);
   const [activeTab, setActiveTab] = useState<string>("design");
+  const [roomColor, setRoomColor] = useState<string>(ROOM_COLORS[state.rooms.find(r => r.id === roomId)?.type ?? "living"]);
+  const floorMeshRef = useRef<THREE.Mesh | null>(null);
 
   const room = state.rooms.find((r) => r.id === roomId);
   const roomType = room?.type ?? "living";
@@ -206,12 +181,13 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
     // Room floor
     const floorGeo = new THREE.PlaneGeometry(roomW + 1, roomD + 1);
     const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({
-      color: ROOM_COLORS[roomType], roughness: 0.7, metalness: 0.05, transparent: true, opacity: 0.5,
+      color: roomColor, roughness: 0.7, metalness: 0.05, transparent: true, opacity: 0.5,
     }));
     floor.rotation.x = -Math.PI / 2;
     floor.position.set(roomX, 0.04, roomZ);
     floor.receiveShadow = true;
     roomGroup.add(floor);
+    floorMeshRef.current = floor;
 
     // Walls
     const wallMat = new THREE.MeshStandardMaterial({ color: "#f5f5f0", roughness: 0.6, metalness: 0.1 });
@@ -238,7 +214,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
       // Counter
       const counter = new THREE.Mesh(
         new THREE.BoxGeometry(roomW * 0.7, 0.9, 0.6),
-        new THREE.MeshStandardMaterial({ color: BRAND_COLORS[state.kitchenBrand]?.primary ?? "#f5f0e8", roughness: 0.4, metalness: 0.2 })
+        new THREE.MeshStandardMaterial({ color: "#f5f0e8", roughness: 0.4, metalness: 0.2 })
       );
       counter.position.set(roomX, floorY + 0.45, roomZ - halfRD + 0.35);
       counter.castShadow = true;
@@ -352,6 +328,18 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
     };
   }, [roomId, state]);
 
+  // Update floor color when roomColor changes
+  useEffect(() => {
+    const floor = floorMeshRef.current;
+    if (!floor) return;
+    const mat = floor.material;
+    if (Array.isArray(mat)) {
+      mat.forEach(m => { if (m instanceof THREE.MeshStandardMaterial) m.color.set(roomColor); });
+    } else if (mat instanceof THREE.MeshStandardMaterial) {
+      mat.color.set(roomColor);
+    }
+  }, [roomColor]);
+
   // ── Render ──────────────────────────────────────────
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col" style={{ height: "100dvh" }}>
@@ -418,22 +406,6 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
                           state.kitchenLayout === layout ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
                         }`}
                       >{layout === "L-shape" ? "L-Shape" : layout === "galley" ? "Galley" : "Island"}</button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-gray-700 block mb-2">Merke</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(Object.keys(BRAND_COLORS) as KitchenBrand[]).map((brand) => (
-                      <button key={brand} onClick={() => onStateChange?.({ kitchenBrand: brand })}
-                        className={`flex items-center gap-2 p-2 rounded-lg border text-xs font-medium transition-all ${
-                          state.kitchenBrand === brand ? "border-emerald-500 bg-emerald-50" : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        <span className="w-6 h-4 rounded" style={{ backgroundColor: BRAND_COLORS[brand].primary, border: `2px solid ${BRAND_COLORS[brand].secondary}` }} />
-                        {brand.toUpperCase()}
-                      </button>
                     ))}
                   </div>
                 </div>
@@ -539,15 +511,20 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
         {activeTab === "colors" && (
           <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4">
             <h3 className="text-sm font-bold text-gray-800">Farger &amp; Materialer</h3>
-            <p className="text-xs text-gray-500">Fargevalg for {roomLabel.toLowerCase()}.</p>
+            <p className="text-xs text-gray-500">Fargevalg for {roomLabel.toLowerCase()}. Nåværende: <span className="inline-block w-4 h-4 rounded-full border border-gray-300 align-middle ml-1" style={{ backgroundColor: roomColor }} /></p>
             <div className="grid grid-cols-5 gap-2">
               {["#f5f5f0","#e8e0d8","#d4c5a9","#c0b8a8","#a89880","#8B7355","#6B5B4E","#5C4A3E","#D4E4F0","#B8D4E8"].map((color) => (
-                <button key={color} className="w-10 h-10 rounded-lg border-2 border-gray-200 hover:border-emerald-400 transition-all"
-                  style={{ backgroundColor: color }} title={color}
+                <button key={color}
+                  onClick={() => setRoomColor(color)}
+                  className={`w-10 h-10 rounded-lg border-2 transition-all hover:scale-110 ${
+                    roomColor === color ? "border-emerald-500 ring-2 ring-emerald-300 scale-110" : "border-gray-200 hover:border-emerald-400"
+                  }`}
+                  style={{ backgroundColor: color }}
+                  title={color}
                 />
               ))}
             </div>
-            <p className="text-[10px] text-gray-400 italic">Vegg- og gulvfarger vises i 3D-visningen. Klikk for å velge.</p>
+            <p className="text-[10px] text-gray-400 italic">Gulvfarge oppdateres i sanntid i 3D-visningen.</p>
           </div>
         )}
       </div>

@@ -5,7 +5,6 @@ type RoomType = "kitchen" | "bathroom" | "living" | "bedroom";
 type ContainerSize = "20ft" | "40ft" | "double" | "custom";
 type ExteriorColor = "wood" | "metal" | "white" | "green" | "charcoal";
 type KitchenLayout = "L-shape" | "galley" | "island";
-type KitchenBrand = "ikea" | "hth" | "epoq" | "custom";
 type CountertopMaterial = "wood" | "granite" | "marble" | "laminate" | "steel";
 type KitchenAppliance = "refrigerator" | "oven" | "dishwasher" | "microwave" | "cooktop";
 type BathFixture = "shower" | "tub" | "double-sink" | "toilet" | "bidet";
@@ -31,7 +30,6 @@ interface DesignState {
   solarPanels: boolean;
   deck: boolean;
   kitchenLayout: KitchenLayout;
-  kitchenBrand: KitchenBrand;
   kitchenCountertop: CountertopMaterial;
   kitchenAppliances: KitchenAppliance[];
   bathFixtures: BathFixture[];
@@ -632,7 +630,6 @@ export default function DocumentationPanel({
                 <td className="px-3 py-1.5"></td>
                 <td className="px-3 py-1.5 text-gray-700">Kitchen Cabinetry</td>
                 <td className="px-3 py-1.5 text-right font-medium">1</td>
-                <td className="px-3 py-1.5 text-gray-500">{state.kitchenBrand.toUpperCase()} · {state.kitchenLayout}</td>
                 <td className="px-3 py-1.5 text-right font-medium">—</td>
               </tr>
               <tr className="border-b border-gray-100">

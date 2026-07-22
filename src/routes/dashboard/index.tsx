@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "~/lib/auth";
+import { useAuth } from "~/lib/auth.tsx";
 import { getDevices, type DbDevice } from "~/lib/db-devices";
 import { setupDatabase } from "~/lib/db-setup";
 import {

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useTranslation, languages } from "~/lib/i18n";
+import { useTranslation, languages } from "~/lib/i18n.tsx";
 
 export function FlagSwitcher({ className = "" }: { className?: string }) {
   const { lang, setLang } = useTranslation();

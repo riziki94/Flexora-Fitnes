@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getDashboardData } from "~/lib/user-actions";
 import { FREE_TRIAL_DAYS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
-import { useTranslation } from "~/lib/i18n";
+import { useTranslation } from "~/lib/i18n.tsx";
 import Avatar from "~/components/Avatar";
 
 export const Route = createFileRoute("/app/dashboard")({

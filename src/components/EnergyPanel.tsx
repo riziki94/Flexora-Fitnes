@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { formatPrice } from "../lib/currency";
+import { formatPrice, formatPriceCurrency } from "../lib/currency";
+import { useLanguage } from "../lib/i18n";
 
 // ── Types ──────────────────────────────────────────────
 
@@ -450,7 +451,7 @@ function WindTurbineSection({
                 }`}
               >
                 <p className="font-semibold">{w.label}</p>
-                <p className="text-gray-400 text-[10px]">{formatPrice(w.price)}</p>
+                <p className="text-gray-400 text-[10px]">{formatPriceCurrency(w.price, currency)}</p>
               </button>
             ))}
           </div>
@@ -488,7 +489,7 @@ function HeatPumpSection({
             {hp.value !== "none" && (
               <>
                 <p className="text-gray-400 text-[10px]">COP {hp.cop}</p>
-                <p className="text-gray-400 text-[10px]">{formatPrice(hp.price)}</p>
+                <p className="text-gray-400 text-[10px]">{formatPriceCurrency(hp.price, currency)}</p>
               </>
             )}
           </button>
@@ -506,7 +507,7 @@ function HeatPumpSection({
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Savings in NOK</span>
-            <span className="font-semibold text-orange-700">~{formatPrice(Math.round(calc.heatPumpSavingsKWh * ELECTRICITY_PRICE))}/yr</span>
+            <span className="font-semibold text-orange-700">~{formatPriceCurrency(Math.round(calc.heatPumpSavingsKWh * ELECTRICITY_PRICE), currency)}{t("/yr")}</span>
           </div>
         </div>
       )}
@@ -531,7 +532,7 @@ function EVChargerSection({
       >
         <div className="text-left">
           <p className="text-sm font-semibold text-gray-800">Wall-Mounted EV Charger</p>
-          <p className="text-xs text-gray-500">Type 2 · {formatPrice(8000)} installed</p>
+          <p className="text-xs text-gray-500">Type 2 · {formatPriceCurrency(8000, currency)} installed</p>
         </div>
         <span className={`inline-flex h-6 w-10 items-center rounded-full transition-colors ${state.evCharger ? "bg-emerald-500" : "bg-gray-300"}`}>
           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${state.evCharger ? "translate-x-5" : "translate-x-1"}`} />
@@ -737,7 +738,7 @@ function EnergySummaryDashboard({ calc, state }: { calc: EnergyCalc; state: Ener
               </div>
               <div className="bg-green-50 rounded-lg p-2 text-center">
                 <p className="text-xs text-green-600">Annual Savings</p>
-                <p className="text-lg font-bold text-green-700">{formatPrice(calc.annualSavingsNOK)}</p>
+                <p className="text-lg font-bold text-green-700">{formatPriceCurrency(calc.annualSavingsNOK, currency)}</p>
               </div>
             </div>
 
@@ -906,6 +907,7 @@ export default function EnergyPanel({
   customWidth: number;
   smartHome: string;
 }) {
+  const { t, currency } = useLanguage();
   const [subTab, setSubTab] = useState<"config" | "summary" | "esg">("config");
 
   const calc = calculateEnergy(energyState, containerSize, customLength, customWidth, smartHome);
@@ -924,7 +926,7 @@ export default function EnergyPanel({
           <span></span> Energy System Design
           {calc.energyTotalPrice > 0 && (
             <span className="ml-auto text-xs font-normal text-gray-500">
-              +{formatPrice(calc.energyTotalPrice)}
+              +{formatPriceCurrency(calc.energyTotalPrice, currency)}
             </span>
           )}
         </span>

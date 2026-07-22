@@ -4,7 +4,9 @@ import { getServerClient } from "./supabase";
 export interface BillingOption {
   label: string;
   priceNok: number;
+  priceUsd: number;
   priceLabel: string;
+  priceLabelUsd: string;
   paymentLink: string;
   consultantLabel: string;
 }
@@ -36,25 +38,31 @@ export const SUBSCRIPTION_TIERS: Record<string, TierDefinition> = {
     icon: "",
     billingOptions: {
       oneTime: {
-        label: "Engangsbetaling",
+        label: "One-time payment",
         priceNok: 4449,
+        priceUsd: 424,
         priceLabel: "4 449 kr",
+        priceLabelUsd: "$424",
         paymentLink: "https://buy.stripe.com/00w8wP3gk34sez6dQS1Fe0a",
-        consultantLabel: "Konsulent kobles på etter bestilling",
+        consultantLabel: "Consultant assigned after ordering",
       },
       monthly: {
-        label: "Månedlig",
+        label: "Monthly",
         priceNok: 1499,
-        priceLabel: "1 499 kr/md",
+        priceUsd: 143,
+        priceLabel: "1 499 kr/mo",
+        priceLabelUsd: "$143/mo",
         paymentLink: "https://buy.stripe.com/cNiaEX4ko34sdv2fZ01Fe0b",
-        consultantLabel: "Konsulent følger deg hele veien",
+        consultantLabel: "Consultant supports you throughout",
       },
       annual: {
-        label: "Årlig (spar 15%)",
+        label: "Yearly (save 15%)",
         priceNok: 15290,
-        priceLabel: "15 290 kr/år",
+        priceUsd: 1456,
+        priceLabel: "15 290 kr/yr",
+        priceLabelUsd: "$1,456/yr",
         paymentLink: "https://buy.stripe.com/eVq7sL9EIfRe0IgdQS1Fe0c",
-        consultantLabel: "Konsulent følger deg hele veien",
+        consultantLabel: "Consultant supports you throughout",
       },
     },
   },
@@ -71,25 +79,31 @@ export const SUBSCRIPTION_TIERS: Record<string, TierDefinition> = {
     icon: "",
     billingOptions: {
       oneTime: {
-        label: "Engangsbetaling",
+        label: "One-time payment",
         priceNok: 7449,
+        priceUsd: 709,
         priceLabel: "7 449 kr",
+        priceLabelUsd: "$709",
         paymentLink: "https://buy.stripe.com/fZucN5eZ2cF23Us5km1Fe0d",
-        consultantLabel: "Konsulent kobles på etter bestilling",
+        consultantLabel: "Consultant assigned after ordering",
       },
       monthly: {
-        label: "Månedlig",
+        label: "Monthly",
         priceNok: 2499,
-        priceLabel: "2 499 kr/md",
+        priceUsd: 238,
+        priceLabel: "2 499 kr/mo",
+        priceLabelUsd: "$238/mo",
         paymentLink: "https://buy.stripe.com/5kQcN57wA0WkfDaeUW1Fe0e",
-        consultantLabel: "Konsulent følger deg hele veien",
+        consultantLabel: "Consultant supports you throughout",
       },
       annual: {
-        label: "Årlig (spar 15%)",
+        label: "Yearly (save 15%)",
         priceNok: 25490,
-        priceLabel: "25 490 kr/år",
+        priceUsd: 2428,
+        priceLabel: "25 490 kr/yr",
+        priceLabelUsd: "$2,428/yr",
         paymentLink: "https://buy.stripe.com/9B6dR94ko8oM2Qo5km1Fe0f",
-        consultantLabel: "Konsulent følger deg hele veien",
+        consultantLabel: "Consultant supports you throughout",
       },
     },
   },
@@ -106,11 +120,13 @@ export const SUBSCRIPTION_TIERS: Record<string, TierDefinition> = {
     icon: "",
     billingOptions: {
       monthly: {
-        label: "Månedlig",
+        label: "Monthly",
         priceNok: 4999,
-        priceLabel: "4 999 kr/md",
+        priceUsd: 476,
+        priceLabel: "4 999 kr/mo",
+        priceLabelUsd: "$476/mo",
         paymentLink: "https://buy.stripe.com/fZu8wPeZ25cA1Mk9AC1Fe0g",
-        consultantLabel: "Konsulent følger deg hele veien",
+        consultantLabel: "Consultant supports you throughout",
       },
     },
   },

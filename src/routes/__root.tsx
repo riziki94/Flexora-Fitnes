@@ -7,10 +7,11 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { AuthProvider, useAuth } from "~/lib/auth";
+import { AuthProvider, useAuth } from "~/lib/auth.tsx";
 import { getProfile, SUBSCRIPTION_TIERS, type Profile } from "~/lib/subscription";
 
 import ChatWidget from "~/components/ChatWidget";
+import { LanguageProvider, useLanguage } from "~/lib/i18n.tsx";
 import appCss from "~/styles/app.css?url";
 
 export const Route = createRootRoute({
@@ -45,9 +46,11 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
-      <AuthProvider>
-        <AppShell />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <AppShell />
+        </AuthProvider>
+      </LanguageProvider>
     </RootDocument>
   );
 }
@@ -65,6 +68,7 @@ function AppShell() {
 
 function Navbar() {
   const { user, signOut } = useAuth();
+  const { t, lang, setLang } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -132,8 +136,33 @@ function Navbar() {
               className={linkClass}
               activeProps={{ className: activeLinkClass }}
             >
-              Priser
+              {t("Pricing")}
             </Link>
+            {/* Language Switcher */}
+            <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+              <button
+                onClick={() => setLang("en")}
+                className={`rounded-md px-2 py-1 text-xs font-semibold transition-all ${
+                  lang === "en"
+                    ? "bg-white text-emerald-700 shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
+                }`}
+                aria-label="English"
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLang("no")}
+                className={`rounded-md px-2 py-1 text-xs font-semibold transition-all ${
+                  lang === "no"
+                    ? "bg-white text-emerald-700 shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
+                }`}
+                aria-label="Norwegian"
+              >
+                NO
+              </button>
+            </div>
             {/* Auth area */}
             {user ? (
               <div className="flex items-center gap-3">
@@ -227,10 +256,37 @@ function Navbar() {
               className={linkClass + " px-3 py-3 rounded-lg hover:bg-gray-50 min-h-[44px] flex items-center"}
               onClick={() => setMobileOpen(false)}
             >
-              Priser
+              {t("Pricing")}
             </Link>
 
             <hr className="border-gray-100 my-1" />
+
+            {/* Language Switcher (Mobile) */}
+            <div className="flex items-center gap-2 px-3 py-2">
+              <span className="text-xs text-gray-400">Language:</span>
+              <div className="flex items-center rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+                <button
+                  onClick={() => { setLang("en"); setMobileOpen(false); }}
+                  className={`rounded-md px-2 py-1 text-xs font-semibold transition-all ${
+                    lang === "en"
+                      ? "bg-white text-emerald-700 shadow-sm"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => { setLang("no"); setMobileOpen(false); }}
+                  className={`rounded-md px-2 py-1 text-xs font-semibold transition-all ${
+                    lang === "no"
+                      ? "bg-white text-emerald-700 shadow-sm"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                >
+                  NO
+                </button>
+              </div>
+            </div>
 
             {user ? (
               <>

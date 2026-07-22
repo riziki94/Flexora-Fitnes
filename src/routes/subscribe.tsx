@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SUBSCRIPTION_TIERS, type TierKey, type BillingOption } from "~/lib/subscription";
-import { formatPrice } from "~/lib/currency";
+import { formatPrice, formatPriceUsd } from "~/lib/currency";
+import { useLanguage } from "~/lib/i18n.tsx";
 
 type BillingMode = "oneTime" | "monthly" | "annual";
 
@@ -28,6 +29,9 @@ const TIER_DESCRIPTIONS: Record<TierKey, string> = {
 
 function SubscribePage() {
   const [billingMode, setBillingMode] = useState<BillingMode>("monthly");
+  const { t, currency } = useLanguage();
+  const isNok = currency === "NOK";
+
   return (
     <main className="flex-1 bg-gradient-to-b from-slate-50 to-white min-h-screen">
       {/* Header */}
@@ -61,13 +65,13 @@ function SubscribePage() {
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Velg engangs-, månedlig eller årlig
+              {t("Choose one-time, monthly or yearly")}
             </span>
             <span className="inline-flex items-center gap-1.5 text-sm text-gray-500">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              Sikker betaling via Stripe
+              {t("Secure payment via Stripe")}
             </span>
           </div>
         </div>
@@ -85,7 +89,7 @@ function SubscribePage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Engangsbetaling
+              {t("One-time payment")}
             </button>
             <button
               onClick={() => setBillingMode("monthly")}
@@ -95,7 +99,7 @@ function SubscribePage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Månedlig
+              {t("Monthly")}
             </button>
             <button
               onClick={() => setBillingMode("annual")}
@@ -105,7 +109,7 @@ function SubscribePage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Årlig (spar 15%)
+              {t("Yearly (save 15%)")}
             </button>
           </div>
         </div>
@@ -125,7 +129,6 @@ function SubscribePage() {
             };
             const c = colorClasses[tierKey];
 
-            // Get active billing for CTA (Dashboard only has monthly)
             const activeBilling: BillingOption | undefined =
               billingMode === "oneTime"
                 ? billing.oneTime
@@ -145,7 +148,7 @@ function SubscribePage() {
               >
                 {isPopular && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-4 py-1 text-xs font-semibold text-white">
-                    Mest populær
+                    {t("Most popular")}
                   </span>
                 )}
 
@@ -160,21 +163,21 @@ function SubscribePage() {
                     <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-1.5 transition-colors ${
                       billingMode === "oneTime" ? "bg-blue-50 ring-1 ring-blue-300" : ""
                     }`}>
-                      <span className="text-gray-600 font-medium">Engangs</span>
+                      <span className="text-gray-600 font-medium">{t("One-time")}</span>
                       <span className="font-bold text-gray-900">
-                        {formatPrice(billing.oneTime.priceNok)}
-                        <span className="text-xs text-gray-400 font-normal ml-1">eks. mva</span>
+                        {isNok ? formatPrice(billing.oneTime.priceNok) : formatPriceUsd(billing.oneTime.priceNok)}
+                        <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
                       </span>
                     </div>
                   )}
                   <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-1.5 transition-colors ${
                     billingMode === "monthly" ? "bg-emerald-50 ring-1 ring-emerald-300" : ""
                   }`}>
-                    <span className="text-gray-600 font-medium">Månedlig</span>
+                    <span className="text-gray-600 font-medium">{t("Monthly")}</span>
                     <span className="font-bold text-gray-900">
-                      {formatPrice(billing.monthly.priceNok)}
-                      <span className="text-gray-500 font-medium">/md</span>
-                      <span className="text-xs text-gray-400 font-normal ml-1">eks. mva</span>
+                      {isNok ? formatPrice(billing.monthly.priceNok) : formatPriceUsd(billing.monthly.priceNok)}
+                      <span className="text-gray-500 font-medium">{t("/mo")}</span>
+                      <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
                     </span>
                   </div>
                   {billing.annual && (
@@ -182,12 +185,12 @@ function SubscribePage() {
                       billingMode === "annual" ? "bg-emerald-50 ring-1 ring-emerald-300" : ""
                     }`}>
                       <span className="text-gray-600 font-medium">
-                        Årlig <span className="text-xs text-emerald-600 font-bold ml-1">(-15%)</span>
+                        {t("Yearly")} <span className="text-xs text-emerald-600 font-bold ml-1">(-15%)</span>
                       </span>
                       <span className="font-bold text-emerald-700">
-                        {formatPrice(billing.annual.priceNok)}
-                        <span className="text-emerald-600 font-medium">/år</span>
-                        <span className="text-xs text-emerald-500 font-normal ml-1">eks. mva</span>
+                        {isNok ? formatPrice(billing.annual.priceNok) : formatPriceUsd(billing.annual.priceNok)}
+                        <span className="text-emerald-600 font-medium">{t("/yr")}</span>
+                        <span className="text-xs text-emerald-500 font-normal ml-1">{t("excl. VAT")}</span>
                       </span>
                     </div>
                   )}
@@ -221,14 +224,14 @@ function SubscribePage() {
                   rel="noopener noreferrer"
                   className={`mt-6 block w-full rounded-xl ${c.btn} px-6 py-3 text-center text-sm font-semibold text-white transition-all duration-200 shadow-md hover:shadow-lg`}
                 >
-                  Abonner på {tier.name}
+                  {t("pricing.subscribeTo", { name: tier.name })}
                 </a>
 
                 <p className="mt-4 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  Sikker betaling via Stripe
+                  {t("Secure payment via Stripe")}
                 </p>
               </div>
             );

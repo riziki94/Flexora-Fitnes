@@ -1,5 +1,5 @@
 /**
- * Kitozon AI Assistant — local keyword-matching knowledge base.
+ * Kitozon Assistant — local keyword-matching knowledge base.
  * No external API needed. Supports both Norwegian and English queries.
  */
 

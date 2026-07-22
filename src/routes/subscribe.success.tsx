@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { SUBSCRIPTION_TIERS, type TierKey } from "~/lib/subscription";
-import { useAuth } from "~/lib/auth";
+import { useAuth } from "~/lib/auth.tsx";
 import { useEffect, useState } from "react";
 import { upgradeSubscription } from "~/lib/subscription";
 

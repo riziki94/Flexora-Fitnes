@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { registerUser } from "~/lib/auth-actions";
 import { getPaymentLink, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
-import { useTranslation } from "~/lib/i18n";
+import { useTranslation } from "~/lib/i18n.tsx";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,

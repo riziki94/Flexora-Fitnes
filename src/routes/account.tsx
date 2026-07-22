@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useAuth } from "~/lib/auth";
+import { useAuth } from "~/lib/auth.tsx";
 import { getProfile, saveProfile, SUBSCRIPTION_TIERS, type Profile } from "~/lib/subscription";
-import { formatPriceExMva } from "~/lib/currency";
+import { formatPrice, formatPriceUsd } from "~/lib/currency";
+import { useLanguage } from "~/lib/i18n.tsx";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/account")({
@@ -17,6 +18,8 @@ const COUNTRY_LIST = [
 
 function AccountPage() {
   const { user, loading: authLoading, signOut } = useAuth();
+  const { t, currency } = useLanguage();
+  const isNok = currency === "NOK";
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [error, setError] = useState("");
@@ -341,7 +344,7 @@ function AccountPage() {
                   {tierInfo.name}
                 </span>
                 <span className="text-sm text-gray-500">
-                  {formatPriceExMva(tierInfo.billingOptions.monthly.priceNok)}/md
+                  {isNok ? formatPrice(tierInfo.billingOptions.monthly.priceNok) : formatPriceUsd(tierInfo.billingOptions.monthly.priceNok)} {t("excl. VAT")}{isNok ? "/md" : "/mo"}
                 </span>
                 <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
                   Active
@@ -409,7 +412,7 @@ function AccountPage() {
                             Current Plan
                           </span>
                         ) : (
-                          <>Switch to {tier.name} — {formatPriceExMva(tier.billingOptions.monthly.priceNok)}/md</>
+                          <>Switch to {tier.name} — {isNok ? formatPrice(tier.billingOptions.monthly.priceNok) : formatPriceUsd(tier.billingOptions.monthly.priceNok)} {t("excl. VAT")}{isNok ? "/md" : "/mo"}</>
                         )}
                       </a>
                     );

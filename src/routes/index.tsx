@@ -2,8 +2,9 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { readFile } from "node:fs/promises";
-import { formatPrice, formatPriceExMva } from "~/lib/currency";
+import { formatPrice, formatPriceUsd } from "~/lib/currency";
 import { SUBSCRIPTION_TIERS, type BillingOption } from "~/lib/subscription";
+import { useLanguage } from "~/lib/i18n.tsx";
 
 type BillingMode = "oneTime" | "monthly" | "annual";
 
@@ -26,6 +27,8 @@ export const Route = createFileRoute("/")({
 function Home() {
   const businessName = Route.useLoaderData();
   const [billingMode, setBillingMode] = useState<BillingMode>("monthly");
+  const { t, currency } = useLanguage();
+  const isNok = currency === "NOK";
 
   return (
     <main className="flex-1">
@@ -89,8 +92,10 @@ function Home() {
 
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
             {/* Zongosol Card */}
-            <Link
-              to="/zongosol"
+            <a
+              href="https://www.zongosol.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-emerald-100 hover:border-emerald-200 block"
             >
               <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-emerald-500 to-green-400" />
@@ -126,17 +131,19 @@ function Home() {
               </ul>
               <div className="mt-8">
                 <span className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md group-hover:bg-emerald-700 transition-colors">
-                  Utforsk Zongosol
+                  {t("Explore Zongosol")}
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </span>
               </div>
-            </Link>
+            </a>
 
             {/* Kitoslight Card */}
-            <Link
-              to="/kitoslight"
+            <a
+              href="https://www.kitoslight.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-blue-100 hover:border-blue-200 block"
             >
               <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-blue-500 to-cyan-400" />
@@ -171,13 +178,13 @@ function Home() {
               </ul>
               <div className="mt-8">
                 <span className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md group-hover:bg-blue-700 transition-colors">
-                  Utforsk Kitoslight
+                  {t("Explore Kitoslight")}
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </span>
               </div>
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -206,7 +213,7 @@ function Home() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                Engangs
+                {t("One-time")}
               </button>
               <button
                 onClick={() => setBillingMode("monthly")}
@@ -216,7 +223,7 @@ function Home() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                Månedlig
+                {t("Monthly")}
               </button>
               <button
                 onClick={() => setBillingMode("annual")}
@@ -226,7 +233,7 @@ function Home() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                Årlig
+                {t("Yearly")}
               </button>
             </div>
           </div>
@@ -242,7 +249,6 @@ function Home() {
               };
               const c = colorClasses[tierKey];
 
-              // Get active billing for the CTA button (Dashboard only has monthly)
               const activeBilling: BillingOption | undefined =
                 billingMode === "oneTime"
                   ? tier.billingOptions.oneTime
@@ -262,7 +268,7 @@ function Home() {
                 >
                   {isPopular && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-4 py-1 text-xs font-semibold text-white">
-                      Mest populær
+                      {t("Most popular")}
                     </span>
                   )}
                   <img src="/images/logo-original.png" alt="Kitozon" className="h-10 w-auto mb-4" />
@@ -274,31 +280,31 @@ function Home() {
                       <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-1.5 transition-colors ${
                         billingMode === "oneTime" ? "bg-emerald-50 ring-1 ring-emerald-300" : ""
                       }`}>
-                        <span className="text-gray-600 font-medium">Engangs</span>
+                        <span className="text-gray-600 font-medium">{t("One-time")}</span>
                         <span className="font-bold text-gray-900">
-                          {formatPrice(tier.billingOptions.oneTime.priceNok)}
-                          <span className="text-xs text-gray-400 font-normal ml-1">eks. mva</span>
+                          {isNok ? formatPrice(tier.billingOptions.oneTime.priceNok) : formatPriceUsd(tier.billingOptions.oneTime.priceNok)}
+                          <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
                         </span>
                       </div>
                     )}
                     <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-1.5 transition-colors ${
                       billingMode === "monthly" ? "bg-emerald-50 ring-1 ring-emerald-300" : ""
                     }`}>
-                      <span className="text-gray-600 font-medium">Månedlig</span>
+                      <span className="text-gray-600 font-medium">{t("Monthly")}</span>
                       <span className="font-bold text-gray-900">
-                        {formatPrice(tier.billingOptions.monthly.priceNok)}
-                        <span className="text-gray-500 font-medium">/md</span>
-                        <span className="text-xs text-gray-400 font-normal ml-1">eks. mva</span>
+                        {isNok ? formatPrice(tier.billingOptions.monthly.priceNok) : formatPriceUsd(tier.billingOptions.monthly.priceNok)}
+                        <span className="text-gray-500 font-medium">{t("/mo")}</span>
+                        <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
                       </span>
                     </div>
                     {tier.billingOptions.annual && (
                       <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-1.5 transition-colors ${
                         billingMode === "annual" ? "bg-emerald-50 ring-1 ring-emerald-300" : ""
                       }`}>
-                        <span className="text-gray-600 font-medium">Årlig</span>
+                        <span className="text-gray-600 font-medium">{t("Yearly")}</span>
                         <span className="font-bold text-emerald-700">
-                          {formatPrice(tier.billingOptions.annual.priceNok)}
-                          <span className="text-emerald-600 font-medium">/år</span>
+                          {isNok ? formatPrice(tier.billingOptions.annual.priceNok) : formatPriceUsd(tier.billingOptions.annual.priceNok)}
+                          <span className="text-emerald-600 font-medium">{t("/yr")}</span>
                           <span className="text-xs text-emerald-500 font-normal ml-1">(-15%)</span>
                         </span>
                       </div>
@@ -330,13 +336,13 @@ function Home() {
                     rel="noopener noreferrer"
                     className={`mt-6 block w-full rounded-xl ${c.btn} px-6 py-3 text-center text-sm font-semibold text-white transition-all duration-200 shadow-md hover:shadow-lg`}
                   >
-                    Abonner på {tier.name}
+                    {t("pricing.subscribeTo", { name: tier.name })}
                   </a>
                   <p className="mt-4 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    Sikker betaling via Stripe
+                    {t("Secure payment via Stripe")}
                   </p>
                 </div>
               );

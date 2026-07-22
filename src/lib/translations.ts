@@ -98,6 +98,8 @@ export const translations = {
       "Booking & scheduling tools",
     ],
 
+    "pricing.subscribeTo": "Subscribe to {name}",
+
     // CTA
     "cta.title": "Ready to Transform Your Fitness?",
     "cta.subtitle": "Join thousands of clients and verified PTs on the world's most advanced fitness platform. Start your journey today.",
@@ -181,15 +183,6 @@ export const translations = {
     // Kitoslight products
     "Solar Panel System": "Solar Panel System",
     "Battery Storage": "Battery Storage",
-    "AI Solar Designer": "AI Solar Designer",
-    "Let our AI design your optimal solar layout": "Let our AI design your optimal solar layout",
-    "Upload a roof photo or describe your building": "Upload a roof photo or describe your building",
-    "Generate Design": "Generate Design",
-    "Estimated production": "Estimated production",
-    "Estimated savings": "Estimated savings",
-    "Panel count": "Panel count",
-    "Recommended": "Recommended",
-    "kWh/year": "kWh/year",
     "Price depends on materials": "Price depends on materials",
   },
 
@@ -272,6 +265,8 @@ export const translations = {
       "Booking- og planleggingsverktøy",
     ],
 
+    "pricing.subscribeTo": "Abonner på {name}",
+
     "cta.title": "Klar for å transformere treningen din?",
     "cta.subtitle": "Bli med tusenvis av kunder og verifiserte PT-er på verdens mest avanserte treningsplattform. Start reisen din i dag.",
     "cta.signUpClient": "Registrer deg som kunde",
@@ -349,15 +344,6 @@ export const translations = {
     // Kitoslight products
     "Solar Panel System": "Solcellesystem",
     "Battery Storage": "Batterilagring",
-    "AI Solar Designer": "AI Solcelle-designer",
-    "Let our AI design your optimal solar layout": "La vår AI designe optimal solcelle-layout",
-    "Upload a roof photo or describe your building": "Last opp et takbilde eller beskriv bygget ditt",
-    "Generate Design": "Generer design",
-    "Estimated production": "Estimert produksjon",
-    "Estimated savings": "Estimert besparelse",
-    "Panel count": "Antall paneler",
-    "Recommended": "Anbefalt",
-    "kWh/year": "kWh/år",
     "Price depends on materials": "Pris avhenger av materialer",
   },
 
@@ -516,15 +502,6 @@ export const translations = {
 
     "Solar Panel System": "Sistema de Paneles Solares",
     "Battery Storage": "Almacenamiento de Batería",
-    "AI Solar Designer": "Diseñador Solar IA",
-    "Let our AI design your optimal solar layout": "Deje que nuestra IA diseñe su diseño solar óptimo",
-    "Upload a roof photo or describe your building": "Suba una foto del techo o describa su edificio",
-    "Generate Design": "Generar Diseño",
-    "Estimated production": "Producción estimada",
-    "Estimated savings": "Ahorro estimado",
-    "Panel count": "Número de paneles",
-    "Recommended": "Recomendado",
-    "kWh/year": "kWh/año",
     "Price depends on materials": "El precio depende de los materiales",
   },
 
@@ -683,15 +660,6 @@ export const translations = {
 
     "Solar Panel System": "Système de Panneaux Solaires",
     "Battery Storage": "Stockage sur Batterie",
-    "AI Solar Designer": "Concepteur Solaire IA",
-    "Let our AI design your optimal solar layout": "Laissez notre IA concevoir votre disposition solaire optimale",
-    "Upload a roof photo or describe your building": "Téléchargez une photo du toit ou décrivez votre bâtiment",
-    "Generate Design": "Générer le Design",
-    "Estimated production": "Production estimée",
-    "Estimated savings": "Économies estimées",
-    "Panel count": "Nombre de panneaux",
-    "Recommended": "Recommandé",
-    "kWh/year": "kWh/an",
     "Price depends on materials": "Le prix dépend des matériaux",
   },
 
@@ -850,15 +818,6 @@ export const translations = {
 
     "Solar Panel System": "Solaranlage",
     "Battery Storage": "Batteriespeicher",
-    "AI Solar Designer": "KI-Solarplaner",
-    "Let our AI design your optimal solar layout": "Lassen Sie unsere KI Ihr optimales Solarlayout entwerfen",
-    "Upload a roof photo or describe your building": "Laden Sie ein Dachfoto hoch oder beschreiben Sie Ihr Gebäude",
-    "Generate Design": "Design generieren",
-    "Estimated production": "Geschätzte Produktion",
-    "Estimated savings": "Geschätzte Einsparungen",
-    "Panel count": "Anzahl der Paneele",
-    "Recommended": "Empfohlen",
-    "kWh/year": "kWh/Jahr",
     "Price depends on materials": "Preis materialabhängig",
   },
 
@@ -1017,15 +976,6 @@ export const translations = {
 
     "Solar Panel System": "نظام الألواح الشمسية",
     "Battery Storage": "تخزين البطارية",
-    "AI Solar Designer": "مصمم الطاقة الشمسية بالذكاء الاصطناعي",
-    "Let our AI design your optimal solar layout": "دع الذكاء الاصطناعي يصمم تخطيطك الشمسي الأمثل",
-    "Upload a roof photo or describe your building": "حمّل صورة للسقف أو صف المبنى الخاص بك",
-    "Generate Design": "توليد التصميم",
-    "Estimated production": "الإنتاج المقدر",
-    "Estimated savings": "التوفير المقدر",
-    "Panel count": "عدد الألواح",
-    "Recommended": "موصى به",
-    "kWh/year": "كيلوواط/ساعة سنوياً",
     "Price depends on materials": "السعر يعتمد على المواد",
   },
 
@@ -1184,15 +1134,6 @@ export const translations = {
 
     "Solar Panel System": "太阳能电池板系统",
     "Battery Storage": "电池存储",
-    "AI Solar Designer": "AI太阳能设计器",
-    "Let our AI design your optimal solar layout": "让我们的AI为您设计最佳太阳能布局",
-    "Upload a roof photo or describe your building": "上传屋顶照片或描述您的建筑",
-    "Generate Design": "生成设计",
-    "Estimated production": "预计产量",
-    "Estimated savings": "预计节省",
-    "Panel count": "面板数量",
-    "Recommended": "推荐",
-    "kWh/year": "千瓦时/年",
     "Price depends on materials": "价格取决于材料",
   },
 } as const;
