@@ -104,7 +104,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, [supabase]);
 
-  const isAdmin = user?.email === "riziki94@gmail.com";
+  // Admin emails — full platform access regardless of subscription tier.
+  // Add more testers by appending to this array.
+  const ADMIN_EMAILS: string[] = [
+    "riziki94@gmail.com",
+    // Add more admin emails here, e.g.:
+    // "tester@example.com",
+  ];
+  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false;
 
   return (
     <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signUp, signOut }}>

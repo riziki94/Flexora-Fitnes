@@ -26,7 +26,7 @@ export const Route = createFileRoute("/dashboard/")({
 
 // ── Main Page ────────────────────────────────────────────────────────
 function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -42,15 +42,18 @@ function DashboardPage() {
       .finally(() => setTierLoading(false));
   }, [user]);
 
-  // Redirect non-admin users to subscribe page
+  // Redirect non-admin users to subscribe page.
+  // Admin emails bypass the subscription check (testing/beta access).
   useEffect(() => {
     if (tierLoading || authLoading) return;
     if (!user) return;
+    // Admins get full access regardless of subscription tier
+    if (isAdmin) return;
     const tier = profile?.subscription_tier ?? "none";
     if (tier !== "dashboard") {
       navigate({ to: "/subscribe" });
     }
-  }, [tierLoading, authLoading, user, profile, navigate]);
+  }, [tierLoading, authLoading, user, profile, navigate, isAdmin]);
 
   if (authLoading || tierLoading) {
     return (
@@ -86,9 +89,9 @@ function DashboardPage() {
   }
 
   const tier = profile?.subscription_tier ?? "none";
-  const isAdmin = tier === "dashboard";
+  const isSubscribed = tier === "dashboard" || isAdmin;
 
-  if (!isAdmin) {
+  if (!isSubscribed) {
     // Redirect is handled in useEffect above; show loading while redirecting
     return (
       <main className="flex-1 bg-gray-50 flex items-center justify-center">
