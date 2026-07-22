@@ -65,6 +65,10 @@ export const translations = {
     "nav.profile": "Profile",
     "nav.verification": "Verification",
     "nav.signOut": "Sign Out",
+    "nav.login": "Log in",
+    "nav.language": "Language",
+    "nav.zongosol": "Zongosol",
+    "nav.kitoslight": "Kitoslight",
 
     // Hero
     "hero.title": "The World's First PT Marketplace",
@@ -564,6 +568,10 @@ export const translations = {
     "nav.profile": "Profil",
     "nav.verification": "Verifisering",
     "nav.signOut": "Logg ut",
+    "nav.login": "Logg inn",
+    "nav.language": "Språk",
+    "nav.zongosol": "Zongosol",
+    "nav.kitoslight": "Kitoslight",
 
     "hero.title": "Verdens første tosidige PT-markedsplass",
     "hero.subtitle": "AI-drevet trening møter global personlig trening. Tren smartere med 3D-muskelvisualisering, live formkorreksjon, stemmeveiledning, og book verifiserte PT-er hvor som helst i verden.",
