@@ -901,19 +901,19 @@ function LayoutSelector({ state, dispatch }: { state: DesignState; dispatch: Rea
 }
 
 const COUNTERTOP_SWATCHES: { value: CountertopMaterial; label: string; color: string; price: number }[] = [
-  { value: "wood", label: t("zongosol.wood"), color: "#8B5E3C", price: 5000 },
-  { value: "granite", label: t("zongosol.granite"), color: "#4A4A4A", price: 15000 },
-  { value: "marble", label: t("zongosol.marble"), color: "#F5F5F0", price: 20000 },
-  { value: "laminate", label: t("zongosol.laminate"), color: "#E5E7EB", price: 2000 },
-  { value: "steel", label: t("zongosol.steel"), color: "#9CA3AF", price: 8000 },
+  { value: "wood", label: "zongosol.wood", color: "#8B5E3C", price: 5000 },
+  { value: "granite", label: "zongosol.granite", color: "#4A4A4A", price: 15000 },
+  { value: "marble", label: "zongosol.marble", color: "#F5F5F0", price: 20000 },
+  { value: "laminate", label: "zongosol.laminate", color: "#E5E7EB", price: 2000 },
+  { value: "steel", label: "zongosol.steel", color: "#9CA3AF", price: 8000 },
 ];
 
 const APPLIANCE_LIST: { value: KitchenAppliance; label: string; icon: string }[] = [
-  { value: "refrigerator", label: t("zongosol.refrigerator"), icon: "" },
-  { value: "oven", label: t("zongosol.oven"), icon: "" },
-  { value: "dishwasher", label: t("zongosol.dishwasher"), icon: "" },
-  { value: "microwave", label: t("zongosol.microwave"), icon: "" },
-  { value: "cooktop", label: t("zongosol.cooktop"), icon: "" },
+  { value: "refrigerator", label: "zongosol.refrigerator", icon: "" },
+  { value: "oven", label: "zongosol.oven", icon: "" },
+  { value: "dishwasher", label: "zongosol.dishwasher", icon: "" },
+  { value: "microwave", label: "zongosol.microwave", icon: "" },
+  { value: "cooktop", label: "zongosol.cooktop", icon: "" },
 ];
 
 // ── Interior Designer Panel ────────────────────────────
@@ -982,7 +982,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                     }`}
                   >
                     <span className="w-4 h-4 rounded-full border border-gray-300" style={{ backgroundColor: sw.color }} />
-                    {sw.label}
+                    {t(sw.label)}
                   </button>
                 ))}
               </div>
@@ -998,7 +998,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                       className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                         active ? "border-amber-500 bg-amber-50 text-amber-700" : "border-gray-200 text-gray-500 hover:border-gray-300"
                       }`}
-                    ><span>{app.icon}</span> {app.label} {active && ""}</button>
+                    ><span>{app.icon}</span> {t(app.label)} {active && ""}</button>
                   );
                 })}
               </div>
