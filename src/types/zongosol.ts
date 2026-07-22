@@ -29,6 +29,39 @@ export type BedroomItem = "bed-double" | "bed-queen" | "bed-single" | "wardrobe"
 export type FurnitureType = LivingItem | BedroomItem;
 export type SmartHomeType = "none" | "knx" | "zigbee";
 
+// ── Phase 4: Enhanced kitchen types ─────────────────────
+export type CabinetStyle = "modern" | "classic" | "minimal";
+export type CabinetColor = "white" | "oak" | "walnut" | "grey" | "navy";
+export type SinkType = "single" | "double" | "undermount";
+export type BacksplashType = "tile" | "glass" | "steel" | "none";
+
+// ── Phase 4: Enhanced bathroom types ────────────────────
+export type VanityStyle = "floating" | "freestanding" | "wall-mounted";
+export type MirrorType = "standard" | "led" | "medicine";
+export type ShowerType = "walk-in" | "enclosed" | "over-bath";
+
+// ── Phase 4: Smart home types ───────────────────────────
+export type VoiceAssistant = "none" | "alexa" | "google" | "homekit";
+
+// ── Phase 4: Electrical planning types ──────────────────
+export interface ElectricalOutlet {
+  id: string;
+  wall: Wall;
+  position: number; // 0-100 along wall
+}
+export type LightFixtureType = "ceiling" | "track" | "pendant" | "sconce";
+export interface PlacedLight {
+  id: string;
+  lightType: LightFixtureType;
+  wall: Wall;
+  position: number;
+}
+export interface SwitchPlacement {
+  id: string;
+  wall: Wall;
+  position: number;
+}
+
 // ── Placed furniture (drag & drop on floor plan) ──────────
 export interface PlacedFurniture {
   id: string;
@@ -89,6 +122,26 @@ export interface DesignState {
   electricalLights: number;
   smartHome: SmartHomeType;
   evCharger: boolean;
+  // Phase 4: Enhanced kitchen
+  cabinetStyle: CabinetStyle;
+  cabinetColor: CabinetColor;
+  sinkType: SinkType;
+  backsplash: BacksplashType;
+  hasIsland: boolean;
+  // Phase 4: Enhanced bathroom
+  vanityStyle: VanityStyle;
+  mirrorType: MirrorType;
+  hasTowelRail: boolean;
+  showerType: ShowerType;
+  // Phase 4: Electrical planning
+  electrical: { outlets: ElectricalOutlet[]; lights: PlacedLight[]; switches: SwitchPlacement[]; panel: boolean };
+  // Phase 4: Smart home
+  smartThermostat: boolean;
+  smartLighting: boolean;
+  smartLocks: boolean;
+  smartSecurity: boolean;
+  voiceAssistant: VoiceAssistant;
+  smartBlinds: boolean;
   layoutType: LayoutType;
   stairs: boolean;
   balcony: boolean;
@@ -188,4 +241,30 @@ export type DesignAction =
   | { type: "MOVE_FURNITURE"; id: string; x: number; y: number }
   | { type: "REMOVE_FURNITURE"; id: string }
   | { type: "ROTATE_FURNITURE"; id: string }
-  | { type: "CLEAR_ALL_FURNITURE" };
+  | { type: "CLEAR_ALL_FURNITURE" }
+  // Phase 4: Enhanced kitchen
+  | { type: "SET_CABINET_STYLE"; style: CabinetStyle }
+  | { type: "SET_CABINET_COLOR"; color: CabinetColor }
+  | { type: "SET_SINK_TYPE"; sinkType: SinkType }
+  | { type: "SET_BACKSPLASH"; backsplash: BacksplashType }
+  | { type: "TOGGLE_ISLAND" }
+  // Phase 4: Enhanced bathroom
+  | { type: "SET_VANITY_STYLE"; style: VanityStyle }
+  | { type: "SET_MIRROR_TYPE"; mirrorType: MirrorType }
+  | { type: "TOGGLE_TOWEL_RAIL" }
+  | { type: "SET_SHOWER_TYPE"; showerType: ShowerType }
+  // Phase 4: Electrical planning
+  | { type: "ADD_ELECTRICAL_OUTLET"; wall: Wall }
+  | { type: "REMOVE_ELECTRICAL_OUTLET"; id: string }
+  | { type: "ADD_LIGHT"; lightType: LightFixtureType; wall: Wall }
+  | { type: "REMOVE_LIGHT"; id: string }
+  | { type: "ADD_SWITCH"; wall: Wall }
+  | { type: "REMOVE_SWITCH"; id: string }
+  | { type: "TOGGLE_ELECTRICAL_PANEL" }
+  // Phase 4: Smart home
+  | { type: "TOGGLE_SMART_THERMOSTAT" }
+  | { type: "TOGGLE_SMART_LIGHTING" }
+  | { type: "TOGGLE_SMART_LOCKS" }
+  | { type: "TOGGLE_SMART_SECURITY" }
+  | { type: "SET_VOICE_ASSISTANT"; assistant: VoiceAssistant }
+  | { type: "TOGGLE_SMART_BLINDS" };

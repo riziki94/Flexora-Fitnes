@@ -30,6 +30,15 @@ import type {
   DesignAction,
   FurnitureType,
   PlacedFurniture,
+  CabinetStyle,
+  CabinetColor,
+  SinkType,
+  BacksplashType,
+  VanityStyle,
+  MirrorType,
+  ShowerType,
+  VoiceAssistant,
+  LightFixtureType,
 } from "../../types/zongosol";
 
 export const Route = createFileRoute("/zongosol/")({
@@ -122,6 +131,33 @@ const BATH_FIXTURE_PRICE: Record<BathFixture, number> = { shower: 5000, tub: 800
 const LIVING_ITEM_PRICE: Record<LivingItem, number> = { "sofa-3": 8000, "sofa-2": 5000, sectional: 12000, "coffee-table": 1500, "tv-unit": 3000, "dining-4": 4000, "dining-6": 6000, bookshelf: 2000 };
 const BEDROOM_ITEM_PRICE: Record<BedroomItem, number> = { "bed-double": 6000, "bed-queen": 5000, "bed-single": 3000, wardrobe: 4000, nightstand: 1000, desk: 2500 };
 
+// Phase 4: Enhanced kitchen prices
+const CABINET_STYLE_PRICE: Record<string, number> = { modern: 5000, classic: 8000, minimal: 3000 };
+const CABINET_COLOR_PRICE: Record<string, number> = { white: 0, oak: 3000, walnut: 5000, grey: 1000, navy: 2000 };
+const SINK_TYPE_PRICE: Record<string, number> = { single: 1500, "double": 3500, undermount: 4000 };
+const BACKSPLASH_PRICE: Record<string, number> = { tile: 3000, glass: 5000, steel: 4000, none: 0 };
+const ISLAND_PRICE = 15000;
+
+// Phase 4: Enhanced bathroom prices
+const VANITY_STYLE_PRICE: Record<string, number> = { floating: 5000, freestanding: 3000, "wall-mounted": 4000 };
+const MIRROR_TYPE_PRICE: Record<string, number> = { standard: 500, led: 2000, medicine: 3000 };
+const TOWEL_RAIL_PRICE = 1500;
+const SHOWER_TYPE_PRICE: Record<string, number> = { "walk-in": 8000, enclosed: 5000, "over-bath": 3000 };
+
+// Phase 4: Electrical planning prices
+const OUTLET_PRICE = 200;
+const LIGHT_PRICE: Record<string, number> = { ceiling: 500, track: 800, pendant: 600, sconce: 400 };
+const SWITCH_PRICE = 150;
+const ELECTRICAL_PANEL_PRICE = 3000;
+
+// Phase 4: Smart home prices
+const SMART_THERMOSTAT_PRICE = 3000;
+const SMART_LIGHTING_PRICE = 5000;
+const SMART_LOCKS_PRICE = 4000;
+const SMART_SECURITY_PRICE = 8000;
+const VOICE_ASSISTANT_PRICE: Record<string, number> = { none: 0, alexa: 500, google: 500, homekit: 800 };
+const SMART_BLINDS_PRICE = 6000;
+
 const LIVING_LABELS: Record<LivingItem, string> = { "sofa-3": "3-Seat Sofa", "sofa-2": "2-Seat Sofa", sectional: "Sectional", "coffee-table": "Coffee Table", "tv-unit": "TV Unit", "dining-4": "Dining (4-seat)", "dining-6": "Dining (6-seat)", bookshelf: "Bookshelf" };
 const BEDROOM_LABELS: Record<BedroomItem, string> = { "bed-double": "Double Bed", "bed-queen": "Queen Bed", "bed-single": "Single Bed", wardrobe: "Wardrobe", nightstand: "Nightstand", desk: "Desk" };
 const LIVING_ICONS: Record<LivingItem, string> = { "sofa-3": "", "sofa-2": "", sectional: "", "coffee-table": "", "tv-unit": "", "dining-4": "", "dining-6": "", bookshelf: "" };
@@ -166,6 +202,29 @@ function calcTotal(state: DesignState): number {
   if (state.heatPumpType === "air-air") total += 50000;
   else if (state.heatPumpType === "air-water") total += 80000;
   else if (state.heatPumpType === "ground") total += 150000;
+  // Phase 4: Enhanced kitchen
+  total += CABINET_STYLE_PRICE[state.cabinetStyle] ?? 0;
+  total += CABINET_COLOR_PRICE[state.cabinetColor] ?? 0;
+  total += SINK_TYPE_PRICE[state.sinkType] ?? 0;
+  total += BACKSPLASH_PRICE[state.backsplash] ?? 0;
+  if (state.hasIsland) total += ISLAND_PRICE;
+  // Phase 4: Enhanced bathroom
+  total += VANITY_STYLE_PRICE[state.vanityStyle] ?? 0;
+  total += MIRROR_TYPE_PRICE[state.mirrorType] ?? 0;
+  if (state.hasTowelRail) total += TOWEL_RAIL_PRICE;
+  total += SHOWER_TYPE_PRICE[state.showerType] ?? 0;
+  // Phase 4: Electrical planning
+  total += state.electrical.outlets.length * OUTLET_PRICE;
+  total += state.electrical.lights.reduce((s, l) => s + (LIGHT_PRICE[l.lightType] ?? 0), 0);
+  total += state.electrical.switches.length * SWITCH_PRICE;
+  if (state.electrical.panel) total += ELECTRICAL_PANEL_PRICE;
+  // Phase 4: Smart home
+  if (state.smartThermostat) total += SMART_THERMOSTAT_PRICE;
+  if (state.smartLighting) total += SMART_LIGHTING_PRICE;
+  if (state.smartLocks) total += SMART_LOCKS_PRICE;
+  if (state.smartSecurity) total += SMART_SECURITY_PRICE;
+  total += VOICE_ASSISTANT_PRICE[state.voiceAssistant] ?? 0;
+  if (state.smartBlinds) total += SMART_BLINDS_PRICE;
   return total;
 }
 
@@ -183,6 +242,14 @@ const DEFAULT_DESIGN_STATE: DesignState = {
   livingItems: [], bedroomItems: [],
   electricalOutlets: 8, electricalLights: 4,
   smartHome: "none", evCharger: false,
+  // Phase 4: Enhanced kitchen
+  cabinetStyle: "modern" as const, cabinetColor: "white" as const, sinkType: "single" as const, backsplash: "none" as const, hasIsland: false,
+  // Phase 4: Enhanced bathroom
+  vanityStyle: "freestanding" as const, mirrorType: "standard" as const, hasTowelRail: false, showerType: "enclosed" as const,
+  // Phase 4: Electrical planning
+  electrical: { outlets: [], lights: [], switches: [], panel: false },
+  // Phase 4: Smart home
+  smartThermostat: false, smartLighting: false, smartLocks: false, smartSecurity: false, voiceAssistant: "none" as const, smartBlinds: false,
   layoutType: "single", stairs: false, balcony: false, roofTerrace: false,
   panelType: "standard", batterySize: "none", inverterType: "string",
   windTurbine: false, windTurbineSize: "1", heatPumpType: "none", evChargerPower: "7.4",
@@ -278,6 +345,32 @@ function designReducer(state: DesignState, action: DesignAction): DesignState {
     case "REMOVE_FURNITURE": return { ...state, placedFurniture: state.placedFurniture.filter(f => f.id !== action.id) };
     case "ROTATE_FURNITURE": return { ...state, placedFurniture: state.placedFurniture.map(f => f.id === action.id ? { ...f, rotation: ((f.rotation + 90) % 360) as 0|90|180|270 } : f) };
     case "CLEAR_ALL_FURNITURE": return { ...state, placedFurniture: [] };
+    // Phase 4: Enhanced kitchen
+    case "SET_CABINET_STYLE": return { ...state, cabinetStyle: action.style };
+    case "SET_CABINET_COLOR": return { ...state, cabinetColor: action.color };
+    case "SET_SINK_TYPE": return { ...state, sinkType: action.sinkType };
+    case "SET_BACKSPLASH": return { ...state, backsplash: action.backsplash };
+    case "TOGGLE_ISLAND": return { ...state, hasIsland: !state.hasIsland };
+    // Phase 4: Enhanced bathroom
+    case "SET_VANITY_STYLE": return { ...state, vanityStyle: action.style };
+    case "SET_MIRROR_TYPE": return { ...state, mirrorType: action.mirrorType };
+    case "TOGGLE_TOWEL_RAIL": return { ...state, hasTowelRail: !state.hasTowelRail };
+    case "SET_SHOWER_TYPE": return { ...state, showerType: action.showerType };
+    // Phase 4: Electrical planning
+    case "ADD_ELECTRICAL_OUTLET": return { ...state, electrical: { ...state.electrical, outlets: [...state.electrical.outlets, { id: `eo${Date.now()}`, wall: action.wall, position: 50 }] } };
+    case "REMOVE_ELECTRICAL_OUTLET": return { ...state, electrical: { ...state.electrical, outlets: state.electrical.outlets.filter(o => o.id !== action.id) } };
+    case "ADD_LIGHT": return { ...state, electrical: { ...state.electrical, lights: [...state.electrical.lights, { id: `el${Date.now()}`, lightType: action.lightType, wall: action.wall, position: 50 }] } };
+    case "REMOVE_LIGHT": return { ...state, electrical: { ...state.electrical, lights: state.electrical.lights.filter(l => l.id !== action.id) } };
+    case "ADD_SWITCH": return { ...state, electrical: { ...state.electrical, switches: [...state.electrical.switches, { id: `es${Date.now()}`, wall: action.wall, position: 50 }] } };
+    case "REMOVE_SWITCH": return { ...state, electrical: { ...state.electrical, switches: state.electrical.switches.filter(s => s.id !== action.id) } };
+    case "TOGGLE_ELECTRICAL_PANEL": return { ...state, electrical: { ...state.electrical, panel: !state.electrical.panel } };
+    // Phase 4: Smart home
+    case "TOGGLE_SMART_THERMOSTAT": return { ...state, smartThermostat: !state.smartThermostat };
+    case "TOGGLE_SMART_LIGHTING": return { ...state, smartLighting: !state.smartLighting };
+    case "TOGGLE_SMART_LOCKS": return { ...state, smartLocks: !state.smartLocks };
+    case "TOGGLE_SMART_SECURITY": return { ...state, smartSecurity: !state.smartSecurity };
+    case "SET_VOICE_ASSISTANT": return { ...state, voiceAssistant: action.assistant };
+    case "TOGGLE_SMART_BLINDS": return { ...state, smartBlinds: !state.smartBlinds };
     default: return state;
   }
 }
@@ -827,7 +920,7 @@ const APPLIANCE_LIST: { value: KitchenAppliance; label: string; icon: string }[]
 
 function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<DesignAction> }) {
   const { t, currency } = useLanguage();
-  const [tab, setTab] = useState<"kitchen" | "bathroom" | "furniture" | "electrical" | "windows" | "doors" | "size">("kitchen");
+  const [tab, setTab] = useState<"kitchen" | "bathroom" | "furniture" | "electrical" | "smart" | "windows" | "doors" | "size">("kitchen");
   const wallOptions: { value: Wall; label: string }[] = [
     { value: "top", label: "Top Wall" }, { value: "bottom", label: "Bottom Wall" },
     { value: "left", label: "Left Wall" }, { value: "right", label: "Right Wall" },
@@ -910,6 +1003,82 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                 })}
               </div>
             </div>
+
+            <hr className="border-gray-200" />
+
+            {/* Phase 4: Cabinet Style */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Cabinet Style</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["modern","classic","minimal"] as string[]).map((s) => (
+                  <button key={s} onClick={() => dispatch({ type: "SET_CABINET_STYLE", style: s as any })}
+                    className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      state.cabinetStyle === s ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  >{s.charAt(0).toUpperCase() + s.slice(1)}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Phase 4: Cabinet Color */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Cabinet Color</label>
+              <div className="flex flex-wrap gap-2">
+                {(["white","oak","walnut","grey","navy"] as string[]).map((c) => (
+                  <button key={c} onClick={() => dispatch({ type: "SET_CABINET_COLOR", color: c as any })}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
+                      state.cabinetColor === c ? "border-emerald-500 bg-emerald-50" : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >{c.charAt(0).toUpperCase() + c.slice(1)}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Phase 4: Sink Type */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Sink Type</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["single","double","undermount"] as string[]).map((s) => (
+                  <button key={s} onClick={() => dispatch({ type: "SET_SINK_TYPE", sinkType: s as any })}
+                    className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      state.sinkType === s ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  >{s === "single" ? "Single Basin" : s === "double" ? "Double Basin" : "Undermount"}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Phase 4: Backsplash */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Backsplash</label>
+              <div className="flex flex-wrap gap-2">
+                {(["tile","glass","steel","none"] as string[]).map((b) => (
+                  <button key={b} onClick={() => dispatch({ type: "SET_BACKSPLASH", backsplash: b as any })}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
+                      state.backsplash === b ? "border-emerald-500 bg-emerald-50" : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >{b === "none" ? "None" : b === "tile" ? "Tile" : b === "glass" ? "Glass" : "Steel"}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Phase 4: Kitchen Island */}
+            <button onClick={() => dispatch({ type: "TOGGLE_ISLAND" })}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-all ${
+                state.hasIsland ? "border-amber-400 bg-amber-50" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🏝️</span>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-gray-800">Kitchen Island</p>
+                  <p className="text-xs text-gray-500">With seating · +{formatPriceCurrency(15000, currency)}</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-6 w-10 items-center rounded-full transition-colors ${state.hasIsland ? "bg-emerald-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${state.hasIsland ? "translate-x-5" : "translate-x-1"}`} />
+              </span>
+            </button>
           </div>
         )}
 
@@ -945,6 +1114,68 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
                   </button>
                 );
               })}
+            </div>
+
+            <hr className="border-gray-200" />
+
+            {/* Phase 4: Vanity Style */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Vanity Style</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["floating","freestanding","wall-mounted"] as string[]).map((s) => (
+                  <button key={s} onClick={() => dispatch({ type: "SET_VANITY_STYLE", style: s as any })}
+                    className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      state.vanityStyle === s ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  >{s === "wall-mounted" ? "Wall-mount" : s.charAt(0).toUpperCase() + s.slice(1)}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Phase 4: Mirror Type */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Mirror Type</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["standard","led","medicine"] as string[]).map((m) => (
+                  <button key={m} onClick={() => dispatch({ type: "SET_MIRROR_TYPE", mirrorType: m as any })}
+                    className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      state.mirrorType === m ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  >{m === "standard" ? "Standard" : m === "led" ? "LED Backlit" : "Med Cabinet"}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Phase 4: Heated Towel Rail */}
+            <button onClick={() => dispatch({ type: "TOGGLE_TOWEL_RAIL" })}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-all ${
+                state.hasTowelRail ? "border-orange-400 bg-orange-50" : "border-gray-200 bg-white hover:border-gray-300"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🪮</span>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-gray-800">Heated Towel Rail</p>
+                  <p className="text-xs text-gray-500">+{formatPriceCurrency(1500, currency)}</p>
+                </div>
+              </div>
+              <span className={`inline-flex h-6 w-10 items-center rounded-full transition-colors ${state.hasTowelRail ? "bg-blue-500" : "bg-gray-300"}`}>
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${state.hasTowelRail ? "translate-x-5" : "translate-x-1"}`} />
+              </span>
+            </button>
+
+            {/* Phase 4: Shower Type */}
+            <div>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">Shower Type</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["walk-in","enclosed","over-bath"] as string[]).map((s) => (
+                  <button key={s} onClick={() => dispatch({ type: "SET_SHOWER_TYPE", showerType: s as any })}
+                    className={`px-2 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      state.showerType === s ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  >{s === "walk-in" ? "Walk-in" : s === "enclosed" ? "Enclosed" : "Over-bath"}</button>
+                ))}
+              </div>
             </div>
           </div>
         )}
