@@ -26,7 +26,20 @@ export type KitchenAppliance = "refrigerator" | "oven" | "dishwasher" | "microwa
 export type BathFixture = "shower" | "tub" | "double-sink" | "toilet" | "bidet";
 export type LivingItem = "sofa-3" | "sofa-2" | "sectional" | "coffee-table" | "tv-unit" | "dining-4" | "dining-6" | "bookshelf";
 export type BedroomItem = "bed-double" | "bed-queen" | "bed-single" | "wardrobe" | "nightstand" | "desk";
+export type FurnitureType = LivingItem | BedroomItem;
 export type SmartHomeType = "none" | "knx" | "zigbee";
+
+// ── Placed furniture (drag & drop on floor plan) ──────────
+export interface PlacedFurniture {
+  id: string;
+  type: FurnitureType;
+  x: number;   // position in 2D SVG coordinate space
+  y: number;
+  width: number;   // size in SVG units
+  height: number;
+  rotation: 0 | 90 | 180 | 270;
+  color: string;
+}
 
 // ── View / environment types ─────────────────────────────
 
@@ -88,6 +101,7 @@ export interface DesignState {
   windTurbineSize: WindSize;
   heatPumpType: HeatPumpType;
   evChargerPower: EVChargerPower;
+  placedFurniture: PlacedFurniture[];
 }
 
 export interface TimeConfig {
@@ -168,4 +182,10 @@ export type DesignAction =
   | { type: "TOGGLE_WIND_TURBINE" }
   | { type: "SET_WIND_TURBINE_SIZE"; windTurbineSize: WindSize }
   | { type: "SET_HEAT_PUMP_TYPE"; heatPumpType: HeatPumpType }
-  | { type: "SET_EV_CHARGER_POWER"; evChargerPower: EVChargerPower };
+  | { type: "SET_EV_CHARGER_POWER"; evChargerPower: EVChargerPower }
+  // Furniture drag & drop
+  | { type: "PLACE_FURNITURE"; furniture: PlacedFurniture }
+  | { type: "MOVE_FURNITURE"; id: string; x: number; y: number }
+  | { type: "REMOVE_FURNITURE"; id: string }
+  | { type: "ROTATE_FURNITURE"; id: string }
+  | { type: "CLEAR_ALL_FURNITURE" };

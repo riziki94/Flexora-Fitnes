@@ -3,6 +3,7 @@ import { lazy, Suspense, useCallback, useEffect, useReducer, useRef, useState } 
 import type { Container3DHandle } from "../../components/Container3D";
 const Container3D = lazy(() => import("../../components/Container3D"));
 import RoomFullscreen from "../../components/RoomFullscreen";
+import FurniturePalette, { getFurnitureDef, GRID_SIZE, FURNITURE_CATALOG } from "../../components/FurniturePalette";
 import EnergyPanel, { type EnergyState, type PanelType, type BatterySize, type InverterType, type WindSize, type HeatPumpType, type EVChargerPower, DEFAULT_ENERGY_STATE } from "../../components/EnergyPanel";
 import DocumentationPanel from "../../components/DocumentationPanel";
 import { formatPrice, formatPriceCurrency } from "../../lib/currency";
@@ -27,6 +28,8 @@ import type {
   RoomDef,
   DesignState,
   DesignAction,
+  FurnitureType,
+  PlacedFurniture,
 } from "../../types/zongosol";
 
 export const Route = createFileRoute("/zongosol/")({
@@ -183,6 +186,7 @@ const DEFAULT_DESIGN_STATE: DesignState = {
   layoutType: "single", stairs: false, balcony: false, roofTerrace: false,
   panelType: "standard", batterySize: "none", inverterType: "string",
   windTurbine: false, windTurbineSize: "1", heatPumpType: "none", evChargerPower: "7.4",
+  placedFurniture: [],
 };
 
 function initialDesignState(): DesignState {
@@ -268,6 +272,12 @@ function designReducer(state: DesignState, action: DesignAction): DesignState {
     case "SET_WIND_TURBINE_SIZE": return { ...state, windTurbineSize: action.windTurbineSize };
     case "SET_HEAT_PUMP_TYPE": return { ...state, heatPumpType: action.heatPumpType };
     case "SET_EV_CHARGER_POWER": return { ...state, evChargerPower: action.evChargerPower };
+    // Furniture drag & drop
+    case "PLACE_FURNITURE": return { ...state, placedFurniture: [...state.placedFurniture, action.furniture] };
+    case "MOVE_FURNITURE": return { ...state, placedFurniture: state.placedFurniture.map(f => f.id === action.id ? { ...f, x: action.x, y: action.y } : f) };
+    case "REMOVE_FURNITURE": return { ...state, placedFurniture: state.placedFurniture.filter(f => f.id !== action.id) };
+    case "ROTATE_FURNITURE": return { ...state, placedFurniture: state.placedFurniture.map(f => f.id === action.id ? { ...f, rotation: ((f.rotation + 90) % 360) as 0|90|180|270 } : f) };
+    case "CLEAR_ALL_FURNITURE": return { ...state, placedFurniture: [] };
     default: return state;
   }
 }
@@ -365,8 +375,13 @@ function getRoomLayout(
   }));
 }
 
-function FloorPlan({ state }: { state: DesignState }) {
+function FloorPlan({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<DesignAction> }) {
   const { t } = useLanguage();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number } | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
   if (!state.selectedModel) {
     return (
       <div className="flex items-center justify-center h-full min-h-[300px] text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
@@ -385,6 +400,157 @@ function FloorPlan({ state }: { state: DesignState }) {
   const containerW = state.containerSize === "double" ? 200 : 120;
   const layout = getRoomLayout(state.rooms, state.containerSize);
 
+  // Grid snap helper
+  const snapToGrid = (val: number) => Math.round(val / GRID_SIZE) * GRID_SIZE;
+
+  // Check if position is within a room
+  function getRoomAt(x: number, y: number) {
+    return layout.find(r => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+  }
+
+  function isWithinBounds(x: number, y: number, w: number, h: number) {
+    // Check if center is within any room
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    const room = getRoomAt(cx, cy);
+    if (!room) return false;
+    // Also check all corners are within container
+    if (x < 0 || y < 0 || x + w > containerW || y + h > containerH) return false;
+    return true;
+  }
+
+  // Handle drop from palette
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const furnType = e.dataTransfer.getData("text/plain") as FurnitureType;
+    const def = getFurnitureDef(furnType);
+    if (!def || !svgRef.current) return;
+
+    const svgRect = svgRef.current.getBoundingClientRect();
+    const viewBoxW = containerW;
+    const viewBoxH = containerH;
+    const scaleX = viewBoxW / svgRect.width;
+    const scaleY = viewBoxH / svgRect.height;
+
+    let x = (e.clientX - svgRect.left) * scaleX - def.defaultW / 2;
+    let y = (e.clientY - svgRect.top) * scaleY - def.defaultH / 2;
+
+    // Snap to grid
+    x = snapToGrid(x);
+    y = snapToGrid(y);
+
+    // Clamp to container
+    x = Math.max(0, Math.min(containerW - def.defaultW, x));
+    y = Math.max(0, Math.min(containerH - def.defaultH, y));
+
+    const newFurniture: PlacedFurniture = {
+      id: `furn_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      type: furnType,
+      x,
+      y,
+      width: def.defaultW,
+      height: def.defaultH,
+      rotation: 0,
+      color: def.color,
+    };
+
+    dispatch({ type: "PLACE_FURNITURE", furniture: newFurniture });
+  }, [containerW, containerH, dispatch]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  }, []);
+
+  // Click-to-move within SVG
+  const handleSVGMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!svgRef.current) return;
+    const svgRect = svgRef.current.getBoundingClientRect();
+    const scaleX = containerW / svgRect.width;
+    const scaleY = containerH / svgRect.height;
+    const mx = (e.clientX - svgRect.left) * scaleX;
+    const my = (e.clientY - svgRect.top) * scaleY;
+
+    // Check if click hits a placed furniture
+    const hit = state.placedFurniture.findLast(f => {
+      const fw = f.rotation === 90 || f.rotation === 270 ? f.height : f.width;
+      const fh = f.rotation === 90 || f.rotation === 270 ? f.width : f.height;
+      return mx >= f.x && mx <= f.x + fw && my >= f.y && my <= f.y + fh;
+    });
+
+    if (hit) {
+      setSelectedId(hit.id);
+      setDraggingId(hit.id);
+      setDragOffset({ x: mx - hit.x, y: my - hit.y });
+    } else {
+      setSelectedId(null);
+      setDraggingId(null);
+    }
+  }, [state.placedFurniture, containerW, containerH]);
+
+  const handleSVGMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!draggingId || !svgRef.current || !dragOffset) return;
+    const svgRect = svgRef.current.getBoundingClientRect();
+    const scaleX = containerW / svgRect.width;
+    const scaleY = containerH / svgRect.height;
+    let mx = (e.clientX - svgRect.left) * scaleX - dragOffset.x;
+    let my = (e.clientY - svgRect.top) * scaleY - dragOffset.y;
+
+    // Snap to grid
+    mx = snapToGrid(mx);
+    my = snapToGrid(my);
+
+    const furn = state.placedFurniture.find(f => f.id === draggingId);
+    if (!furn) return;
+    const fw = furn.rotation === 90 || furn.rotation === 270 ? furn.height : furn.width;
+    const fh = furn.rotation === 90 || furn.rotation === 270 ? furn.width : furn.height;
+
+    // Clamp to container
+    mx = Math.max(0, Math.min(containerW - fw, mx));
+    my = Math.max(0, Math.min(containerH - fh, my));
+
+    dispatch({ type: "MOVE_FURNITURE", id: draggingId, x: mx, y: my });
+  }, [draggingId, dragOffset, dispatch, state.placedFurniture, containerW, containerH]);
+
+  const handleSVGMouseUp = useCallback(() => {
+    setDraggingId(null);
+    setDragOffset(null);
+  }, []);
+
+  // Keyboard: Delete to remove selected
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        const tag = (e.target as HTMLElement).tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
+        if (selectedId) {
+          dispatch({ type: "REMOVE_FURNITURE", id: selectedId });
+          setSelectedId(null);
+        }
+      }
+      if (e.key === "r" && !e.ctrlKey && !e.metaKey && selectedId) {
+        const tag = (e.target as HTMLElement).tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
+        dispatch({ type: "ROTATE_FURNITURE", id: selectedId });
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [selectedId, dispatch]);
+
+  const handleClearAll = () => {
+    dispatch({ type: "CLEAR_ALL_FURNITURE" });
+    setSelectedId(null);
+  };
+
+  // Count furniture
+  const livingCount = state.placedFurniture.filter(f => 
+    FURNITURE_CATALOG.find(d => d.type === f.type)?.category === "living"
+  ).length;
+  const bedroomCount = state.placedFurniture.filter(f => 
+    FURNITURE_CATALOG.find(d => d.type === f.type)?.category === "bedroom"
+  ).length;
+
   return (
     <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
@@ -393,42 +559,146 @@ function FloorPlan({ state }: { state: DesignState }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm12 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
           </svg>
           Floor Plan — {MODELS.find((m) => m.id === state.selectedModel)?.name}
+          <span className="text-xs font-normal text-gray-400 ml-1">
+            ({state.placedFurniture.length} items placed)
+          </span>
         </span>
+        <div className="flex items-center gap-1">
+          {selectedId && (
+            <>
+              <button onClick={() => { dispatch({ type: "ROTATE_FURNITURE", id: selectedId }); }}
+                className="px-2 py-1 text-xs rounded border border-gray-200 hover:bg-blue-50 text-blue-600 font-medium"
+                title="Rotate (R)"
+              >↻ Rotate</button>
+              <button onClick={() => { dispatch({ type: "REMOVE_FURNITURE", id: selectedId }); setSelectedId(null); }}
+                className="px-2 py-1 text-xs rounded border border-gray-200 hover:bg-red-50 text-red-600 font-medium"
+                title="Delete (Del)"
+              >✕ Delete</button>
+            </>
+          )}
+          {state.placedFurniture.length > 0 && (
+            <button onClick={handleClearAll}
+              className="px-2 py-1 text-xs rounded border border-gray-200 hover:bg-red-50 text-red-500 font-medium"
+            >Clear All</button>
+          )}
+        </div>
       </div>
-      <div className="p-4 flex justify-center bg-[#f8fafc]">
-        <svg viewBox={`0 0 ${containerW} ${containerH}`} className="w-full max-w-lg" style={{ maxHeight: "500px" }}>
-          <defs>
-            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect x="0" y="0" width={containerW} height={containerH} fill="url(#grid)" rx="2" />
-          <rect x="4" y="4" width={containerW - 8} height={containerH - 8} fill="none" stroke="#94a3b8" strokeWidth="3" rx="4" strokeDasharray="8 3" />
-          {layout.map(({ x, y, w, h, room }) => (
-            <g key={room.id}>
-              <rect x={x} y={y} width={w} height={h} fill={ROOM_SVG[room.type].fill} stroke={ROOM_SVG[room.type].stroke} strokeWidth="2" rx="3" />
-              <text x={x + w / 2} y={y + h / 2} textAnchor="middle" dominantBaseline="middle" fontSize={room.type === "bathroom" ? "6" : "7"} fontWeight="600" fill={ROOM_SVG[room.type].stroke} fontFamily="system-ui">{room.label}</text>
-            </g>
-          ))}
-          {state.windows.map((win) => {
-            let wx: number, wy: number, ww: number, wh: number;
-            const winSize = 8;
-            if (win.wall === "top") { wx = 4 + (containerW - 8) * (win.position / 100) - winSize / 2; wy = 4 - 2; ww = winSize; wh = 4; }
-            else if (win.wall === "bottom") { wx = 4 + (containerW - 8) * (win.position / 100) - winSize / 2; wy = containerH - 4 - 2; ww = winSize; wh = 4; }
-            else if (win.wall === "left") { wx = 4 - 2; wy = 4 + (containerH - 8) * (win.position / 100) - winSize / 2; ww = 4; wh = winSize; }
-            else { wx = containerW - 4 - 2; wy = 4 + (containerH - 8) * (win.position / 100) - winSize / 2; ww = 4; wh = winSize; }
-            return <rect key={win.id} x={wx} y={wy} width={ww} height={wh} fill="#38bdf8" stroke="#0284c7" strokeWidth="1" rx="1" />;
-          })}
-          {state.doors.map((door) => {
-            let dx: number, dy: number, dw: number, dh: number;
-            const doorSize = 6;
-            if (door.wall === "top") { dx = 4 + (containerW - 8) * (door.position / 100) - doorSize / 2; dy = 4 - 2; dw = doorSize; dh = 4; }
-            else if (door.wall === "bottom") { dx = 4 + (containerW - 8) * (door.position / 100) - doorSize / 2; dy = containerH - 4 - 2; dw = doorSize; dh = 4; }
-            else if (door.wall === "left") { dx = 4 - 2; dy = 4 + (containerH - 8) * (door.position / 100) - doorSize / 2; dw = 4; dh = doorSize; }
-            else { dx = containerW - 4 - 2; dy = 4 + (containerH - 8) * (door.position / 100) - doorSize / 2; dw = 4; dh = doorSize; }
-            return <rect key={door.id} x={dx} y={dy} width={dw} height={dh} fill="#ef4444" stroke="#b91c1c" strokeWidth="1" rx="1" />;
-          })}
-        </svg>
+      <div className="flex">
+        {/* Furniture Palette Sidebar */}
+        <FurniturePalette onDragStart={() => {}} />
+
+        {/* SVG Floor Plan */}
+        <div className="flex-1 p-4 bg-[#f8fafc]" 
+          onDrop={handleDrop} onDragOver={handleDragOver}
+        >
+          <svg ref={svgRef}
+            viewBox={`0 0 ${containerW} ${containerH}`}
+            className="w-full"
+            style={{ maxHeight: "500px", cursor: draggingId ? "grabbing" : "default" }}
+            onMouseDown={handleSVGMouseDown}
+            onMouseMove={handleSVGMouseMove}
+            onMouseUp={handleSVGMouseUp}
+            onMouseLeave={handleSVGMouseUp}
+          >
+            <defs>
+              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width={containerW} height={containerH} fill="url(#grid)" rx="2" />
+            <rect x="4" y="4" width={containerW - 8} height={containerH - 8} fill="none" stroke="#94a3b8" strokeWidth="3" rx="4" strokeDasharray="8 3" />
+            
+            {/* Room layout */}
+            {layout.map(({ x, y, w, h, room }) => (
+              <g key={room.id}>
+                <rect x={x} y={y} width={w} height={h} fill={ROOM_SVG[room.type].fill} stroke={ROOM_SVG[room.type].stroke} strokeWidth="2" rx="3" />
+                <text x={x + w / 2} y={y + h / 2} textAnchor="middle" dominantBaseline="middle" fontSize={room.type === "bathroom" ? "6" : "7"} fontWeight="600" fill={ROOM_SVG[room.type].stroke} fontFamily="system-ui">{room.label}</text>
+              </g>
+            ))}
+
+            {/* Windows */}
+            {state.windows.map((win) => {
+              let wx: number, wy: number, ww: number, wh: number;
+              const winSize = 8;
+              if (win.wall === "top") { wx = 4 + (containerW - 8) * (win.position / 100) - winSize / 2; wy = 4 - 2; ww = winSize; wh = 4; }
+              else if (win.wall === "bottom") { wx = 4 + (containerW - 8) * (win.position / 100) - winSize / 2; wy = containerH - 4 - 2; ww = winSize; wh = 4; }
+              else if (win.wall === "left") { wx = 4 - 2; wy = 4 + (containerH - 8) * (win.position / 100) - winSize / 2; ww = 4; wh = winSize; }
+              else { wx = containerW - 4 - 2; wy = 4 + (containerH - 8) * (win.position / 100) - winSize / 2; ww = 4; wh = winSize; }
+              return <rect key={win.id} x={wx} y={wy} width={ww} height={wh} fill="#38bdf8" stroke="#0284c7" strokeWidth="1" rx="1" />;
+            })}
+
+            {/* Doors */}
+            {state.doors.map((door) => {
+              let dx: number, dy: number, dw: number, dh: number;
+              const doorSize = 6;
+              if (door.wall === "top") { dx = 4 + (containerW - 8) * (door.position / 100) - doorSize / 2; dy = 4 - 2; dw = doorSize; dh = 4; }
+              else if (door.wall === "bottom") { dx = 4 + (containerW - 8) * (door.position / 100) - doorSize / 2; dy = containerH - 4 - 2; dw = doorSize; dh = 4; }
+              else if (door.wall === "left") { dx = 4 - 2; dy = 4 + (containerH - 8) * (door.position / 100) - doorSize / 2; dw = 4; dh = doorSize; }
+              else { dx = containerW - 4 - 2; dy = 4 + (containerH - 8) * (door.position / 100) - doorSize / 2; dw = 4; dh = doorSize; }
+              return <rect key={door.id} x={dx} y={dy} width={dw} height={dh} fill="#ef4444" stroke="#b91c1c" strokeWidth="1" rx="1" />;
+            })}
+
+            {/* Placed Furniture */}
+            {state.placedFurniture.map((furn) => {
+              const def = getFurnitureDef(furn.type);
+              const isSelected = furn.id === selectedId;
+              // Handle rotation: swap w/h for 90/270
+              const fw = furn.rotation === 90 || furn.rotation === 270 ? furn.height : furn.width;
+              const fh = furn.rotation === 90 || furn.rotation === 270 ? furn.width : furn.height;
+              const cx = furn.x + fw / 2;
+              const cy = furn.y + fh / 2;
+              return (
+                <g key={furn.id} style={{ cursor: "move" }}>
+                  {/* Shadow/hitbox */}
+                  <rect
+                    x={furn.x} y={furn.y} width={fw} height={fh}
+                    fill={furn.color} fillOpacity={0.8}
+                    stroke={isSelected ? "#3b82f6" : "rgba(0,0,0,0.2)"}
+                    strokeWidth={isSelected ? 2.5 : 1}
+                    rx="2"
+                  />
+                  {/* Selection handles */}
+                  {isSelected && (
+                    <>
+                      <rect x={furn.x} y={furn.y} width={fw} height={fh} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeDasharray="4 2" rx="2" />
+                      {[ 
+                        [furn.x - 3, furn.y - 3],
+                        [furn.x + fw - 3, furn.y - 3],
+                        [furn.x - 3, furn.y + fh - 3],
+                        [furn.x + fw - 3, furn.y + fh - 3],
+                      ].map(([hx, hy], i) => (
+                        <rect key={i} x={hx} y={hy} width="6" height="6" fill="white" stroke="#3b82f6" strokeWidth="1.5" rx="1" />
+                      ))}
+                    </>
+                  )}
+                  {/* Icon label */}
+                  <text
+                    x={cx} y={cy}
+                    textAnchor="middle" dominantBaseline="middle"
+                    fontSize="9"
+                    fill={isSelected ? "#1e40af" : "#374151"}
+                    fontWeight={isSelected ? "700" : "500"}
+                    fontFamily="system-ui"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    {def?.icon || "📦"}
+                  </text>
+                  {/* Label below */}
+                  <text
+                    x={cx} y={cy + 11}
+                    textAnchor="middle" dominantBaseline="middle"
+                    fontSize="6"
+                    fill="#6b7280"
+                    fontFamily="system-ui"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    {def?.label || furn.type}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
       </div>
       <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex flex-wrap gap-3 text-xs">
         {(["kitchen", "bathroom", "living", "bedroom"] as RoomType[]).map((type) => (
@@ -439,13 +709,16 @@ function FloorPlan({ state }: { state: DesignState }) {
         ))}
         <span className="flex items-center gap-1.5 ml-2"><span className="inline-block w-3 h-3 rounded-sm bg-sky-400 border border-sky-600" />{t("zongosol.window")}</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-sm bg-red-500 border border-red-700" />{t("zongosol.door")}</span>
+        <span className="flex items-center gap-1.5 ml-2">
+          <span className="text-[10px] text-gray-500">🪑 Furniture: <b className="text-emerald-600">{livingCount}</b> living · <b className="text-purple-600">{bedroomCount}</b> bedroom</span>
+        </span>
+        <span className="flex items-center gap-1.5 ml-auto text-gray-400 text-[10px]">
+          Drag from palette · R to rotate · Del to remove
+        </span>
       </div>
     </div>
   );
 }
-
-// ── Model Selector ────────────────────────────────────
-
 function ModelSelector({ state, dispatch }: { state: DesignState; dispatch: React.Dispatch<DesignAction> }) {
   const { t, currency } = useLanguage();
   return (
@@ -1538,7 +1811,7 @@ function ZongosolPage() {
                     >{t("zongosol.viewFloorPlan")}</button>
                   </div>
                 </div>
-                <FloorPlan state={state} />
+                <FloorPlan state={state} dispatch={trackedDispatch} />
               </div>
             )}
 

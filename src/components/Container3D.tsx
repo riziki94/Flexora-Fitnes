@@ -18,6 +18,8 @@ import type {
   Door_,
   RoomDef,
   DesignState,
+  PlacedFurniture,
+  FurnitureType,
   ViewPreset,
   TimeOfDay,
   Weather,
@@ -664,6 +666,91 @@ function addBedroomFurniture3D(group: THREE.Group, roomLayout: RoomLayout3D, sta
   group.add(furnGroup);
 }
 
+// ── Placed Furniture 3D (from drag & drop on floor plan) ─
+
+function addPlacedFurniture3D(group: THREE.Group, state: DesignState, l: number, w: number) {
+  const floorY = 0.06;
+  if (!state.placedFurniture || state.placedFurniture.length === 0) return;
+  
+  const furnGroup = new THREE.Group();
+  
+  // Need container dimensions in SVG units to map to 3D
+  let svgW: number, svgH: number;
+  if (state.containerSize === "40ft") { svgW = 120; svgH = 400; }
+  else if (state.containerSize === "double") { svgW = 200; svgH = 260; }
+  else if (state.containerSize === "custom") { svgW = 120; svgH = 350; }
+  else { svgW = 120; svgH = 240; } // 20ft default
+  
+  state.placedFurniture.forEach((furn: PlacedFurniture) => {
+    // Map 2D SVG coordinates to 3D world coordinates
+    // SVG x -> 3D x (length), SVG y -> 3D z (width)
+    const fw = furn.rotation === 90 || furn.rotation === 270 ? furn.height : furn.width;
+    const fh = furn.rotation === 90 || furn.rotation === 270 ? furn.width : furn.height;
+    
+    const posX3d = (furn.x / svgW) * l + (fw / svgW) * l / 2;
+    const posZ3d = (furn.y / svgH) * w + (fh / svgH) * w / 2;
+    
+    // Size in 3D (scale proportionally)
+    const sizeX = (fw / svgW) * l;
+    const sizeZ = (fh / svgH) * w;
+    
+    // Height based on furniture type
+    let height3d = 0.4;
+    switch (furn.type) {
+      case "sofa-3": case "sofa-2": case "sectional": height3d = 0.4; break;
+      case "coffee-table": height3d = 0.35; break;
+      case "tv-unit": height3d = 0.5; break;
+      case "dining-4": case "dining-6": height3d = 0.06; break;
+      case "bookshelf": height3d = 2.0; break;
+      case "wardrobe": height3d = 2.1; break;
+      case "bed-double": case "bed-queen": case "bed-single": height3d = 0.2; break;
+      case "nightstand": height3d = 0.5; break;
+      case "desk": height3d = 0.05; break;
+      default: height3d = 0.4;
+    }
+    
+    // Simple box representation
+    const boxGeo = new THREE.BoxGeometry(Math.max(0.15, sizeX), Math.max(0.08, height3d), Math.max(0.15, sizeZ));
+    const boxMat = new THREE.MeshStandardMaterial({ 
+      color: furn.color, roughness: 0.5, metalness: 0.1 
+    });
+    const box = new THREE.Mesh(boxGeo, boxMat);
+    const halfH = Math.max(0.08, height3d) / 2;
+    box.position.set(posX3d, floorY + halfH, posZ3d);
+    box.castShadow = true;
+    box.receiveShadow = true;
+    
+    // If rotated, apply rotation around Y axis
+    if (furn.rotation !== 0) {
+      box.rotation.y = (furn.rotation * Math.PI) / 180;
+    }
+    
+    furnGroup.add(box);
+    
+    // Add legs for tables
+    if (furn.type === "coffee-table" || furn.type === "dining-4" || furn.type === "dining-6" || furn.type === "desk" || furn.type === "nightstand") {
+      const legGeo = new THREE.CylinderGeometry(0.02, 0.02, height3d * 0.7, 8);
+      const legMat = new THREE.MeshStandardMaterial({ color: "#5C3A1E", roughness: 0.4, metalness: 0.1 });
+      const halfX = sizeX / 2 - 0.08;
+      const halfZ = sizeZ / 2 - 0.08;
+      const legH = height3d * 0.35;
+      for (let lx = -1; lx <= 1; lx += 2) {
+        for (let lz = -1; lz <= 1; lz += 2) {
+          const leg = new THREE.Mesh(legGeo, legMat);
+          leg.position.set(posX3d + lx * halfX, legH, posZ3d + lz * halfZ);
+          leg.castShadow = true;
+          if (furn.rotation !== 0) {
+            leg.rotation.y = (furn.rotation * Math.PI) / 180;
+          }
+          furnGroup.add(leg);
+        }
+      }
+    }
+  });
+  
+  group.add(furnGroup);
+}
+
 // ── Electrical markers ────────────────────────────────
 
 function addElectricalMarkers(group: THREE.Group, containerGroup: THREE.Group, state: DesignState, l: number, w: number, h: number) {
@@ -883,6 +970,7 @@ function buildContainerBox(
 
       // Electrical markers
       addElectricalMarkers(interiorGroup, interiorGroup, state, l, w, h);
+      addPlacedFurniture3D(interiorGroup, state, l, w);
     }
 
     box.add(interiorGroup);
