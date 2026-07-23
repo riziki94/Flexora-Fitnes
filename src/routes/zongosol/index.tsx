@@ -396,8 +396,8 @@ const EXTERIOR_TEXT: Record<ExteriorColor, string> = {
   wood: "text-white", metal: "text-gray-900", white: "text-gray-900", green: "text-white", charcoal: "text-white",
 };
 
-const EXTERIOR_LABELS: Record<ExteriorColor, string> = {
-  wood: "Natural Wood", metal: "Brushed Metal", white: "Classic White", green: "Forest Green", charcoal: "Charcoal",
+const EXTERIOR_LABEL_KEYS: Record<ExteriorColor, string> = {
+  wood: "zongosol.naturalWood", metal: "zongosol.brushedMetal", white: "zongosol.classicWhite", green: "zongosol.forestGreen", charcoal: "zongosol.charcoal",
 };
 
 // ── Solar calculation helper ───────────────────────────
@@ -651,9 +651,9 @@ function FloorPlan({ state, dispatch }: { state: DesignState; dispatch: React.Di
           <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm12 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
           </svg>
-          Floor Plan — {MODELS.find((m) => m.id === state.selectedModel)?.name}
+          {t("zongosol.floorPlanOf", { name: MODELS.find((m) => m.id === state.selectedModel)?.name ?? "" })}
           <span className="text-xs font-normal text-gray-400 ml-1">
-            ({state.placedFurniture.length} items placed)
+            {t("zongosol.itemsPlaced", { count: state.placedFurniture.length })}
           </span>
         </span>
         <div className="flex items-center gap-1">
@@ -662,17 +662,17 @@ function FloorPlan({ state, dispatch }: { state: DesignState; dispatch: React.Di
               <button onClick={() => { dispatch({ type: "ROTATE_FURNITURE", id: selectedId }); }}
                 className="px-2 py-1 text-xs rounded border border-gray-200 hover:bg-blue-50 text-blue-600 font-medium"
                 title="Rotate (R)"
-              >↻ Rotate</button>
+              >{t("zongosol.rotateBtn")}</button>
               <button onClick={() => { dispatch({ type: "REMOVE_FURNITURE", id: selectedId }); setSelectedId(null); }}
                 className="px-2 py-1 text-xs rounded border border-gray-200 hover:bg-red-50 text-red-600 font-medium"
                 title="Delete (Del)"
-              >✕ Delete</button>
+              >{t("zongosol.deleteBtn")}</button>
             </>
           )}
           {state.placedFurniture.length > 0 && (
             <button onClick={handleClearAll}
               className="px-2 py-1 text-xs rounded border border-gray-200 hover:bg-red-50 text-red-500 font-medium"
-            >Clear All</button>
+            >{t("zongosol.clearAllBtn")}</button>
           )}
         </div>
       </div>
@@ -808,7 +808,7 @@ function FloorPlan({ state, dispatch }: { state: DesignState; dispatch: React.Di
           <span className="text-[10px] text-gray-500">🪑 Furniture: <b className="text-emerald-600">{livingCount}</b> living · <b className="text-purple-600">{bedroomCount}</b> bedroom</span>
         </span>
         <span className="flex items-center gap-1.5 ml-auto text-gray-400 text-[10px]">
-          Drag from palette · R to rotate · Del to remove
+          {t("zongosol.dragHint")}
         </span>
       </div>
     </div>
@@ -850,7 +850,7 @@ function ModelSelector({ state, dispatch }: { state: DesignState; dispatch: Reac
               <p className="text-xs text-gray-500 mb-1">{model.size === "20ft" ? t("zongosol.modelDetails20ft") : model.size === "40ft" ? t("zongosol.modelDetails40ft") : model.size === "double" ? t("zongosol.modelDetailsDouble") : t("zongosol.modelDetailsCustom")}{" · "}{t("zongosol.roomsLabel", { n: model.rooms.length })}</p>
               <p className="text-xs text-gray-600 leading-relaxed mb-2">{t(model.description)}</p>
               <p className="text-lg font-bold text-emerald-700">{formatPriceCurrency(model.basePrice, currency)}</p>
-              <p className="text-xs text-gray-400">{t("Starting price excl. VAT")}</p>
+              <p className="text-xs text-gray-400">{t("zongosol.startingPriceExclVat")}</p>
             </button>
           );
         })}
@@ -962,7 +962,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
         {tab === "kitchen" && (
           <div className="space-y-5">
             <div>
-              <label className="text-xs font-semibold text-gray-700 block mb-2">Kitchen Layout</label>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">{t("zongosol.kitchenLayoutLabel")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["L-shape", "galley", "island"] as KitchenLayout[]).map((layout) => (
                   <button key={layout} onClick={() => dispatch({ type: "SET_KITCHEN_LAYOUT", layout })}
@@ -975,7 +975,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-gray-700 block mb-2">Countertop Material</label>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">{t("zongosol.countertopMaterial")}</label>
               <div className="flex gap-2 flex-wrap">
                 {COUNTERTOP_SWATCHES.map((sw) => (
                   <button key={sw.value} onClick={() => dispatch({ type: "SET_KITCHEN_COUNTERTOP", material: sw.value })}
@@ -991,7 +991,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-gray-700 block mb-2">Appliances</label>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">{t("zongosol.appliancesLabel")}</label>
               <div className="flex flex-wrap gap-2">
                 {APPLIANCE_LIST.map((app) => {
                   const active = state.kitchenAppliances.includes(app.value);
@@ -1010,7 +1010,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
 
             {/* Phase 4: Cabinet Style */}
             <div>
-              <label className="text-xs font-semibold text-gray-700 block mb-2">Cabinet Style</label>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">{t("zongosol.cabinetStyle")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["modern","classic","minimal"] as string[]).map((s) => (
                   <button key={s} onClick={() => dispatch({ type: "SET_CABINET_STYLE", style: s as any })}
@@ -1024,7 +1024,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
 
             {/* Phase 4: Cabinet Color */}
             <div>
-              <label className="text-xs font-semibold text-gray-700 block mb-2">Cabinet Color</label>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">{t("zongosol.cabinetColor")}</label>
               <div className="flex flex-wrap gap-2">
                 {(["white","oak","walnut","grey","navy"] as string[]).map((c) => (
                   <button key={c} onClick={() => dispatch({ type: "SET_CABINET_COLOR", color: c as any })}
@@ -1038,7 +1038,7 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
 
             {/* Phase 4: Sink Type */}
             <div>
-              <label className="text-xs font-semibold text-gray-700 block mb-2">Sink Type</label>
+              <label className="text-xs font-semibold text-gray-700 block mb-2">{t("zongosol.sinkType")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {(["single","double","undermount"] as string[]).map((s) => (
                   <button key={s} onClick={() => dispatch({ type: "SET_SINK_TYPE", sinkType: s as any })}
@@ -1188,9 +1188,9 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
             {/* Living Room */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold text-gray-700">Living Room <span className="text-gray-400 font-normal">({state.livingItems.length} items)</span></label>
+                <label className="text-xs font-semibold text-gray-700">{t("zongosol.livingRoom")} <span className="text-gray-400 font-normal">({state.livingItems.length} items)</span></label>
                 {state.livingItems.length > 0 && (
-                  <button onClick={() => dispatch({ type: "CLEAR_LIVING" })} className="text-xs text-red-500 hover:text-red-700 font-medium">Clear room</button>
+                  <button onClick={() => dispatch({ type: "CLEAR_LIVING" })} className="text-xs text-red-500 hover:text-red-700 font-medium">{t("zongosol.clearRoom")}</button>
                 )}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1216,9 +1216,9 @@ function InteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
             {/* Bedroom */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold text-gray-700">Bedroom <span className="text-gray-400 font-normal">({state.bedroomItems.length} items)</span></label>
+                <label className="text-xs font-semibold text-gray-700">{t("zongosol.bedroom")} <span className="text-gray-400 font-normal">({state.bedroomItems.length} items)</span></label>
                 {state.bedroomItems.length > 0 && (
-                  <button onClick={() => dispatch({ type: "CLEAR_BEDROOM" })} className="text-xs text-red-500 hover:text-red-700 font-medium">Clear room</button>
+                  <button onClick={() => dispatch({ type: "CLEAR_BEDROOM" })} className="text-xs text-red-500 hover:text-red-700 font-medium">{t("zongosol.clearRoom")}</button>
                 )}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1421,22 +1421,22 @@ function ExteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
           <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
           </svg>
-          Exterior Designer
+          {t("zongosol.exteriorDesigner")}
         </span>
       </div>
       <div className="p-4 space-y-5">
         <div>
-          <label className="text-xs font-semibold text-gray-700 block mb-3">Exterior Material &amp; Color</label>
+          <label className="text-xs font-semibold text-gray-700 block mb-3">{t("zongosol.exteriorMaterial")}</label>
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {(Object.keys(EXTERIOR_CSS) as ExteriorColor[]).map((color) => (
               <button key={color} onClick={() => dispatch({ type: "SET_EXTERIOR_COLOR", color })}
-                className="flex flex-col items-center gap-1" title={EXTERIOR_LABELS[color]}
+                className="flex flex-col items-center gap-1" title={t(EXTERIOR_LABEL_KEYS[color])}
               >
                 <span className={`inline-block w-10 h-10 rounded-lg border-2 transition-all ${
                     state.exteriorColor === color ? "border-emerald-500 ring-2 ring-emerald-200 scale-110" : "border-gray-300"
                   } ${EXTERIOR_CSS[color]}`}
                 />
-                <span className="text-[10px] text-gray-500 leading-tight text-center">{EXTERIOR_LABELS[color]}</span>
+                <span className="text-[10px] text-gray-500 leading-tight text-center">{t(EXTERIOR_LABEL_KEYS[color])}</span>
               </button>
             ))}
           </div>
@@ -1459,7 +1459,7 @@ function ExteriorPanel({ state, dispatch }: { state: DesignState; dispatch: Reac
             </div>
             <div className={`w-8 h-10 rounded-t border-2 border-b-0 ${EXTERIOR_BORDER[state.exteriorColor]}`} />
           </div>
-          <p className="text-xs text-center mt-2 opacity-80">{state.solarPanels ? "Solar · " : ""}{state.deck ? "Deck · " : ""}{EXTERIOR_LABELS[state.exteriorColor]}</p>
+          <p className="text-xs text-center mt-2 opacity-80">{state.solarPanels ? "Solar · " : ""}{state.deck ? "Deck · " : ""}{t(EXTERIOR_LABEL_KEYS[state.exteriorColor])}</p>
         </div>
 
         <div className="space-y-3">
@@ -1646,7 +1646,7 @@ function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React
               </div>
               {state.exteriorColor !== "white" && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">{EXTERIOR_LABELS[state.exteriorColor]} exterior</span>
+                  <span className="text-gray-600">{t(EXTERIOR_LABEL_KEYS[state.exteriorColor])} exterior</span>
                   <span className="text-gray-700">+{formatPriceCurrency(COLOR_PRICE[state.exteriorColor], currency)}</span>
                 </div>
               )}
@@ -1730,14 +1730,14 @@ function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React
               <span className="text-sm font-semibold text-gray-900">{t("zongosol.estimatedTotal")}</span>
               <span className="text-2xl font-extrabold text-emerald-700">{formatPriceCurrency(total, currency)}</span>
             </div>
-            <p className="text-xs text-gray-400">* {t("All prices excl. VAT")}. {t("zongosol.excludesExtras")}</p>
+            <p className="text-xs text-gray-400">* {t("zongosol.allPricesExclVat")}. {t("zongosol.excludesExtras")}</p>
 
             <div className="space-y-2">
               <button onClick={handleSave}
                 className={`w-full py-3 rounded-lg text-sm font-semibold transition-all ${
                   saved ? "bg-green-500 text-white" : "bg-emerald-600 text-white hover:bg-emerald-700"
                 }`}
-              >{saved ? "✓ " + t("Design Saved!") : t("Save Design")}</button>
+              >{saved ? "✓ " + t("zongosol.saveDesign") : t("zongosol.saveDesign")}</button>
               {showSaveForm && (
                 <div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 space-y-3">
                   <p className="text-sm font-semibold text-emerald-800">Send design to our team</p>
@@ -1753,43 +1753,43 @@ function SummaryPanel({ state, dispatch }: { state: DesignState; dispatch: React
               <button onClick={handleOrder}
                 className="w-full py-3 rounded-lg text-sm font-semibold border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 transition-all"
               >
-                {t("Order now — 50% deposit")}
+                {t("zongosol.orderNow50")}
               </button>
 
               {showDeposit && !depositPaid && (
                 <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <svg className="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span className="text-sm font-bold text-amber-800">{t("Deposit — 50%")}</span>
+                    <span className="text-sm font-bold text-amber-800">{t("zongosol.deposit50")}</span>
                   </div>
                   <div className="space-y-1.5 text-sm">
-                    <div className="flex justify-between"><span className="text-gray-600">{t("Total price")}</span><span className="font-bold text-gray-900">{formatPriceCurrency(total, currency)}</span></div>
-                    <div className="flex justify-between"><span className="text-amber-700 font-semibold">{t("Deposit — 50%")}</span><span className="font-bold text-amber-700">{formatPriceCurrency(deposit, currency)}</span></div>
-                    <div className="flex justify-between border-t border-amber-200 pt-1.5"><span className="text-gray-500">{t("Remaining upon delivery")}</span><span className="font-semibold text-gray-700">{formatPriceCurrency(remaining, currency)}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-600">{t("zongosol.totalPrice")}</span><span className="font-bold text-gray-900">{formatPriceCurrency(total, currency)}</span></div>
+                    <div className="flex justify-between"><span className="text-amber-700 font-semibold">{t("zongosol.deposit50")}</span><span className="font-bold text-amber-700">{formatPriceCurrency(deposit, currency)}</span></div>
+                    <div className="flex justify-between border-t border-amber-200 pt-1.5"><span className="text-gray-500">{t("zongosol.remainingDelivery")}</span><span className="font-semibold text-gray-700">{formatPriceCurrency(remaining, currency)}</span></div>
                   </div>
-                  <p className="text-xs text-amber-600">{t("All prices excl. VAT")}</p>
-                  <a href={depositPaymentLink} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-amber-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-amber-700 transition-all shadow-md">{t("Pay {deposit} deposit via Stripe", { deposit: formatPriceCurrency(deposit, currency) })}</a>
-                  <button onClick={handleDepositPaid} className="block w-full rounded-lg border border-amber-300 px-4 py-2 text-center text-xs text-amber-600 hover:bg-amber-100 transition-all">{t("Simulate: I have paid the deposit")}</button>
+                  <p className="text-xs text-amber-600">{t("zongosol.allPricesExclVat")}</p>
+                  <a href={depositPaymentLink} target="_blank" rel="noopener noreferrer" className="block w-full rounded-lg bg-amber-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-amber-700 transition-all shadow-md">{t("zongosol.payDepositStripe", { deposit: formatPriceCurrency(deposit, currency) })}</a>
+                  <button onClick={handleDepositPaid} className="block w-full rounded-lg border border-amber-300 px-4 py-2 text-center text-xs text-amber-600 hover:bg-amber-100 transition-all">{t("zongosol.simulateDepositPaid")}</button>
                 </div>
               )}
 
               {showLogistics && depositPaid && (
                 <div className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 space-y-3 mt-3">
-                  <div className="flex items-center gap-2"><svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg><span className="text-sm font-bold text-emerald-800">{t("Logistics — Transport Options")}</span></div>
-                  <p className="text-xs text-emerald-700">{t("Deposit confirmed! Choose transport for your container home.")}</p>
+                  <div className="flex items-center gap-2"><svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg><span className="text-sm font-bold text-emerald-800">{t("zongosol.logisticsTitle")}</span></div>
+                  <p className="text-xs text-emerald-700">{t("zongosol.depositConfirmed")}</p>
                   {!logisticsChoice ? (
                     <div className="space-y-2">
-                      <button onClick={() => setLogisticsChoice("self")} className="w-full text-left rounded-lg border-2 border-gray-200 bg-white p-3 hover:border-emerald-400 transition-all"><p className="text-sm font-bold text-gray-900"> {t("I will arrange transport myself")}</p><p className="text-xs text-gray-500 mt-0.5">{t("No extra cost.")}</p></button>
-                      <button onClick={() => setLogisticsChoice("kitozon")} className="w-full text-left rounded-lg border-2 border-gray-200 bg-white p-3 hover:border-emerald-400 transition-all"><p className="text-sm font-bold text-gray-900"> {t("Kitozon arranges transport")}</p><p className="text-xs text-gray-500 mt-0.5">{t("Price given after agreement with consultant.")}</p></button>
+                      <button onClick={() => setLogisticsChoice("self")} className="w-full text-left rounded-lg border-2 border-gray-200 bg-white p-3 hover:border-emerald-400 transition-all"><p className="text-sm font-bold text-gray-900"> {t("zongosol.arrangeSelf")}</p><p className="text-xs text-gray-500 mt-0.5">{t("zongosol.noExtraCost")}</p></button>
+                      <button onClick={() => setLogisticsChoice("kitozon")} className="w-full text-left rounded-lg border-2 border-gray-200 bg-white p-3 hover:border-emerald-400 transition-all"><p className="text-sm font-bold text-gray-900"> {t("zongosol.kitozonArranges")}</p><p className="text-xs text-gray-500 mt-0.5">{t("zongosol.priceAfterAgreement")}</p></button>
                     </div>
                   ) : (
                     <div className="rounded-lg bg-white border border-emerald-200 p-3">
-                      <p className="text-sm font-semibold text-emerald-700">{logisticsChoice === "self" ? t("You arrange transport yourself") : t("Kitozon arranges transport — consultant will contact you")}</p>
-                      <p className="text-xs text-gray-500 mt-1">{logisticsChoice === "self" ? t("No extra cost. Production starts now.") : t("Consultant will contact you for transport agreement.")}</p>
-                      <button onClick={() => setLogisticsChoice(null)} className="mt-2 text-xs text-gray-400 hover:text-gray-600 underline">{t("Change choice")}</button>
+                      <p className="text-sm font-semibold text-emerald-700">{logisticsChoice === "self" ? t("zongosol.youArrangeSelf") : t("zongosol.kitozonArrangesContact")}</p>
+                      <p className="text-xs text-gray-500 mt-1">{logisticsChoice === "self" ? t("zongosol.noExtraCostProduction") : t("zongosol.consultantContact")}</p>
+                      <button onClick={() => setLogisticsChoice(null)} className="mt-2 text-xs text-gray-400 hover:text-gray-600 underline">{t("zongosol.changeChoice")}</button>
                     </div>
                   )}
-                  {logisticsChoice && <div className="rounded-lg bg-emerald-600 p-3 text-white text-center"><p className="text-sm font-bold">{t("Production starts!")}</p><p className="text-xs text-emerald-100 mt-1">{t("Your order is confirmed. Consultant will follow up.")}</p></div>}
+                  {logisticsChoice && <div className="rounded-lg bg-emerald-600 p-3 text-white text-center"><p className="text-sm font-bold">{t("zongosol.orderConfirmed")}</p><p className="text-xs text-emerald-100 mt-1">{t("zongosol.orderConfirmed")}</p></div>}
                 </div>
               )}
             </div>
