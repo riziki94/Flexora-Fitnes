@@ -191,7 +191,7 @@ function Home() {
             <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
               <button
                 onClick={() => setBillingMode("oneTime")}
-                className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition-all ${
+                className={`rounded-lg px-4 sm:px-5 py-2.5 text-sm font-semibold transition-all min-h-[44px] ${
                   billingMode === "oneTime"
                     ? "bg-emerald-600 text-white shadow-md"
                     : "text-gray-600 hover:text-gray-900"
@@ -201,7 +201,7 @@ function Home() {
               </button>
               <button
                 onClick={() => setBillingMode("monthly")}
-                className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition-all ${
+                className={`rounded-lg px-4 sm:px-5 py-2.5 text-sm font-semibold transition-all min-h-[44px] ${
                   billingMode === "monthly"
                     ? "bg-emerald-600 text-white shadow-md"
                     : "text-gray-600 hover:text-gray-900"
@@ -211,7 +211,7 @@ function Home() {
               </button>
               <button
                 onClick={() => setBillingMode("annual")}
-                className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition-all ${
+                className={`rounded-lg px-4 sm:px-5 py-2.5 text-sm font-semibold transition-all min-h-[44px] ${
                   billingMode === "annual"
                     ? "bg-emerald-600 text-white shadow-md"
                     : "text-gray-600 hover:text-gray-900"
@@ -246,8 +246,8 @@ function Home() {
                   key={tierKey}
                   className={`relative rounded-2xl border ${
                     isPopular
-                      ? `${c.border} ring-2 ring-emerald-500 bg-white p-8 shadow-lg shadow-emerald-100`
-                      : "border-gray-200 bg-white p-8 shadow-sm"
+                      ? `${c.border} ring-2 ring-emerald-500 bg-white p-6 sm:p-8 shadow-lg shadow-emerald-100`
+                      : "border-gray-200 bg-white p-6 sm:p-8 shadow-sm"
                   }`}
                 >
                   {isPopular && (
@@ -318,7 +318,7 @@ function Home() {
                     href={active.paymentLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`mt-6 block w-full rounded-xl ${c.btn} px-6 py-3 text-center text-sm font-semibold text-white transition-all duration-200 shadow-md hover:shadow-lg`}
+                    className={`mt-6 block w-full rounded-xl ${c.btn} px-6 py-3.5 text-center text-sm font-semibold text-white transition-all duration-200 shadow-md hover:shadow-lg min-h-[44px]`}
                   >
                     {t("pricing.subscribeTo", { name: tier.name })}
                   </a>

@@ -240,7 +240,7 @@ function KitoslightPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Map */}
           <div className="lg:col-span-2">
-            <div className="relative h-[500px] lg:h-[620px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-gray-100">
+            <div className="relative h-[350px] sm:h-[500px] lg:h-[620px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-gray-100">
               <MapView
                 devices={filteredDevices}
                 selectedDeviceId={selectedDevice?.id ?? null}
@@ -502,31 +502,6 @@ function KitoslightPage() {
         </div>
       </section>
 
-      {/* ── AFER CITY Teaser ────────────────────────────────────────── */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 p-8 sm:p-10 text-white shadow-xl">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl"></span>
-                <h3 className="text-xl font-bold">{t("kitoslight.afercityTitle")}</h3>
-              </div>
-              <p className="text-amber-100 max-w-lg">
-                {t("kitoslight.afercityDesc")}
-              </p>
-            </div>
-            <Link
-              to="/afercity"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-orange-700 hover:bg-orange-50 transition-all duration-200 shadow-lg flex-shrink-0"
-            >
-              {t("kitoslight.openAfercity")}
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }
@@ -867,12 +842,6 @@ function DeviceDetailPanel({ device, onClose }: { device: Device; onClose: () =>
           className="block w-full text-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors duration-200 mt-2"
         >
           {t("kitoslight.viewDashboard")}
-        </Link>
-        <Link
-          to="/afercity"
-          className="block w-full text-center rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 transition-colors duration-200 mt-2"
-        >
-          {t("kitoslight.openInAfercity")}
         </Link>
       </div>
     </div>

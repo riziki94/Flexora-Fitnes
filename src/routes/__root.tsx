@@ -112,7 +112,7 @@ function Navbar() {
             to="/"
             className="flex items-center gap-2 font-bold text-xl text-gray-900 hover:text-emerald-600 transition-colors"
           >
-            <img src="/images/logo-original.png" alt="Kitozon" className="h-16 w-auto object-contain" />
+            <img src="/images/logo-original.png" alt="Kitozon" className="h-10 sm:h-14 lg:h-16 w-auto object-contain" />
           </Link>
 
           {/* Desktop nav */}

@@ -363,7 +363,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
             <p className="text-xs text-emerald-200">{roomType === "kitchen" ? "Kjøkken" : roomType === "bathroom" ? "Bad" : roomType === "living" ? "Stue" : roomType === "bedroom" ? "Soverom" : "Rom"} — Fullskjermsvisning</p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 overflow-x-auto max-w-[50vw] sm:max-w-none">
           {tabs.map((t) => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -375,9 +375,9 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
         {/* 3D View */}
-        <div className="flex-1 relative bg-gray-100">
+        <div className="min-h-[300px] sm:min-h-0 flex-1 relative bg-gray-100">
           <div className="absolute inset-0" ref={(el) => { /* canvas parent */ }}>
             <canvas ref={canvasRef} className="w-full h-full" style={{ touchAction: "none" }} />
           </div>
@@ -390,7 +390,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
 
         {/* Design Tools Sidebar */}
         {activeTab === "design" && (
-          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4">
+          <div className="w-full sm:w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
               <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -513,7 +513,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
 
         {/* Electrical tab */}
         {activeTab === "electrical" && (
-          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
+          <div className="w-full sm:w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
               <span>⚡</span> Electrical Planning
             </h3>
@@ -651,7 +651,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
 
         {/* Smart Home tab */}
         {activeTab === "smart" && (
-          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
+          <div className="w-full sm:w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
               <span>🏠</span> Smart Home
             </h3>
@@ -777,7 +777,7 @@ export default function RoomFullscreen({ state, roomId, onClose, onStateChange }
 
         {/* Colors tab */}
         {activeTab === "colors" && (
-          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
+          <div className="w-full sm:w-80 bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0 p-4 space-y-4 animate-fadeIn">
             <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
               <span>🎨</span> Colors &amp; Materials
             </h3>

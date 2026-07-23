@@ -677,11 +677,13 @@ function FloorPlan({ state, dispatch }: { state: DesignState; dispatch: React.Di
         </div>
       </div>
       <div className="flex">
-        {/* Furniture Palette Sidebar */}
-        <FurniturePalette onDragStart={() => {}} />
+        {/* Furniture Palette Sidebar — hidden on mobile */}
+        <div className="hidden md:block flex-shrink-0">
+          <FurniturePalette onDragStart={() => {}} />
+        </div>
 
         {/* SVG Floor Plan */}
-        <div className="flex-1 p-4 bg-[#f8fafc]" 
+        <div className="min-w-0 flex-1 p-4 bg-[#f8fafc]" 
           onDrop={handleDrop} onDragOver={handleDragOver}
         >
           <svg ref={svgRef}
@@ -2043,7 +2045,7 @@ function ZongosolPage() {
 
         <LayoutSelector state={state} dispatch={trackedDispatch} />
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             {viewMode === "3d" ? (
               <Suspense fallback={<div className="flex items-center justify-center h-96 bg-gray-100 rounded-xl"><div className="text-gray-500">{t("zongosol.loading3D")}</div></div>}><Container3D ref={container3DRef} state={state} viewMode={viewMode} onViewModeChange={setViewMode} onRoomClick={(roomId) => setFullscreenRoomId(roomId)} tourActive={tourActive} onTourStateChange={setTourActive} /></Suspense>
@@ -2132,29 +2134,6 @@ function ZongosolPage() {
 
         {/* ── Cross-platform teasers ────────────────────────────────── */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16 space-y-4">
-          {/* AFER CITY */}
-          <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 p-6 sm:p-8 text-white shadow-xl">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xl"></span>
-                  <h3 className="text-lg font-bold">{t("zongosol.afercityTitle")}</h3>
-                </div>
-                <p className="text-amber-100 text-sm max-w-lg">
-                  {t("zongosol.afercityDesc")}
-                </p>
-              </div>
-              <Link
-                to="/afercity"
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-orange-700 hover:bg-orange-50 transition-all duration-200 shadow-lg flex-shrink-0"
-              >
-                {t("zongosol.openAfercity")}
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            </div>
-          </div>
 
           {/* Dashboard */}
           <div className="rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 p-6 sm:p-8 text-white shadow-xl">
