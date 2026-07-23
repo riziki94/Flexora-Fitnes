@@ -330,6 +330,9 @@ export const translations = {
     "kitoslight.afercityTitle": "AFER CITY — Smart City Simulator",
     "kitoslight.afercityDesc": "Place your Kitoslight devices in a real smart city simulation. Add smart benches, bus shelters, sensor poles, and renewable energy — then run simulations.",
     "kitoslight.openAfercity": "Open AFER CITY",
+    "kitoslight.afercityTeaserTitle": "AFER CITY — Smart City Simulator",
+    "kitoslight.afercityTeaserDesc": "See your environmental sensors in action across a living smart city. Monitor air quality, energy production, and CO₂ reduction in real time.",
+    "kitoslight.afercityTeaserLink": "Open AFER CITY",
     "kitoslight.gasMonitoring": "Gas Monitoring",
     "kitoslight.devicesReporting": "{count} devices reporting",
     "kitoslight.gasThresholds": "Thresholds:",
@@ -699,6 +702,9 @@ export const translations = {
     "zongosol.afercityTitle": "AFER CITY \u2014 Smart City Simulator",
     "zongosol.afercityDesc": "Place your container home design in a real smart city simulation. Add solar panels, EV chargers, and battery storage \u2014 then run energy simulations.",
     "zongosol.openAfercity": "Open AFER CITY",
+    "zongosol.afercityTeaserTitle": "AFER CITY — Smart City Simulator",
+    "zongosol.afercityTeaserDesc": "Place your container home design in a real smart city simulation. Add solar panels, EV chargers, and battery storage — then run energy simulations.",
+    "zongosol.afercityTeaserLink": "Open AFER CITY",
     "zongosol.dashboardTitle": "Kitozon Dashboard",
     "zongosol.dashboardDesc": "Full admin control over all your devices and designs. ESG reporting, IP device integration, and subscription management \u2014 requires Dashboard tier.",
     "zongosol.openDashboard": "Open Dashboard",
@@ -929,6 +935,9 @@ export const translations = {
     "kitoslight.afercityTitle": "AFER CITY — Smartby-simulator",
     "kitoslight.afercityDesc": "Plasser Kitoslight-enhetene dine i en ekte smartby-simulering. Legg til smartbenker, busskur, sensorstolper og fornybar energi — kjør deretter simuleringer.",
     "kitoslight.openAfercity": "Åpne AFER CITY",
+    "kitoslight.afercityTeaserTitle": "AFER CITY — Smartby-simulator",
+    "kitoslight.afercityTeaserDesc": "Se dine miljøsensorer i aksjon i en levende smartby. Overvåk luftkvalitet, energiproduksjon og CO₂-reduksjon i sanntid.",
+    "kitoslight.afercityTeaserLink": "Åpne AFER CITY",
     "kitoslight.gasMonitoring": "Gassovervåking",
     "kitoslight.devicesReporting": "{count} enheter rapporterer",
     "kitoslight.gasThresholds": "Terskelverdier:",
@@ -1744,6 +1753,11 @@ export const translations = {
     "zongosol.solarPanelWidget": "Solcellepaneler",
     "zongosol.exteriorDesigner": "Utvendig designer",
     "zongosol.availableInStacked": "Kun stablet layout",
+
+    // Zongosol teasers (no)
+    "zongosol.afercityTeaserTitle": "AFER CITY — Smartby-simulator",
+    "zongosol.afercityTeaserDesc": "Plasser ditt containerhjem-design i en ekte smartby-simulering. Legg til solcellepaneler, elbilladere og batterilagring — kjør deretter energisimuleringer.",
+    "zongosol.afercityTeaserLink": "Åpne AFER CITY",
 
     // LeafletMap search & popup i18n
     "kitoslight.searchPlaceholder": "Sok by eller adresse...",

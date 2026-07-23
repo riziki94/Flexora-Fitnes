@@ -284,6 +284,28 @@ function KitoslightPage() {
         </div>
       </section>
 
+
+      {/* ── AFER CITY Teaser ────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+        <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 p-6 sm:p-8 text-white shadow-xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-bold">{t("kitoslight.afercityTeaserTitle")}</h3>
+              <p className="text-amber-100 text-sm max-w-lg">{t("kitoslight.afercityTeaserDesc")}</p>
+            </div>
+            <Link
+              to="/afercity"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-orange-700 hover:bg-orange-50 transition-all duration-200 shadow-lg flex-shrink-0"
+            >
+              {t("kitoslight.afercityTeaserLink")}
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── Device Type Cards (merged with Products) ──────────────── */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">
