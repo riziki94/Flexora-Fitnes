@@ -113,7 +113,7 @@ function PricingPage() {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              {t("One-time payment")}
+              {t("home.oneTimePaymentLabel")}
             </button>
             <button
               onClick={() => setBillingMode("monthly")}
@@ -213,7 +213,7 @@ function PricingPage() {
                     <div className={`flex justify-between items-center text-sm rounded-lg px-3 py-2 transition-colors ${
                       billingMode === "oneTime" ? "bg-blue-50 ring-1 ring-blue-300" : "bg-gray-50"
                     }`}>
-                      <span className="text-gray-600 font-medium">{t("One-time payment")}</span>
+                      <span className="text-gray-600 font-medium">{t("home.oneTimePaymentLabel")}</span>
                       <span className="font-bold text-gray-900">
                         {isNok ? formatPrice(billing.oneTime.priceNok) : formatPriceUsd(billing.oneTime.priceNok)}
                         <span className="text-xs text-gray-400 font-normal ml-1">{t("excl. VAT")}</span>
@@ -299,23 +299,23 @@ function PricingPage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="flex items-center justify-center gap-2 mb-4">
               <span className="text-2xl"></span>
-              <h3 className="text-xl font-bold">{t("Personal consultant included")}</h3>
+              <h3 className="text-xl font-bold">{t("home.personalConsultantIncluded")}</h3>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 text-left">
               <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4">
                 <p className="text-sm font-semibold text-emerald-300 mb-1">
-                   {t("Monthly / Yearly subscription")}
+                   {t("home.monthlyYearlySubscription")}
                 </p>
                 <p className="text-sm text-gray-300">
-                  {t("A dedicated consultant follows you from start to finish. You get guidance throughout the entire process — from design to finished product.")}
+                  {t("home.dedicatedConsultantDesc")}
                 </p>
               </div>
               <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4">
                 <p className="text-sm font-semibold text-amber-300 mb-1">
-                   {t("One-time payment")}
+                   {t("home.oneTimePaymentLabel")}
                 </p>
                 <p className="text-sm text-gray-300">
-                  {t("You get full access to the product immediately. Once you submit your order, we connect you with a consultant to help you further.")}
+                  {t("home.oneTimePaymentDesc")}
                 </p>
               </div>
             </div>
@@ -326,22 +326,22 @@ function PricingPage() {
       {/* FAQ / CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16 text-center">
         <div className="rounded-2xl bg-gradient-to-r from-emerald-600 to-green-500 p-8 sm:p-10 text-white shadow-xl">
-          <h2 className="text-2xl font-bold">{t("Have questions?")}</h2>
+          <h2 className="text-2xl font-bold">{t("home.haveQuestions")}</h2>
           <p className="mt-2 text-emerald-100 max-w-lg mx-auto">
-            {t("Ask Hilde — our assistant at the bottom right of the page. She can answer anything about Kitoslight, Zongosol, and Kitozon.")}
+            {t("home.askHildeDesc")}
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/zongosol"
               className="rounded-xl bg-white px-8 py-3 text-base font-semibold text-emerald-700 hover:bg-emerald-50 transition-all duration-200 shadow-lg"
             >
-              {t("Try Zongosol")}
+              {t("home.tryZongosol")}
             </Link>
             <Link
               to="/kitoslight"
               className="rounded-xl border-2 border-white/30 bg-transparent px-8 py-3 text-base font-semibold text-white hover:bg-white/10 transition-all duration-200"
             >
-              {t("Explore Kitoslight")}
+              {t("home.exploreKitoslight")}
             </Link>
           </div>
         </div>
