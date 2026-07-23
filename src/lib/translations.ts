@@ -1239,6 +1239,8 @@ export const translations = {
     "kitoslight.gasReadingsPopup": "Gas Readings",
     "kitoslight.solarLabel": "Solar",
     "kitoslight.devicesInArea": "{count} devices in this area",
+    "kitoslight.productSolarPanels": "Solar Panel System",
+    "kitoslight.productBatteryStorage": "Battery Storage",
 
   },
 
@@ -1777,6 +1779,8 @@ export const translations = {
     "kitoslight.gasReadingsPopup": "Gassmalinger",
     "kitoslight.solarLabel": "Solenergi",
     "kitoslight.devicesInArea": "{count} enheter i dette omradet",
+    "kitoslight.productSolarPanels": "Solcellepanelsystem",
+    "kitoslight.productBatteryStorage": "Batterilagring",
 
   },
 
