@@ -11,6 +11,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Device } from "~/data/kitoslight-devices";
+import { useLanguage } from "~/lib/i18n.tsx";
 import { cityCoords } from "~/data/kitoslight-devices";
 
 // ── Pulse animation via CSS ────────────────────────────────────────────
@@ -217,6 +218,7 @@ function useZoom(): number {
 // ── Map Search Control (Nominatim geocoding) ──────────────────────────
 
 function MapSearchControl() {
+  const { t } = useLanguage();
   const map = useMap();
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
@@ -246,10 +248,10 @@ function MapSearchControl() {
           map.flyTo([parseFloat(lat), parseFloat(lon)], 14, { duration: 1.5 });
           setError("");
         } else {
-          setError("Location not found");
+          setError(t("kitoslight.locationNotFound"));
         }
       } catch {
-        setError("Search failed — try again");
+        setError(t("kitoslight.searchFailed"));
       } finally {
         setSearching(false);
       }
@@ -276,7 +278,7 @@ function MapSearchControl() {
             setQuery(e.target.value);
             setError("");
           }}
-          placeholder="Search city or address..."
+          placeholder={t("kitoslight.searchPlaceholder")}
           className="text-sm px-1 py-1 bg-transparent outline-none text-gray-700 w-44 sm:w-56 placeholder:text-gray-400"
           aria-label="Search location"
         />
@@ -285,7 +287,7 @@ function MapSearchControl() {
           disabled={searching}
           className="px-3 py-1 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-wait transition-colors flex-shrink-0"
         >
-          {searching ? "Searching..." : "Go"}
+          {searching ? t("kitoslight.searching") : t("kitoslight.go")}
         </button>
       </form>
       {error && (
@@ -409,9 +411,10 @@ function ZoomClusterContent({
 }
 
 function ClusterPopup({ devices, onSelect }: { devices: Device[]; onSelect: (d: Device) => void }) {
+  const { t } = useLanguage();
   return (
     <div className="kitoslight-popup p-1 text-sm">
-      <p className="font-semibold text-gray-800 mb-2">{devices.length} devices in this area</p>
+      <p className="font-semibold text-gray-800 mb-2">{t("kitoslight.devicesInArea", { count: devices.length })}</p>
       <div className="space-y-1 max-h-48 overflow-y-auto">
         {devices.map((d) => (
           <button
@@ -464,6 +467,7 @@ function SingleMarker({
 
 // ── Enhanced popup ─────────────────────────────────────────────────────
 function EnhancedPopup({ device }: { device: Device }) {
+  const { t } = useLanguage();
   const isOnline = device.status === "online";
   const d = device;
   const hasCharging = (d.type === "smart-bench" || d.type === "bus-shelter") && isOnline;
@@ -483,22 +487,22 @@ function EnhancedPopup({ device }: { device: Device }) {
         <strong className="text-gray-900">{d.name}</strong>
         {isGasDanger && (
           <span className="inline-flex items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 ml-auto">
-             GAS ALERT
+             {t("kitoslight.gasAlertPopup")}
           </span>
         )}
       </div>
 
       <div className="text-xs text-gray-500 space-y-1">
         <div className="flex justify-between">
-          <span>Type</span>
+          <span>{t("kitoslight.type")}</span>
           <span className="font-medium text-gray-700 capitalize">{d.type.replace("-", " ")}</span>
         </div>
         <div className="flex justify-between">
-          <span>Location</span>
+          <span>{t("kitoslight.location")}</span>
           <span className="font-medium text-gray-700">{d.city}, {d.country}</span>
         </div>
         <div className="flex justify-between">
-          <span>IP</span>
+          <span>{t("kitoslight.ipLabel")}</span>
           <span className="font-medium text-gray-700 font-mono">{d.ipAddress}</span>
         </div>
       </div>
@@ -508,21 +512,21 @@ function EnhancedPopup({ device }: { device: Device }) {
         <>
           <hr className="my-2 border-gray-100" />
           <div className="text-xs">
-            <p className="font-semibold text-gray-500 uppercase tracking-wider mb-1.5"> Phone Charging</p>
+            <p className="font-semibold text-gray-500 uppercase tracking-wider mb-1.5"> {t("kitoslight.phoneCharging")}</p>
             <div className="flex justify-between">
-              <span>Phones charging now</span>
+              <span>{t("kitoslight.phonesChargingNow")}</span>
               <span className="font-bold text-emerald-600">{d.charging.phonesCharging}</span>
             </div>
             <div className="flex justify-between">
-              <span>Avg charge time</span>
+              <span>{t("kitoslight.avgChargeTime")}</span>
               <span className="font-medium text-gray-700">{d.charging.avgChargeTimeMin} min</span>
             </div>
             <div className="flex justify-between">
-              <span>Power per port</span>
+              <span>{t("kitoslight.powerPerPort")}</span>
               <span className="font-medium text-gray-700">{d.charging.powerOutputW}W</span>
             </div>
             <div className="flex justify-between">
-              <span>Ports available</span>
+              <span>{t("kitoslight.portsAvailable")}</span>
               <span className={`font-medium ${d.charging.availablePorts === 0 ? "text-red-600" : "text-emerald-600"}`}>
                 {d.charging.availablePorts}/{d.charging.totalPorts}
               </span>
@@ -534,7 +538,7 @@ function EnhancedPopup({ device }: { device: Device }) {
                   <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
                 </svg>
                 <div>
-                  <span className="text-[10px] text-gray-500">Est. charge in {d.charging.avgChargeTimeMin} min</span>
+                  <span className="text-[10px] text-gray-500">{t("kitoslight.estChargePopup", { minutes: d.charging.avgChargeTimeMin })}</span>
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-gray-400">0%</span>
                     <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
@@ -557,13 +561,13 @@ function EnhancedPopup({ device }: { device: Device }) {
         <>
           <hr className="my-2 border-gray-100" />
           <div className="text-xs">
-            <p className="font-semibold text-gray-500 uppercase tracking-wider mb-1.5"> WiFi</p>
+            <p className="font-semibold text-gray-500 uppercase tracking-wider mb-1.5"> {t("kitoslight.wifiLabel")}</p>
             <div className="flex justify-between">
-              <span>Users connected</span>
+              <span>{t("kitoslight.usersConnected")}</span>
               <span className="font-bold text-blue-600">{d.wifi.usersConnected}</span>
             </div>
             <div className="flex justify-between">
-              <span>Avg session</span>
+              <span>{t("kitoslight.avgSession")}</span>
               <span className="font-medium text-gray-700">{d.wifi.avgSessionMin} min</span>
             </div>
           </div>
@@ -576,7 +580,7 @@ function EnhancedPopup({ device }: { device: Device }) {
           <hr className="my-2 border-gray-100" />
           <div className="text-xs">
             <p className="font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-               Gas Readings
+               {t("kitoslight.gasReadingsPopup")}
               {isGasDanger && <span className="text-red-500 ml-1"></span>}
             </p>
             <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
@@ -596,11 +600,11 @@ function EnhancedPopup({ device }: { device: Device }) {
         <>
           <hr className="my-2 border-gray-100" />
           <div className="flex justify-between text-xs">
-            <span>Solar</span>
+            <span>{t("kitoslight.solarLabel")}</span>
             <span className="font-medium text-emerald-600">{d.metrics.solarEnergyKW.toFixed(2)} kW</span>
           </div>
           <div className="flex justify-between text-xs">
-            <span>Temperature</span>
+            <span>{t("kitoslight.temperature")}</span>
             <span className="font-medium text-gray-700">{d.metrics.temperatureC}°C</span>
           </div>
         </>

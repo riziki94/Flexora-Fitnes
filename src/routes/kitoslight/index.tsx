@@ -305,6 +305,16 @@ function KitoslightPage() {
               blue: "bg-blue-100 text-blue-700",
               amber: "bg-amber-100 text-amber-700",
             };
+            const productLabelKeys: Record<DeviceType, string> = {
+              "smart-bench": "kitoslight.productSmartBenches",
+              "bus-shelter": "kitoslight.productBusShelters",
+              "sensor-pole": "kitoslight.productSensorPoles",
+            };
+            const productDescKeys: Record<DeviceType, string> = {
+              "smart-bench": "kitoslight.productSmartBenchesDesc",
+              "bus-shelter": "kitoslight.productBusSheltersDesc",
+              "sensor-pole": "kitoslight.productSensorPolesDesc",
+            };
             return (
               <div
                 key={type}
@@ -312,19 +322,19 @@ function KitoslightPage() {
               >
                 <img
                   src={`/images/kitoslight-${productImage}.png`}
-                  alt={t(meta.label)}
+                  alt={t(productLabelKeys[type])}
                   className="w-full h-40 object-cover"
                 />
                 <div className="p-5">
                   <div className="flex items-center gap-3 mb-3">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{t(meta.label)}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{t(productLabelKeys[type])}</h3>
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colorBadges[meta.color]}`}>
                         {typeCounts[type]} {t("kitoslight.deployed")}
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4">{t(meta.description)}</p>
+                  <p className="text-sm text-gray-600 mb-4">{t(productDescKeys[type])}</p>
                   <ul className="space-y-1.5">
                     {meta.features.map((feat) => (
                       <li key={feat} className="flex items-center gap-2 text-sm text-gray-700">

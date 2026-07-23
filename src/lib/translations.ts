@@ -1212,6 +1212,25 @@ export const translations = {
     "zongosol.exteriorDesigner": "Exterior Designer",
     "zongosol.availableInStacked": "Stacked layout only",
 
+    // LeafletMap search & popup i18n
+    "kitoslight.searchPlaceholder": "Search city or address...",
+    "kitoslight.go": "Go",
+    "kitoslight.searching": "Searching...",
+    "kitoslight.locationNotFound": "Location not found",
+    "kitoslight.searchFailed": "Search failed — try again",
+    "kitoslight.gasAlertPopup": "GAS ALERT",
+    "kitoslight.location": "Location",
+    "kitoslight.ipLabel": "IP",
+    "kitoslight.phonesChargingNow": "Phones charging now",
+    "kitoslight.avgChargeTime": "Avg charge time",
+    "kitoslight.powerPerPort": "Power per port",
+    "kitoslight.portsAvailable": "Ports available",
+    "kitoslight.estChargePopup": "Est. charge in {minutes} min",
+    "kitoslight.wifiLabel": "WiFi",
+    "kitoslight.gasReadingsPopup": "Gas Readings",
+    "kitoslight.solarLabel": "Solar",
+    "kitoslight.devicesInArea": "{count} devices in this area",
+
   },
 
   no: {
@@ -1725,6 +1744,25 @@ export const translations = {
     "zongosol.solarPanelWidget": "Solcellepaneler",
     "zongosol.exteriorDesigner": "Utvendig designer",
     "zongosol.availableInStacked": "Kun stablet layout",
+
+    // LeafletMap search & popup i18n
+    "kitoslight.searchPlaceholder": "Sok by eller adresse...",
+    "kitoslight.go": "Sok",
+    "kitoslight.searching": "Soker...",
+    "kitoslight.locationNotFound": "Sted ikke funnet",
+    "kitoslight.searchFailed": "Sok feilet — prov igjen",
+    "kitoslight.gasAlertPopup": "GASSALARM",
+    "kitoslight.location": "Sted",
+    "kitoslight.ipLabel": "IP",
+    "kitoslight.phonesChargingNow": "Telefoner som lader na",
+    "kitoslight.avgChargeTime": "Gj.snitt ladetid",
+    "kitoslight.powerPerPort": "Effekt per port",
+    "kitoslight.portsAvailable": "Tilgjengelige porter",
+    "kitoslight.estChargePopup": "Est. ladetid: {minutes} min",
+    "kitoslight.wifiLabel": "WiFi",
+    "kitoslight.gasReadingsPopup": "Gassmalinger",
+    "kitoslight.solarLabel": "Solenergi",
+    "kitoslight.devicesInArea": "{count} enheter i dette omradet",
 
   },
 
