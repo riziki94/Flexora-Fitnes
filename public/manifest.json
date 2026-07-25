@@ -1,7 +1,7 @@
 {
-  "name": "Flexora Fitnes",
-  "short_name": "Flexora",
-  "description": "Global PT Marketplace & AI-Powered Fitness — 3D muscle visualization, live form correction, voice guidance, and global competitions.",
+  "name": "Flexora Fitnes - Global PT Marketplace | AI-Powered Personal Training",
+  "short_name": "Flexora Fitnes",
+  "description": "Book verified personal trainers worldwide or train with AI coaching. 3D muscle maps, live form correction, voice guidance, and global competitions. Free trial available.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

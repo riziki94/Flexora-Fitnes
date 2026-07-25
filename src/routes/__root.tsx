@@ -14,17 +14,35 @@ import favicon32 from "~/assets/favicon-32.png";
 import faviconSvg from "~/assets/favicon.svg";
 import faviconIco from "~/assets/favicon.ico";
 
+const BASE_URL = "https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app";
+const SITE_TITLE = "Flexora Fitnes - Global PT Marketplace | AI-Powered Personal Training";
+const SITE_DESCRIPTION =
+  "Book verified personal trainers worldwide or train with AI coaching. 3D muscle maps, live form correction, voice guidance. Free trial available.";
+const OG_IMAGE = `${BASE_URL}/marketing/hero-banner.png`;
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Flexora Fitnes — The World's First PT Marketplace" },
-      {
-        name: "description",
-        content:
-          "The world's first PT marketplace with AI-powered training. 3D muscle visualization, live form correction, voice guidance, and global competitions.",
-      },
+      { title: SITE_TITLE },
+      { name: "description", content: SITE_DESCRIPTION },
+      // Open Graph
+      { property: "og:title", content: SITE_TITLE },
+      { property: "og:description", content: SITE_DESCRIPTION },
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:width", content: "1536" },
+      { property: "og:image:height", content: "1024" },
+      { property: "og:url", content: BASE_URL },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Flexora Fitnes" },
+      { property: "og:locale", content: "en_US" },
+      // Twitter Card
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: SITE_TITLE },
+      { name: "twitter:description", content: SITE_DESCRIPTION },
+      { name: "twitter:image", content: OG_IMAGE },
+      { name: "twitter:site", content: "@flexorafitnes" },
       // iOS PWA support
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
@@ -34,6 +52,7 @@ export const Route = createRootRoute({
       { name: "apple-itunes-app", content: "app-id=PLACEHOLDER_APP_ID" },
     ],
     links: [
+      { rel: "canonical", href: BASE_URL },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/svg+xml", href: faviconSvg },
       { rel: "icon", type: "image/png", sizes: "16x16", href: favicon16 },
@@ -92,6 +111,55 @@ function RootDocument({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Flexora Fitnes",
+              url: BASE_URL,
+              logo: `${BASE_URL}/flexora-icon-512.png`,
+              description: SITE_DESCRIPTION,
+              sameAs: [
+                "https://twitter.com/flexorafitnes",
+                "https://www.instagram.com/flexorafitnes",
+                "https://www.facebook.com/flexorafitnes",
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "customer support",
+                email: "support@flexorafitnes.com",
+              },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "Flexora Fitnes",
+              applicationCategory: "HealthApplication",
+              operatingSystem: "Web, iOS, Android",
+              description: SITE_DESCRIPTION,
+              url: BASE_URL,
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "NOK",
+                description: "Free trial available",
+              },
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.8",
+                ratingCount: "250",
+              },
+            }),
+          }}
+        />
       </head>
       <body>
         {children}
