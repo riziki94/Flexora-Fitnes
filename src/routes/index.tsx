@@ -650,9 +650,14 @@ function Footer() {
             <img src={iconSvg} alt="Flexora" className="h-6 w-6" />
             <span className="text-sm font-semibold text-gray-500">Flexora Fitnes</span>
           </div>
-          <p className="text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} {t("footer.rights")}
-          </p>
+          <div className="flex items-center gap-4">
+            <a href="/blog" className="text-sm text-gray-500 hover:text-[#1A56DB] transition-colors">
+              Blog
+            </a>
+            <p className="text-sm text-gray-400">
+              &copy; {new Date().getFullYear()} {t("footer.rights")}
+            </p>
+          </div>
         </div>
         <div className="mt-4 flex flex-col items-center gap-3">
           <FlagSwitcher />
