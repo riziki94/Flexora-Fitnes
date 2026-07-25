@@ -120,6 +120,9 @@ const clientTiers = [
 function Home() {
   return (
     <div className="min-h-dvh bg-white text-gray-900">
+      {/* --- Sticky launch banner --- */}
+      <LaunchBanner />
+
       {/* --- Nav --- */}
       <Nav />
 
@@ -132,11 +135,23 @@ function Home() {
       {/* --- For Clients --- */}
       <ForClients />
 
+      {/* --- Inline CTA after Complete Training Journey --- */}
+      <InlineCTA />
+
       {/* --- For PTs --- */}
       <ForPTs />
 
+      {/* --- Inline CTA after Trainers Go Global --- */}
+      <InlineCTA />
+
+      {/* --- PT Recruitment (NEW) --- */}
+      <PTRecruitment />
+
       {/* --- Subscription Tiers --- */}
       <ClientTiers />
+
+      {/* --- Trust Signals (NEW) --- */}
+      <TrustSignals />
 
       {/* --- PT Subscription --- */}
       <PTSubscription />
@@ -153,10 +168,47 @@ function Home() {
   );
 }
 
+// ─── Launch Banner ──────────────────────────────────────────────
+function LaunchBanner() {
+  return (
+    <div className="sticky top-0 z-[60] bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-gray-900 shadow-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-2.5 text-center">
+        <p className="text-sm font-bold leading-snug sm:text-base">
+          🎉 LANSERINGSTILBUD: 1 måned gratis + ingen binding. Kun for de første 100!
+        </p>
+        <a
+          href="/register"
+          className="ml-4 hidden shrink-0 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-orange-700 shadow hover:bg-orange-50 transition-colors sm:inline-block"
+        >
+          Start gratis
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ─── Inline CTA ──────────────────────────────────────────────────
+function InlineCTA() {
+  const { t } = useTranslation();
+  return (
+    <div className="bg-gray-50 py-8">
+      <div className="mx-auto max-w-7xl px-6 text-center">
+        <a
+          href="/register"
+          className="inline-block rounded-full bg-[#1A56DB] px-10 py-4 text-base font-semibold text-white shadow-lg hover:bg-[#1E40AF] transition-colors min-h-[44px] flex items-center justify-center sm:inline-flex"
+        >
+          {t("inline.cta.startFree")}
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ─── Nav ─────────────────────────────────────────────────────────
 function Nav() {
   const { t } = useTranslation();
   return (
-    <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
+    <nav className="sticky top-[41px] z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <a href="#" className="flex items-center gap-2">
           <img src={iconSvg} alt="Flexora" className="h-9 w-9" />
@@ -180,6 +232,7 @@ function Nav() {
   );
 }
 
+// ─── Hero ────────────────────────────────────────────────────────
 function Hero() {
   const { t } = useTranslation();
   return (
@@ -210,16 +263,20 @@ function Hero() {
           <p className="mb-10 max-w-2xl text-lg text-blue-100 md:text-xl">
             {t("hero.subtitle")}
           </p>
+          {/* NEW: Join tagline */}
+          <p className="mb-8 max-w-2xl text-base font-medium text-blue-200 md:text-lg">
+            {t("hero.joinTagline")}
+          </p>
           <div className="flex flex-col gap-4 sm:flex-row">
             <a
               href="/register"
-              className="rounded-full bg-white px-8 py-3.5 text-base font-semibold text-[#1A56DB] shadow-lg hover:bg-blue-50 transition-colors"
-              >
+              className="rounded-full bg-white px-8 py-3.5 text-base font-semibold text-[#1A56DB] shadow-lg hover:bg-blue-50 transition-colors min-h-[44px] flex items-center justify-center"
+            >
               {t("hero.startFree")}
             </a>
             <a
               href="#pricing"
-              className="rounded-full border-2 border-white/40 px-8 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors"
+              className="rounded-full border-2 border-white/40 px-8 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors min-h-[44px] flex items-center justify-center"
             >
               {t("hero.viewPlans")}
             </a>
@@ -281,7 +338,6 @@ function WhatIsFlexora() {
 
 function ForClients() {
   const { t } = useTranslation();
-  // Local features array keyed by translation keys
   const clientFeatureKeys = [
     { tKey: "feature.3dMuscle", dKey: "feature.3dMuscleDesc" },
     { tKey: "feature.liveVideo", dKey: "feature.liveVideoDesc" },
@@ -358,12 +414,41 @@ function ForPTs() {
   );
 }
 
+// ─── PT Recruitment Section (NEW — before pricing) ──────────────
+function PTRecruitment() {
+  const { t } = useTranslation();
+  return (
+    <section className="bg-gradient-to-r from-[#1A56DB]/5 to-[#3B82F6]/5 py-20 md:py-28">
+      <div className="mx-auto max-w-4xl px-6 text-center">
+        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#1A56DB]/10">
+          <svg className="h-8 w-8 text-[#1A56DB]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+        <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
+          {t("ptRecruit.title")}
+        </h2>
+        <p className="mb-8 max-w-2xl mx-auto text-lg text-gray-600 leading-relaxed">
+          {t("ptRecruit.description")}
+        </p>
+        <a
+          href="/register"
+          className="inline-flex items-center justify-center rounded-full bg-[#1A56DB] px-10 py-4 text-base font-semibold text-white shadow-lg hover:bg-[#1E40AF] transition-colors min-h-[44px]"
+        >
+          {t("ptRecruit.cta")}
+        </a>
+      </div>
+    </section>
+  );
+}
+
+// ─── Client Tiers (modified: launch discount, Basis prominence) ──
 function ClientTiers() {
   const { t } = useTranslation();
   const tiers = [
-    { name: t("pricing.basis"), price: "149 kr/mnd", key: "basis", color: "bg-white border-gray-200", highlight: false },
-    { name: t("pricing.hybrid"), price: "249 kr/mnd", key: "hybrid", color: "bg-blue-50 border-blue-300", highlight: true },
-    { name: t("pricing.premium"), price: "399 kr/mnd", key: "premium", color: "bg-white border-gray-200", highlight: false },
+    { name: t("pricing.basis"), price: "149 kr/mnd", key: "basis", color: "bg-white border-gray-200", highlight: false, entry: true },
+    { name: t("pricing.hybrid"), price: "249 kr/mnd", key: "hybrid", color: "bg-blue-50 border-blue-300", highlight: true, entry: false },
+    { name: t("pricing.premium"), price: "399 kr/mnd", key: "premium", color: "bg-white border-gray-200", highlight: false, entry: false },
   ];
   return (
     <section id="pricing" className="py-20 md:py-28">
@@ -372,6 +457,12 @@ function ClientTiers() {
           title={t("section.clientPlans")}
           subtitle={t("section.clientPlansSubtitle")}
         />
+        {/* Launch discount banner */}
+        <div className="mb-10 text-center">
+          <span className="inline-block rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-6 py-2 text-sm font-bold text-gray-900 shadow-md">
+            🚀 {t("pricing.launchDiscount")}
+          </span>
+        </div>
         <div className="grid gap-6 md:grid-cols-3">
           {tiers.map((tier) => (
             <div
@@ -379,12 +470,19 @@ function ClientTiers() {
               className={`relative rounded-2xl border-2 p-8 shadow-sm transition-all hover:shadow-lg ${
                 tier.highlight
                   ? "border-[#3B82F6] bg-blue-50 ring-1 ring-[#3B82F6] scale-[1.02]"
+                  : tier.entry
+                  ? "border-[#22C55E] bg-green-50/50 ring-1 ring-[#22C55E]/30"
                   : "border-gray-100 bg-white"
               }`}
             >
               {tier.highlight && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#1A56DB] px-4 py-1 text-xs font-semibold text-white">
                   {t("pricing.mostPopular")}
+                </span>
+              )}
+              {tier.entry && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#22C55E] px-4 py-1 text-xs font-semibold text-white">
+                  Best Start
                 </span>
               )}
               <h3 className="mb-1 text-xl font-bold text-gray-900">{tier.name}</h3>
@@ -403,14 +501,43 @@ function ClientTiers() {
                 href={STRIPE_PAYMENT_LINKS[tier.key] || "#pricing"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`block rounded-full px-6 py-3 text-center text-sm font-semibold transition-colors ${
+                className={`block rounded-full px-6 py-3 text-center text-sm font-semibold transition-colors min-h-[44px] flex items-center justify-center ${
                   tier.highlight
                     ? "bg-[#1A56DB] text-white hover:bg-[#1E40AF]"
+                    : tier.entry
+                    ? "bg-[#22C55E] text-white hover:bg-[#16A34A]"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 {t("pricing.startTrial", { plan: tier.name })}
               </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Trust Signals Section (NEW — after pricing) ─────────────────
+function TrustSignals() {
+  const { t } = useTranslation();
+  const signals = [
+    { icon: "✅", text: t("trust.verifiedPTs") },
+    { icon: "🔒", text: t("trust.securePayments") },
+    { icon: "🔄", text: t("trust.satisfactionGuarantee") },
+  ];
+  return (
+    <section className="border-y border-gray-100 bg-white py-12">
+      <div className="mx-auto max-w-4xl px-6">
+        <div className="grid gap-6 sm:grid-cols-3">
+          {signals.map((signal, i) => (
+            <div
+              key={i}
+              className="flex flex-col items-center text-center gap-2 rounded-xl bg-gray-50 p-6"
+            >
+              <span className="text-2xl">{signal.icon}</span>
+              <p className="text-sm font-medium text-gray-700 leading-relaxed">{signal.text}</p>
             </div>
           ))}
         </div>
@@ -449,7 +576,7 @@ function PTSubscription() {
             href={STRIPE_PAYMENT_LINKS.pt}
             target="_blank"
             rel="noopener noreferrer"
-            className="block rounded-full bg-[#1A56DB] px-6 py-3 text-center text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors"
+            className="block rounded-full bg-[#1A56DB] px-6 py-3 text-center text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors min-h-[44px] flex items-center justify-center"
           >
             {t("pricing.startTrial", { plan: t("pricing.ptPlan") })}
           </a>
@@ -476,13 +603,13 @@ function CTA() {
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <a
             href="/register"
-            className="rounded-full bg-white px-8 py-3.5 text-base font-semibold text-[#1A56DB] shadow-lg hover:bg-blue-50 transition-colors"
+            className="rounded-full bg-white px-8 py-3.5 text-base font-semibold text-[#1A56DB] shadow-lg hover:bg-blue-50 transition-colors min-h-[44px] flex items-center justify-center"
           >
             {t("cta.signUpClient")}
           </a>
           <a
             href="/register"
-            className="rounded-full border-2 border-white/50 px-8 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors"
+            className="rounded-full border-2 border-white/50 px-8 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors min-h-[44px] flex items-center justify-center"
           >
             {t("cta.registerPT")}
           </a>

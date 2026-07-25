@@ -104,6 +104,17 @@ export const translations = {
     "cta.signUpClient": "Sign Up as Client",
     "cta.registerPT": "Register as PT",
 
+    // Landing page optimization
+    "hero.joinTagline": "Join PTs and clients building the future of fitness.",
+    "inline.cta.startFree": "Start Free",
+    "pricing.launchDiscount": "Launch Price — 50% off first 3 months",
+    "trust.verifiedPTs": "✅ Verified PTs Only — every trainer diploma-checked",
+    "trust.securePayments": "🔒 Secure payments via Stripe",
+    "trust.satisfactionGuarantee": "🔄 30-day satisfaction guarantee",
+    "ptRecruit.title": "Are you a Personal Trainer?",
+    "ptRecruit.description": "Join Flexora and reach clients worldwide. Showcase your certifications, get matched through speed dating, and grow your business globally. Only verified professionals — protecting your reputation.",
+    "ptRecruit.cta": "Register as PT",
+
     // Footer
     "footer.rights": "Flexora Fitnes. All rights reserved.",
 
@@ -263,6 +274,17 @@ export const translations = {
     "cta.signUpClient": "Registrer deg som kunde",
     "cta.registerPT": "Registrer deg som PT",
 
+    // Landing page optimization
+    "hero.joinTagline": "Bli med PT-er og kunder som bygger fremtidens trening.",
+    "inline.cta.startFree": "Start gratis",
+    "pricing.launchDiscount": "Lanseringspris — 50% rabatt første 3 mnd",
+    "trust.verifiedPTs": "✅ Kun verifiserte PT-er — alle diplomer sjekkes",
+    "trust.securePayments": "🔒 Sikre betalinger via Stripe",
+    "trust.satisfactionGuarantee": "🔄 30-dagers tilfredshetsgaranti",
+    "ptRecruit.title": "Er du personlig trener?",
+    "ptRecruit.description": "Bli med i Flexora og nå kunder over hele verden. Vis frem sertifiseringene dine, bli matchet gjennom speed dating, og bygg virksomheten din globalt. Kun verifiserte profesjonelle — beskytter ditt omdømme.",
+    "ptRecruit.cta": "Registrer deg som PT",
+
     "footer.rights": "Flexora Fitnes. Alle rettigheter reservert.",
 
     "auth.signIn": "Logg inn",
@@ -416,6 +438,17 @@ export const translations = {
     "cta.subtitle": "Únete a miles de clientes y entrenadores verificados en la plataforma de fitness más avanzada del mundo. Comienza tu viaje hoy.",
     "cta.signUpClient": "Regístrate como cliente",
     "cta.registerPT": "Regístrate como entrenador",
+
+    // Landing page optimization
+    "hero.joinTagline": "Únete a entrenadores y clientes construyendo el futuro del fitness.",
+    "inline.cta.startFree": "Empieza gratis",
+    "pricing.launchDiscount": "Precio de lanzamiento — 50% descuento primeros 3 meses",
+    "trust.verifiedPTs": "✅ Solo entrenadores verificados — cada diploma comprobado",
+    "trust.securePayments": "🔒 Pagos seguros vía Stripe",
+    "trust.satisfactionGuarantee": "🔄 Garantía de satisfacción de 30 días",
+    "ptRecruit.title": "¿Eres entrenador personal?",
+    "ptRecruit.description": "Únete a Flexora y llega a clientes en todo el mundo. Muestra tus certificaciones, conéctate mediante speed dating y haz crecer tu negocio globalmente. Solo profesionales verificados — protegiendo tu reputación.",
+    "ptRecruit.cta": "Regístrate como entrenador",
 
     "footer.rights": "Flexora Fitnes. Todos los derechos reservados.",
 
@@ -571,6 +604,17 @@ export const translations = {
     "cta.signUpClient": "S'inscrire comme client",
     "cta.registerPT": "S'inscrire comme coach",
 
+    // Landing page optimization
+    "hero.joinTagline": "Rejoignez les coachs et les clients qui construisent l'avenir du fitness.",
+    "inline.cta.startFree": "Commencer gratuitement",
+    "pricing.launchDiscount": "Prix de lancement — 50% de réduction les 3 premiers mois",
+    "trust.verifiedPTs": "✅ Coachs vérifiés uniquement — chaque diplôme contrôlé",
+    "trust.securePayments": "🔒 Paiements sécurisés via Stripe",
+    "trust.satisfactionGuarantee": "🔄 Garantie de satisfaction de 30 jours",
+    "ptRecruit.title": "Vous êtes coach personnel ?",
+    "ptRecruit.description": "Rejoignez Flexora et atteignez des clients dans le monde entier. Présentez vos certifications, connectez-vous via speed dating et développez votre activité à l'échelle mondiale. Uniquement des professionnels vérifiés — protégeant votre réputation.",
+    "ptRecruit.cta": "S'inscrire comme coach",
+
     "footer.rights": "Flexora Fitnes. Tous droits réservés.",
 
     "auth.signIn": "Connexion",
@@ -724,6 +768,17 @@ export const translations = {
     "cta.subtitle": "Schließe dich Tausenden von Kunden und verifizierten Trainern auf der weltweit fortschrittlichsten Fitness-Plattform an. Starte deine Reise noch heute.",
     "cta.signUpClient": "Als Kunde registrieren",
     "cta.registerPT": "Als Trainer registrieren",
+
+    // Landing page optimization
+    "hero.joinTagline": "Gemeinsam mit Trainern und Kunden die Zukunft des Fitness gestalten.",
+    "inline.cta.startFree": "Kostenlos starten",
+    "pricing.launchDiscount": "Einführungspreis — 50% Rabatt in den ersten 3 Monaten",
+    "trust.verifiedPTs": "✅ Nur verifizierte Trainer — jedes Diplom geprüft",
+    "trust.securePayments": "🔒 Sichere Zahlungen via Stripe",
+    "trust.satisfactionGuarantee": "🔄 30-Tage-Zufriedenheitsgarantie",
+    "ptRecruit.title": "Bist du Personal Trainer?",
+    "ptRecruit.description": "Tritt Flexora bei und erreiche Kunden weltweit. Präsentiere deine Zertifizierungen, werde durch Speed-Dating gematched und baue dein Geschäft global aus. Nur verifizierte Profis — zum Schutz deines Rufs.",
+    "ptRecruit.cta": "Als Trainer registrieren",
 
     "footer.rights": "Flexora Fitnes. Alle Rechte vorbehalten.",
 
@@ -879,6 +934,17 @@ export const translations = {
     "cta.signUpClient": "سجل كعميل",
     "cta.registerPT": "سجل كمدرب",
 
+    // Landing page optimization
+    "hero.joinTagline": "انضم إلى المدربين والعملاء الذين يبنون مستقبل اللياقة.",
+    "inline.cta.startFree": "ابدأ مجاناً",
+    "pricing.launchDiscount": "سعر الإطلاق — خصم 50% لأول 3 أشهر",
+    "trust.verifiedPTs": "✅ مدربون معتمدون فقط — كل شهادة مدققة",
+    "trust.securePayments": "🔒 مدفوعات آمنة عبر Stripe",
+    "trust.satisfactionGuarantee": "🔄 ضمان الرضا لمدة 30 يوماً",
+    "ptRecruit.title": "هل أنت مدرب شخصي؟",
+    "ptRecruit.description": "انضم إلى فليكسورا وتواصل مع العملاء حول العالم. اعرض شهاداتك، واحصل على تطابق عبر المواعدة السريعة، ووسع نطاق عملك عالمياً. فقط المحترفون المعتمدون — حماية لسمعتك.",
+    "ptRecruit.cta": "سجل كمدرب",
+
     "footer.rights": "فليكسورا فيتنس. جميع الحقوق محفوظة.",
 
     "auth.signIn": "تسجيل الدخول",
@@ -1032,6 +1098,17 @@ export const translations = {
     "cta.subtitle": "加入成千上万的客户和认证教练，在世界最先进的健身平台上。今天就开始您的旅程。",
     "cta.signUpClient": "注册为客户",
     "cta.registerPT": "注册为教练",
+
+    // Landing page optimization
+    "hero.joinTagline": "加入教练和客户，共同构建健身的未来。",
+    "inline.cta.startFree": "免费开始",
+    "pricing.launchDiscount": "首发价格 — 前3个月5折优惠",
+    "trust.verifiedPTs": "✅ 仅限认证教练 — 每份证书已验证",
+    "trust.securePayments": "🔒 通过Stripe安全支付",
+    "trust.satisfactionGuarantee": "🔄 30天满意保证",
+    "ptRecruit.title": "您是私人教练吗？",
+    "ptRecruit.description": "加入Flexora，接触全球客户。展示您的认证，通过快速配对连接客户，在全球范围内发展您的业务。仅限认证专业人士 — 保护您的声誉。",
+    "ptRecruit.cta": "注册为教练",
 
     "footer.rights": "Flexora Fitnes。保留所有权利。",
 
