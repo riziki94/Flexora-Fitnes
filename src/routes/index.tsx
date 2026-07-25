@@ -174,7 +174,7 @@ function LaunchBanner() {
     <div className="sticky top-0 z-[60] bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-gray-900 shadow-md">
       <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-2.5 text-center">
         <p className="text-sm font-bold leading-snug sm:text-base">
-          🎉 LANSERINGSTILBUD: 1 måned gratis + ingen binding. Kun for de første 100!
+          LANSERINGSTILBUD: 1 måned gratis + ingen binding. Kun for de første 100!
         </p>
         <a
           href="/register"
@@ -460,7 +460,7 @@ function ClientTiers() {
         {/* Launch discount banner */}
         <div className="mb-10 text-center">
           <span className="inline-block rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-6 py-2 text-sm font-bold text-gray-900 shadow-md">
-            🚀 {t("pricing.launchDiscount")}
+            {t("pricing.launchDiscount")}
           </span>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
@@ -523,9 +523,30 @@ function ClientTiers() {
 function TrustSignals() {
   const { t } = useTranslation();
   const signals = [
-    { icon: "✅", text: t("trust.verifiedPTs") },
-    { icon: "🔒", text: t("trust.securePayments") },
-    { icon: "🔄", text: t("trust.satisfactionGuarantee") },
+    {
+      icon: (
+        <svg className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m7 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      text: t("trust.verifiedPTs"),
+    },
+    {
+      icon: (
+        <svg className="h-8 w-8 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      ),
+      text: t("trust.securePayments"),
+    },
+    {
+      icon: (
+        <svg className="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      ),
+      text: t("trust.satisfactionGuarantee"),
+    },
   ];
   return (
     <section className="border-y border-gray-100 bg-white py-12">
@@ -536,7 +557,7 @@ function TrustSignals() {
               key={i}
               className="flex flex-col items-center text-center gap-2 rounded-xl bg-gray-50 p-6"
             >
-              <span className="text-2xl">{signal.icon}</span>
+              {signal.icon}
               <p className="text-sm font-medium text-gray-700 leading-relaxed">{signal.text}</p>
             </div>
           ))}
