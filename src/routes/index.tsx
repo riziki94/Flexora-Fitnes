@@ -8,6 +8,8 @@ import { useTranslation } from "~/lib/i18n";
 import { FlagSwitcher } from "~/components/FlagSwitcher";
 import { translations, type Language } from "~/lib/translations";
 import { trackEvent } from "~/lib/pageview-tracker";
+import { ExitIntentPopup } from "~/components/ExitIntentPopup";
+import { subscribeNewsletter } from "~/lib/newsletter-actions";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -172,6 +174,9 @@ function Home() {
 
       {/* --- Footer --- */}
       <Footer />
+
+      {/* --- Exit Intent Popup --- */}
+      <ExitIntentPopup />
     </div>
   );
 }
@@ -744,9 +749,72 @@ function ShareSection() {
 // ─── Footer ────────────────────────────────────────────────────────
 function Footer() {
   const { t } = useTranslation();
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  async function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim() || status === "loading") return;
+    setStatus("loading");
+    try {
+      const result = await subscribeNewsletter({ email: email.trim() });
+      if (result.ok) {
+        setStatus("success");
+        setMessage("Thanks for subscribing!");
+        setEmail("");
+      } else {
+        setStatus("error");
+        setMessage(result.error || "Something went wrong. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setMessage("Something went wrong. Please try again.");
+    }
+  }
+
   return (
     <footer className="border-t border-gray-100 bg-gray-50 py-10">
       <div className="mx-auto max-w-7xl px-6">
+        {/* Newsletter signup */}
+        <div className="mb-8 flex flex-col items-center gap-3 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 md:flex-row md:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">Stay in the loop</p>
+            <p className="text-xs text-gray-500">Get training tips, launch updates, and exclusive offers.</p>
+          </div>
+          {status === "success" ? (
+            <p className="text-sm font-medium text-green-600 flex items-center gap-1.5">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              {message}
+            </p>
+          ) : (
+            <form onSubmit={handleSubscribe} className="flex w-full gap-2 md:w-auto">
+              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+              <input
+                id="newsletter-email"
+                type="email"
+                required
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); if (status === "error") setStatus("idle"); }}
+                className="min-w-0 flex-1 rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1A56DB] focus:outline-none focus:ring-1 focus:ring-[#1A56DB] md:w-56"
+              />
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="shrink-0 rounded-full bg-[#1A56DB] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors disabled:opacity-60 min-h-[44px]"
+              >
+                {status === "loading" ? "..." : "Subscribe"}
+              </button>
+            </form>
+          )}
+          {status === "error" && (
+            <p className="text-xs text-red-500 md:hidden">{message}</p>
+          )}
+        </div>
+
         <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
           <div className="flex items-center gap-2">
             <img src={iconSvg} alt="Flexora" className="h-6 w-6" />
