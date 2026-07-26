@@ -459,6 +459,14 @@ function runMigrations(db: any) {
     CREATE INDEX IF NOT EXISTS idx_analytics_events_type ON analytics_events(event_type);
     CREATE INDEX IF NOT EXISTS idx_analytics_events_path ON analytics_events(path);
     CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(created_at);
+
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_email ON newsletter_subscribers(email);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
