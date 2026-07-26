@@ -4,6 +4,7 @@ import { registerUser } from "~/lib/auth-actions";
 import { getPaymentLink, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
 import { lookupReferrer } from "~/lib/referral-actions";
 import { useTranslation } from "~/lib/i18n";
+import { BASE_PRICES } from "~/lib/currency";
 import { trackEvent } from "~/lib/pageview-tracker";
 
 export const Route = createFileRoute("/register")({
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/register")({
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, formatPrice } = useTranslation();
   const search = Route.useSearch();
 
   // Track signup page view
@@ -211,9 +212,9 @@ function RegisterPage() {
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { key: "basis", label: t("pricing.basis"), price: "149 kr" },
-                  { key: "hybrid", label: t("pricing.hybrid"), price: "249 kr" },
-                  { key: "premium", label: t("pricing.premium"), price: "399 kr" },
+                  { key: "basis", label: t("pricing.basis"), price: formatPrice(BASE_PRICES.basis) },
+                  { key: "hybrid", label: t("pricing.hybrid"), price: formatPrice(BASE_PRICES.hybrid) },
+                  { key: "premium", label: t("pricing.premium"), price: formatPrice(BASE_PRICES.premium) },
                 ].map((p) => (
                   <button
                     key={p.key}
@@ -226,7 +227,7 @@ function RegisterPage() {
                     }`}
                   >
                     <div className="font-semibold">{p.label}</div>
-                    <div className="text-xs mt-0.5">{p.price}/mnd</div>
+                    <div className="text-xs mt-0.5">{p.price}{t("pricing.perMonth")}</div>
                   </button>
                 ))}
               </div>
