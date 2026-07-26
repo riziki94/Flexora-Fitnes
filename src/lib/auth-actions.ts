@@ -50,6 +50,7 @@ export const registerUser = createServerFn()
     country?: string;
     birthday?: string;
     refPtId?: number;
+    referrerId?: number;
     // PT-specific fields
     certificationInfo?: string;
     yearsOfExperience?: number;
@@ -77,6 +78,12 @@ export const registerUser = createServerFn()
 
     const passwordHash = await hashPassword(data.password);
 
+    // Generate referral code from name
+    const slug = data.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
     const result = db.query(
       "INSERT INTO users (email, password_hash, role, name, country, birthday) VALUES (?, ?, ?, ?, ?, ?)"
     ).run(
@@ -89,6 +96,24 @@ export const registerUser = createServerFn()
     );
 
     const userId = Number(result.lastInsertRowid);
+
+    // Set referral code
+    const referralCode = slug + "-" + userId;
+    db.query("UPDATE users SET referral_code = ? WHERE id = ?").run(referralCode, userId);
+
+    // Store referrer if provided
+    if (data.referrerId) {
+      db.query("UPDATE users SET referrer_id = ? WHERE id = ?").run(data.referrerId, userId);
+
+      // Log activity
+      db.query(
+        "INSERT INTO activity_log (event_type, user_id, description, metadata) VALUES ('signup', ?, ?, ?)"
+      ).run(
+        userId,
+        "User registered via referral",
+        JSON.stringify({ referrer_id: data.referrerId, referral_code: referralCode })
+      );
+    }
 
     // If PT, create pt_profile
     if (data.role === "pt") {
