@@ -4,6 +4,7 @@ import { registerUser } from "~/lib/auth-actions";
 import { getPaymentLink, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
 import { lookupReferrer } from "~/lib/referral-actions";
 import { useTranslation } from "~/lib/i18n";
+import { trackEvent } from "~/lib/pageview-tracker";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -18,6 +19,11 @@ function RegisterPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const search = Route.useSearch();
+
+  // Track signup page view
+  useEffect(() => {
+    trackEvent({ eventType: "signup_started", path: "/register" });
+  }, []);
   const [role, setRole] = useState<"client" | "pt">("client");
   const [plan, setPlan] = useState(search.plan || "");
   const [refPtId, setRefPtId] = useState(search.ref_pt || "");
@@ -102,6 +108,12 @@ function RegisterPage() {
         const effectivePlan = plan || (role === "pt" ? "pt" : "basis");
         localStorage.setItem("flexora_pending_plan", effectivePlan);
       }
+
+      // Track signup completion
+      trackEvent({
+        eventType: role === "pt" ? "pt_signup" : "signup_completed",
+        path: "/register",
+      });
 
       // PT referral: redirect to PT profile with welcome
       if (refPtId) {

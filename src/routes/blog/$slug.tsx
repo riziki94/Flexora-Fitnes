@@ -1,8 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { blogPosts } from "~/lib/blog-posts";
 import { renderMarkdown } from "~/lib/markdown";
 import iconSvg from "~/assets/flexora-icon.svg";
-
+import { trackEvent } from "~/lib/pageview-tracker";
 export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => {
     const post = blogPosts.find((p) => p.slug === params.slug);
@@ -29,10 +30,11 @@ export const Route = createFileRoute("/blog/$slug")({
   }),
   component: BlogPostPage,
 });
-
 function BlogPostPage() {
   const post = Route.useLoaderData();
-
+  useEffect(() => {
+    trackEvent({ eventType: "blog_view", path: `/blog/${post.slug}` });
+  }, [post.slug]);
   return (
     <div className="min-h-dvh bg-white text-gray-900">
       {/* Nav */}
@@ -55,7 +57,6 @@ function BlogPostPage() {
           </div>
         </div>
       </nav>
-
       {/* Back link */}
       <div className="mx-auto max-w-3xl px-6 pt-8">
         <Link
@@ -68,7 +69,6 @@ function BlogPostPage() {
           Back to Blog
         </Link>
       </div>
-
       {/* Article header */}
       <article className="mx-auto max-w-3xl px-6 pb-8 pt-6">
         <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -77,11 +77,9 @@ function BlogPostPage() {
           </span>
           <span className="text-xs text-gray-400">{post.readTime}</span>
         </div>
-
         <h1 className="mb-4 text-3xl font-bold text-gray-900 leading-tight md:text-4xl">
           {post.title}
         </h1>
-
         <div className="mb-10 flex items-center gap-4 border-b border-gray-100 pb-6">
           <div>
             <p className="text-sm font-medium text-gray-700">{post.author}</p>
@@ -94,14 +92,12 @@ function BlogPostPage() {
             </p>
           </div>
         </div>
-
         {/* Article content */}
         <div
           className="prose-custom"
           dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }}
         />
       </article>
-
       {/* CTA at bottom */}
       <section className="bg-gradient-to-br from-[#1A56DB] to-[#1E40AF] py-16 text-white mt-12">
         <div className="mx-auto max-w-3xl px-6 text-center">
@@ -119,7 +115,6 @@ function BlogPostPage() {
           </a>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="border-t border-gray-100 bg-gray-50 py-10">
         <div className="mx-auto max-w-7xl px-6">

@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { blogPosts } from "~/lib/blog-posts";
 import iconSvg from "~/assets/flexora-icon.svg";
+import { trackEvent } from "~/lib/pageview-tracker";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -20,6 +22,10 @@ export const Route = createFileRoute("/blog/")({
 const BASE_URL = "https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app";
 
 function BlogIndex() {
+  useEffect(() => {
+    trackEvent({ eventType: "blog_view", path: "/blog" });
+  }, []);
+
   return (
     <div className="min-h-dvh bg-white text-gray-900">
       {/* Nav */}

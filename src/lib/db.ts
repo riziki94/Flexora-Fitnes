@@ -446,6 +446,19 @@ function runMigrations(db: any) {
 
     CREATE INDEX IF NOT EXISTS idx_package_purchases_user ON package_purchases(user_id);
     CREATE INDEX IF NOT EXISTS idx_package_purchases_status ON package_purchases(status);
+
+    -- Simple analytics / page-view tracking
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_type TEXT NOT NULL,
+      path TEXT NOT NULL DEFAULT '',
+      user_agent TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_type ON analytics_events(event_type);
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_path ON analytics_events(path);
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(created_at);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
