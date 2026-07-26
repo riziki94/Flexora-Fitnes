@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { registerUser } from "~/lib/auth-actions";
-import { getPaymentLink, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
+import { getPaymentLink, FREE_TRIAL_DAYS } from "~/lib/stripe";
 import { lookupReferrer } from "~/lib/referral-actions";
 import { useTranslation } from "~/lib/i18n";
 import { BASE_PRICES } from "~/lib/currency";
@@ -158,7 +158,7 @@ function RegisterPage() {
         </div>
         <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-100">
           <h1 className="mb-2 text-2xl font-bold text-gray-900">{t("auth.createAccount")}</h1>
-          <p className="mb-6 text-sm font-medium text-[#1A56DB]">{FREE_TRIAL_MESSAGE}</p>
+          <p className="mb-6 text-sm font-medium text-[#1A56DB]">{t("cta.freeTrialMessage")}</p>
 
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
@@ -168,13 +168,13 @@ function RegisterPage() {
 
           {refPtId && (
             <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700 border border-green-200">
-              {t("auth.referredByPT") || "You're registering via a Personal Trainer referral. You'll get a premium trial automatically!"}
+              {t("auth.referredByPT")}
             </div>
           )}
 
           {referrerName && !refPtId && (
             <div className="mb-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700 border border-blue-200">
-              Invited by <strong>{referrerName}</strong>
+              {t("auth.invitedBy")} <strong>{referrerName}</strong>
             </div>
           )}
 
