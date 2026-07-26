@@ -65,31 +65,31 @@ export const Route = createRootRoute({
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
       // iOS splash screen link tags for all iPhone/iPad sizes
       // iPhone SE / iPod Touch (640x1136)
-      { rel: "apple-touch-startup-image", media: "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)", href: "/splash/iphone_se_640x1136.png" },
       // iPhone 6/7/8 (750x1334)
-      { rel: "apple-touch-startup-image", media: "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)", href: "/splash/iphone_6_750x1334.png" },
       // iPhone 6+/7+/8+ (1242x2208)
-      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)", href: "/splash/iphone_6plus_1242x2208.png" },
       // iPhone X / XS (1125x2436)
-      { rel: "apple-touch-startup-image", media: "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)", href: "/splash/iphone_x_1125x2436.png" },
       // iPhone XR / 11 (828x1792)
-      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)", href: "/splash/iphone_xr_828x1792.png" },
       // iPhone XS Max / 11 Pro Max (1242x2688)
-      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)", href: "/splash/iphone_xsmax_1242x2688.png" },
       // iPhone 12/13/14 (1170x2532)
-      { rel: "apple-touch-startup-image", media: "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)", href: "/splash/iphone_12_1170x2532.png" },
       // iPhone 12/13/14 Pro Max (1284x2778)
-      { rel: "apple-touch-startup-image", media: "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)", href: "/splash/iphone_12promax_1284x2778.png" },
       // iPhone 14 Pro (1179x2556)
-      { rel: "apple-touch-startup-image", media: "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)", href: "/splash/iphone_14pro_1179x2556.png" },
       // iPad Mini / Air (1536x2048)
-      { rel: "apple-touch-startup-image", media: "(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)", href: "/splash/ipad_mini_1536x2048.png" },
       // iPad Pro 10.5" (1668x2224)
-      { rel: "apple-touch-startup-image", media: "(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)", href: "/splash/ipad_pro10_1668x2224.png" },
       // iPad Pro 11" (1668x2388)
-      { rel: "apple-touch-startup-image", media: "(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)", href: "/splash/ipad_pro11_1668x2388.png" },
       // iPad Pro 12.9" (2048x2732)
-      { rel: "apple-touch-startup-image", media: "(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)", href: "/marketing/hero-banner.png" },
+      { rel: "apple-touch-startup-image", media: "(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)", href: "/splash/ipad_pro12_2048x2732.png" },
     ],
   }),
   notFoundComponent: () => <div>Page not found</div>,
