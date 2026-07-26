@@ -1,11 +1,19 @@
 // Stripe payment links — created in Stripe dashboard
 // These are production-ready payment links for each plan tier.
+// Links are currency-specific; see src/lib/currency.ts for the full mapping.
 
+import { STRIPE_LINKS_BY_CURRENCY, getStripeLink as getCurrencyStripeLink, type PlanKey } from "./currency";
+import type { Language } from "./translations";
+
+// Re-export for convenience
+export { STRIPE_LINKS_BY_CURRENCY };
+
+// Legacy flat map (USD fallback)
 export const STRIPE_PAYMENT_LINKS: Record<string, string> = {
-  basis: "https://buy.stripe.com/dRm6oH9EIbAYdv2dQS1Fe00",
-  hybrid: "https://buy.stripe.com/7sYbJ1aIMfRe8aI3ce1Fe01",
-  premium: "https://buy.stripe.com/14A3cvdUYdJ676E7su1Fe02",
-  pt: "https://buy.stripe.com/bJefZh2cg7kIez60021Fe03",
+  basis: STRIPE_LINKS_BY_CURRENCY.USD.basis,
+  hybrid: STRIPE_LINKS_BY_CURRENCY.USD.hybrid,
+  premium: STRIPE_LINKS_BY_CURRENCY.USD.premium,
+  pt: STRIPE_LINKS_BY_CURRENCY.USD.pt,
 };
 
 // Workout package (24h access) — $3.99 / 399 cents
@@ -39,7 +47,10 @@ export const PT_PREPAYMENT_POLICY =
 export const PT_REFUND_PERCENT_50 = 50;
 export const PT_REFUND_HOURS_THRESHOLD = 2;
 
-export function getPaymentLink(plan: string): string {
+export function getPaymentLink(plan: string, lang?: Language): string {
+  if (lang) {
+    return getCurrencyStripeLink(plan, lang);
+  }
   const link = STRIPE_PAYMENT_LINKS[plan.toLowerCase()];
   if (!link) {
     console.warn(`No Stripe payment link found for plan: ${plan}`);

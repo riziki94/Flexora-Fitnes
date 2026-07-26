@@ -5,6 +5,7 @@ import iconSvg from "~/assets/flexora-icon.svg";
 import { getFeaturedPTs, type FeaturedPT } from "~/lib/pt-ratings-actions";
 import { STRIPE_PAYMENT_LINKS } from "~/lib/stripe";
 import { useTranslation } from "~/lib/i18n";
+import { BASE_PRICES } from "~/lib/currency";
 import { FlagSwitcher } from "~/components/FlagSwitcher";
 import { translations, type Language } from "~/lib/translations";
 import { trackEvent } from "~/lib/pageview-tracker";
@@ -81,7 +82,6 @@ const ptFeatures = [
 const clientTiers = [
   {
     name: "Basis",
-    price: "149 kr/mnd",
     color: "bg-white border-gray-200",
     highlight: false,
     features: [
@@ -95,7 +95,6 @@ const clientTiers = [
   },
   {
     name: "Hybrid",
-    price: "249 kr/mnd",
     color: "bg-blue-50 border-blue-300",
     highlight: true,
     features: [
@@ -107,7 +106,6 @@ const clientTiers = [
   },
   {
     name: "Premium",
-    price: "399 kr/mnd",
     color: "bg-white border-gray-200",
     highlight: false,
     features: [
@@ -458,11 +456,12 @@ function PTRecruitment() {
 
 // ─── Client Tiers (modified: launch discount, Basis prominence) ──
 function ClientTiers() {
-  const { t } = useTranslation();
+  const { t, formatPrice, formatPriceWithPeriod, getStripeLink: getLink } = useTranslation();
+  const periodSuffix = t("pricing.perMonth");
   const tiers = [
-    { name: t("pricing.basis"), price: "149 kr/mnd", key: "basis", color: "bg-white border-gray-200", highlight: false, entry: true },
-    { name: t("pricing.hybrid"), price: "249 kr/mnd", key: "hybrid", color: "bg-blue-50 border-blue-300", highlight: true, entry: false },
-    { name: t("pricing.premium"), price: "399 kr/mnd", key: "premium", color: "bg-white border-gray-200", highlight: false, entry: false },
+    { name: t("pricing.basis"), price: formatPriceWithPeriod(BASE_PRICES.basis, periodSuffix), key: "basis", color: "bg-white border-gray-200", highlight: false, entry: true },
+    { name: t("pricing.hybrid"), price: formatPriceWithPeriod(BASE_PRICES.hybrid, periodSuffix), key: "hybrid", color: "bg-blue-50 border-blue-300", highlight: true, entry: false },
+    { name: t("pricing.premium"), price: formatPriceWithPeriod(BASE_PRICES.premium, periodSuffix), key: "premium", color: "bg-white border-gray-200", highlight: false, entry: false },
   ];
   return (
     <section id="pricing" className="py-20 md:py-28">
@@ -512,7 +511,7 @@ function ClientTiers() {
                 ))}
               </ul>
               <a
-                href={STRIPE_PAYMENT_LINKS[tier.key] || "#pricing"}
+                href={getLink(tier.key)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`block rounded-full px-6 py-3 text-center text-sm font-semibold transition-colors min-h-[44px] flex items-center justify-center ${
@@ -582,9 +581,10 @@ function TrustSignals() {
 }
 
 function PTSubscription() {
-  const { t, lang } = useTranslation();
+  const { t, lang, formatPrice, getStripeLink: getLink } = useTranslation();
   const langTranslations = translations[lang] as unknown as Record<string, string | readonly string[]>;
   const ptFeatures = (langTranslations["pricing.ptFeatures"] || translations.en["pricing.ptFeatures"]) as readonly string[];
+  const ptPrice = t("pricing.ptPrice", { price: formatPrice(BASE_PRICES.pt) });
   return (
     <section className="bg-gray-50 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
@@ -595,7 +595,7 @@ function PTSubscription() {
             </svg>
           </div>
           <h3 className="mb-2 text-xl font-bold text-gray-900">{t("pricing.ptPlan")}</h3>
-          <p className="mb-4 text-3xl font-extrabold text-[#1A56DB]">{t("pricing.ptPrice")}</p>
+          <p className="mb-4 text-3xl font-extrabold text-[#1A56DB]">{ptPrice}</p>
           <p className="mb-6 text-gray-500">{t("section.ptSubDesc")}</p>
           <ul className="mb-8 space-y-3 text-left">
             {ptFeatures.map((f: string, i: number) => (
@@ -608,7 +608,7 @@ function PTSubscription() {
             ))}
           </ul>
           <a
-            href={STRIPE_PAYMENT_LINKS.pt}
+            href={getLink("pt")}
             target="_blank"
             rel="noopener noreferrer"
             className="block rounded-full bg-[#1A56DB] px-6 py-3 text-center text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors min-h-[44px] flex items-center justify-center"

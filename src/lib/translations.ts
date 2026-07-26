@@ -89,7 +89,8 @@ export const translations = {
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "PT Subscription",
-    "pricing.ptPrice": "199 kr/mnd",
+    "pricing.ptPrice": "{price}/mo",
+    "pricing.perMonth": "/mo",
     "pricing.ptFeatures": [
       "Professional verified profile",
       "Global marketing & visibility",
@@ -305,7 +306,8 @@ export const translations = {
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "PT-abonnement",
-    "pricing.ptPrice": "199 kr/mnd",
+    "pricing.ptPrice": "{price}/mnd",
+    "pricing.perMonth": "/mnd",
     "pricing.ptFeatures": [
       "Profesjonell verifisert profil",
       "Global markedsføring og synlighet",
@@ -515,7 +517,8 @@ export const translations = {
     "pricing.hybrid": "Híbrido",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "Suscripción PT",
-    "pricing.ptPrice": "199 kr/mes",
+    "pricing.ptPrice": "{price}/mes",
+    "pricing.perMonth": "/mes",
     "pricing.ptFeatures": [
       "Perfil profesional verificado",
       "Marketing y visibilidad global",
@@ -680,7 +683,8 @@ export const translations = {
     "pricing.hybrid": "Hybride",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "Abonnement coach",
-    "pricing.ptPrice": "199 kr/mois",
+    "pricing.ptPrice": "{price}/mois",
+    "pricing.perMonth": "/mois",
     "pricing.ptFeatures": [
       "Profil professionnel vérifié",
       "Marketing et visibilité mondiaux",
@@ -845,7 +849,8 @@ export const translations = {
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "PT-Abonnement",
-    "pricing.ptPrice": "199 kr/Monat",
+    "pricing.ptPrice": "{price}/Monat",
+    "pricing.perMonth": "/Monat",
     "pricing.ptFeatures": [
       "Professionelles verifiziertes Profil",
       "Globales Marketing & Sichtbarkeit",
@@ -1010,7 +1015,8 @@ export const translations = {
     "pricing.hybrid": "هجين",
     "pricing.premium": "مميز",
     "pricing.ptPlan": "اشتراك المدربين",
-    "pricing.ptPrice": "199 كر/شهر",
+    "pricing.ptPrice": "{price}/شهر",
+    "pricing.perMonth": "/شهر",
     "pricing.ptFeatures": [
       "ملف شخصي احترافي موثق",
       "تسويق وظهور عالمي",
@@ -1175,7 +1181,8 @@ export const translations = {
     "pricing.hybrid": "混合版",
     "pricing.premium": "高级版",
     "pricing.ptPlan": "教练订阅",
-    "pricing.ptPrice": "199克朗/月",
+    "pricing.ptPrice": "{price}/月",
+    "pricing.perMonth": "/月",
     "pricing.ptFeatures": [
       "专业认证档案",
       "全球营销与曝光",

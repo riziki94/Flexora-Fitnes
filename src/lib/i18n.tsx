@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { translations, languages, type Language, type TranslationKey } from "./translations";
+import { getCurrencyForLang, formatPrice, formatPriceWithPeriod, getStripeLink, type Currency } from "./currency";
 
 const STORAGE_KEY = "flexora_language";
 const DEFAULT_LANGUAGE: Language = "en";
@@ -29,6 +30,10 @@ interface I18nContextValue {
   setLang: (lang: Language) => void;
   t: (key: TranslationKey, params?: Record<string, string | number>) => string;
   isRTL: boolean;
+  currency: Currency;
+  formatPrice: (usdCents: number) => string;
+  formatPriceWithPeriod: (usdCents: number, suffix: string) => string;
+  getStripeLink: (plan: string) => string;
 }
 
 const I18nContext = createContext<I18nContextValue>({
@@ -36,6 +41,11 @@ const I18nContext = createContext<I18nContextValue>({
   setLang: () => {},
   t: (key: TranslationKey) => key,
   isRTL: false,
+  currency: "USD",
+  formatPrice: (usdCents: number) => `${(usdCents / 100).toFixed(2)}`,
+  formatPriceWithPeriod: (usdCents: number, suffix: string) =>
+    `${(usdCents / 100).toFixed(2)}${suffix}`,
+  getStripeLink: () => "#pricing",
 });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -100,9 +110,34 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   );
 
   const isRTL = lang === "ar";
+  const currency = getCurrencyForLang(lang);
+
+  const fmtPrice = useCallback(
+    (usdCents: number) => formatPrice(usdCents, lang),
+    [lang],
+  );
+  const fmtPricePeriod = useCallback(
+    (usdCents: number, suffix: string) => formatPriceWithPeriod(usdCents, lang, suffix),
+    [lang],
+  );
+  const stripeLink = useCallback(
+    (plan: string) => getStripeLink(plan, lang),
+    [lang],
+  );
 
   return (
-    <I18nContext.Provider value={{ lang, setLang, t, isRTL }}>
+    <I18nContext.Provider
+      value={{
+        lang,
+        setLang,
+        t,
+        isRTL,
+        currency,
+        formatPrice: fmtPrice,
+        formatPriceWithPeriod: fmtPricePeriod,
+        getStripeLink: stripeLink,
+      }}
+    >
       {children}
     </I18nContext.Provider>
   );
