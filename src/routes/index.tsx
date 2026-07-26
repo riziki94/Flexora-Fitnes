@@ -7,6 +7,7 @@ import { STRIPE_PAYMENT_LINKS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
 import { useTranslation } from "~/lib/i18n";
 import { FlagSwitcher } from "~/components/FlagSwitcher";
 import { translations, type Language } from "~/lib/translations";
+import { trackEvent } from "~/lib/pageview-tracker";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -118,6 +119,10 @@ const clientTiers = [
 ];
 
 function Home() {
+  useEffect(() => {
+    trackEvent({ eventType: "pageview", path: "/" });
+  }, []);
+
   return (
     <div className="min-h-dvh bg-white text-gray-900">
       {/* --- Sticky launch banner --- */}
