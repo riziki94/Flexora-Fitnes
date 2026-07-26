@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import logoSvg from "~/assets/flexora-logo.svg";
 import iconSvg from "~/assets/flexora-icon.svg";
 import { getFeaturedPTs, type FeaturedPT } from "~/lib/pt-ratings-actions";
-import { STRIPE_PAYMENT_LINKS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
+import { STRIPE_PAYMENT_LINKS } from "~/lib/stripe";
 import { useTranslation } from "~/lib/i18n";
 import { FlagSwitcher } from "~/components/FlagSwitcher";
 import { translations, type Language } from "~/lib/translations";
@@ -183,17 +183,18 @@ function Home() {
 
 // ─── Launch Banner ──────────────────────────────────────────────
 function LaunchBanner() {
+  const { t } = useTranslation();
   return (
     <div className="sticky top-0 z-[60] bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-gray-900 shadow-md">
       <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-2.5 text-center">
         <p className="text-sm font-bold leading-snug sm:text-base">
-          LANSERINGSTILBUD: 1 måned gratis + ingen binding. Kun for de første 100!
+          {t("banner.launchText")}
         </p>
         <a
           href="/register"
           className="ml-4 hidden shrink-0 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-orange-700 shadow hover:bg-orange-50 transition-colors sm:inline-block"
         >
-          Start gratis
+          {t("banner.startFree")}
         </a>
       </div>
     </div>
@@ -495,7 +496,7 @@ function ClientTiers() {
               )}
               {tier.entry && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#22C55E] px-4 py-1 text-xs font-semibold text-white">
-                  Best Start
+                  {t("pricing.bestStart")}
                 </span>
               )}
               <h3 className="mb-1 text-xl font-bold text-gray-900">{tier.name}</h3>
@@ -632,7 +633,7 @@ function CTA() {
           {t("cta.subtitle")}
         </p>
         <p className="mb-10 text-base font-medium text-white/90">
-          {FREE_TRIAL_MESSAGE}
+          {t("cta.freeTrialMessage")}
         </p>
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <a
@@ -708,9 +709,9 @@ function ShareSection() {
   return (
     <section className="bg-white py-16 md:py-20">
       <div className="mx-auto max-w-3xl px-6 text-center">
-        <h2 className="mb-3 text-2xl font-bold text-gray-900 md:text-3xl">Share Flexora</h2>
+        <h2 className="mb-3 text-2xl font-bold text-gray-900 md:text-3xl">{t("share.title")}</h2>
         <p className="mb-8 text-gray-500">
-          Know someone who would love Flexora? Share it with your friends and earn rewards when they sign up!
+          {t("share.description")}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           {shareLinks.map((link) => (
@@ -739,7 +740,7 @@ function ShareSection() {
           ))}
         </div>
         <p className="mt-6 text-sm text-gray-400">
-          Share your unique referral link from your dashboard to track your invites and earn rewards.
+          {t("share.referralHint")}
         </p>
       </div>
     </section>
@@ -779,15 +780,15 @@ function Footer() {
         {/* Newsletter signup */}
         <div className="mb-8 flex flex-col items-center gap-3 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 md:flex-row md:justify-between">
           <div>
-            <p className="text-sm font-semibold text-gray-900">Stay in the loop</p>
-            <p className="text-xs text-gray-500">Get training tips, launch updates, and exclusive offers.</p>
+            <p className="text-sm font-semibold text-gray-900">{t("newsletter.title")}</p>
+            <p className="text-xs text-gray-500">{t("newsletter.desc")}</p>
           </div>
           {status === "success" ? (
             <p className="text-sm font-medium text-green-600 flex items-center gap-1.5">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
-              {message}
+              {t("newsletter.success")}
             </p>
           ) : (
             <form onSubmit={handleSubscribe} className="flex w-full gap-2 md:w-auto">
@@ -796,7 +797,7 @@ function Footer() {
                 id="newsletter-email"
                 type="email"
                 required
-                placeholder="your@email.com"
+                placeholder={t("newsletter.placeholder")}
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); if (status === "error") setStatus("idle"); }}
                 className="min-w-0 flex-1 rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1A56DB] focus:outline-none focus:ring-1 focus:ring-[#1A56DB] md:w-56"
@@ -806,7 +807,7 @@ function Footer() {
                 disabled={status === "loading"}
                 className="shrink-0 rounded-full bg-[#1A56DB] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors disabled:opacity-60 min-h-[44px]"
               >
-                {status === "loading" ? "..." : "Subscribe"}
+                {status === "loading" ? "..." : t("newsletter.button")}
               </button>
             </form>
           )}
@@ -832,7 +833,7 @@ function Footer() {
         <div className="mt-4 flex flex-col items-center gap-3">
           <FlagSwitcher />
           <p className="text-sm font-medium text-[#1A56DB]">
-            {FREE_TRIAL_MESSAGE}
+            {t("cta.freeTrialMessage")}
           </p>
         </div>
       </div>
@@ -948,18 +949,18 @@ function FeaturedTrainers() {
                     {pt.name}
                   </h4>
                   <p className="mb-2 text-sm text-gray-500">
-                    {pt.country || "Worldwide"}
+                    {pt.country || t("trainers.worldwide")}
                   </p>
                   <p className="mb-2 text-xs text-gray-400">
                     {pt.yearsOfExperience}{" "}
-                    {pt.yearsOfExperience === 1 ? "year" : "years"} experience
+                    {pt.yearsOfExperience === 1 ? t("trainers.yearLabel_one") : t("trainers.yearLabel_other")} experience
                   </p>
                   <div className="flex justify-center">
                     <StarRating pct={pt.ratingPct} />
                   </div>
                   {pt.totalRatings > 0 && (
                     <p className="mt-1 text-xs text-gray-400">
-                      ({pt.totalRatings} {pt.totalRatings === 1 ? "rating" : "ratings"})
+                      ({pt.totalRatings} {pt.totalRatings === 1 ? t("trainers.ratingLabel_one") : t("trainers.ratingLabel_other")})
                     </p>
                   )}
                 </div>

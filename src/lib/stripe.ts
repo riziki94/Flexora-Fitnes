@@ -30,7 +30,7 @@ export const STRIPE_CUSTOMER_PORTAL =
 export const FREE_TRIAL_DAYS = 30;
 
 export const FREE_TRIAL_MESSAGE =
-  "1 måned gratis prøveperiode — ingen binding, avslutt når som helst";
+  "1 month free trial — no commitment, cancel anytime";
 
 // PT session prepayment policy
 export const PT_PREPAYMENT_POLICY =

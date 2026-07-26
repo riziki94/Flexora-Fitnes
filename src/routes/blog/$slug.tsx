@@ -4,6 +4,7 @@ import { blogPosts } from "~/lib/blog-posts";
 import { renderMarkdown } from "~/lib/markdown";
 import iconSvg from "~/assets/flexora-icon.svg";
 import { trackEvent } from "~/lib/pageview-tracker";
+import { useTranslation } from "~/lib/i18n";
 export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => {
     const post = blogPosts.find((p) => p.slug === params.slug);
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/blog/$slug")({
   component: BlogPostPage,
 });
 function BlogPostPage() {
+  const { t } = useTranslation();
   const post = Route.useLoaderData();
   useEffect(() => {
     trackEvent({ eventType: "blog_view", path: `/blog/${post.slug}` });
@@ -52,7 +54,7 @@ function BlogPostPage() {
               href="/register"
               className="rounded-full bg-[#1A56DB] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors"
             >
-              Start gratis
+              {t("banner.startFree")}
             </a>
           </div>
         </div>
@@ -66,7 +68,7 @@ function BlogPostPage() {
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Blog
+          {t("blog.backToBlog")}
         </Link>
       </div>
       {/* Article header */}
@@ -102,16 +104,16 @@ function BlogPostPage() {
       <section className="bg-gradient-to-br from-[#1A56DB] to-[#1E40AF] py-16 text-white mt-12">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h2 className="mb-4 text-2xl font-bold md:text-3xl">
-            Start Your Free Trial
+            {t("blog.ctaTitle")}
           </h2>
           <p className="mb-8 text-lg text-blue-100">
-            Experience AI-powered coaching and connect with verified personal trainers worldwide. No commitment, cancel anytime.
+            {t("blog.ctaDescription")}
           </p>
           <a
             href="/register"
             className="inline-block rounded-full bg-white px-8 py-3.5 text-base font-semibold text-[#1A56DB] shadow-lg hover:bg-blue-50 transition-colors"
           >
-            Start din gratis prøveperiode
+            {t("blog.ctaButton")}
           </a>
         </div>
       </section>
