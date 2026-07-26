@@ -79,44 +79,20 @@ const ptFeatures = [
   },
 ];
 
-const clientTiers = [
-  {
-    name: "Basis",
-    color: "bg-white border-gray-200",
-    highlight: false,
-    features: [
-      "Training plans",
-      "Chat support",
-      "Global ranking",
-      "Food scanning",
-      "Music integration",
-      "Competitions",
-    ],
-  },
-  {
-    name: "Hybrid",
-    color: "bg-blue-50 border-blue-300",
-    highlight: true,
-    features: [
-      "Everything in Basis",
-      "AI-PT coaching",
-      "Create groups",
-      "Arrange competitions",
-    ],
-  },
-  {
-    name: "Premium",
-    color: "bg-white border-gray-200",
-    highlight: false,
-    features: [
-      "Everything in Hybrid",
-      "Live video training",
-      "Movement correction",
-      "Breathing measurement",
-      "1-on-1 PT sessions",
-    ],
-  },
-];
+// Tier feature keys — used for translating pricing card features
+const tierFeatureKeys: Record<string, string[]> = {
+  basis: [
+    "tier.basis.1", "tier.basis.2", "tier.basis.3",
+    "tier.basis.4", "tier.basis.5", "tier.basis.6",
+  ],
+  hybrid: [
+    "tier.hybrid.1", "tier.hybrid.2", "tier.hybrid.3", "tier.hybrid.4",
+  ],
+  premium: [
+    "tier.premium.1", "tier.premium.2", "tier.premium.3",
+    "tier.premium.4", "tier.premium.5",
+  ],
+};
 
 function Home() {
   useEffect(() => {
@@ -501,12 +477,12 @@ function ClientTiers() {
               <h3 className="mb-1 text-xl font-bold text-gray-900">{tier.name}</h3>
               <p className="mb-6 text-3xl font-extrabold text-[#1A56DB]">{tier.price}</p>
               <ul className="mb-8 space-y-3">
-                {clientTiers.find((ct) => ct.name.toLowerCase().includes(tier.key))?.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
+                {(tierFeatureKeys[tier.key] || []).map((featureKey: string) => (
+                  <li key={featureKey} className="flex items-start gap-2 text-sm text-gray-700">
                     <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
-                    {f}
+                    {t(featureKey as any)}
                   </li>
                 ))}
               </ul>
@@ -700,7 +676,7 @@ function ShareSection() {
       const btn = document.getElementById("share-copy-btn");
       if (btn) {
         const orig = btn.textContent;
-        btn.textContent = "Copied!";
+        btn.textContent = t("share.copied");
         setTimeout(() => { btn.textContent = orig; }, 2000);
       }
     }).catch(() => {});
@@ -727,15 +703,15 @@ function ShareSection() {
                 {link.name}
               </a>
             ) : (
-              <button
-                key={link.name}
-                id="share-copy-btn"
-                onClick={handleCopyLink}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-white transition-colors ${link.color}`}
-              >
-                {link.icon}
-                {link.name}
-              </button>
+            <button
+              key={link.name}
+              id="share-copy-btn"
+              onClick={handleCopyLink}
+              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-white transition-colors ${link.color}`}
+            >
+              {link.icon}
+              {t("share.copyLink")}
+            </button>
             )
           ))}
         </div>
@@ -762,15 +738,15 @@ function Footer() {
       const result = await subscribeNewsletter({ email: email.trim() });
       if (result.ok) {
         setStatus("success");
-        setMessage("Thanks for subscribing!");
+        setMessage(t("newsletter.success"));
         setEmail("");
       } else {
         setStatus("error");
-        setMessage(result.error || "Something went wrong. Please try again.");
+        setMessage(result.error || t("newsletter.error"));
       }
     } catch {
       setStatus("error");
-      setMessage("Something went wrong. Please try again.");
+      setMessage(t("newsletter.error"));
     }
   }
 
@@ -792,7 +768,7 @@ function Footer() {
             </p>
           ) : (
             <form onSubmit={handleSubscribe} className="flex w-full gap-2 md:w-auto">
-              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+              <label htmlFor="newsletter-email" className="sr-only">{t("newsletter.emailLabel")}</label>
               <input
                 id="newsletter-email"
                 type="email"
@@ -982,7 +958,7 @@ function FeaturedTrainers() {
                   <h4 className="mb-1 font-semibold text-gray-900">{pt.name}</h4>
                   <p className="mb-2 text-sm text-gray-500">{pt.country}</p>
                   <p className="mb-2 text-xs text-gray-400">
-                    {pt.yearsOfExperience} years experience
+                    {pt.yearsOfExperience} {t("trainers.experience")}
                   </p>
                   <div className="flex justify-center">
                     <StarRating pct={pt.ratingPct} />

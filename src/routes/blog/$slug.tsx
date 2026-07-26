@@ -126,7 +126,7 @@ function BlogPostPage() {
               <span className="text-sm font-semibold text-gray-500">Flexora Fitnes</span>
             </div>
             <p className="text-sm text-gray-400">
-              &copy; {new Date().getFullYear()} Flexora Fitnes. All rights reserved.
+              &copy; {new Date().getFullYear()} {t("footer.rights")}
             </p>
           </div>
         </div>
