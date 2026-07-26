@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getDashboardData } from "~/lib/user-actions";
+import { getReferralStats } from "~/lib/referral-actions";
 import { FREE_TRIAL_DAYS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
 import { useTranslation } from "~/lib/i18n";
 import Avatar from "~/components/Avatar";
@@ -15,8 +16,10 @@ function DashboardPage() {
   const { t } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [dashData, setDashData] = useState<any>(null);
+  const [refStats, setRefStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [trialDaysLeft, setTrialDaysLeft] = useState(0);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
     // Get user from localStorage
@@ -45,6 +48,9 @@ function DashboardPage() {
 
       // Load dashboard data
       getDashboardData().then(setDashData).catch(console.error).finally(() => setLoading(false));
+
+      // Load referral stats
+      getReferralStats().then(setRefStats).catch(() => {});
     } catch {
       navigate({ to: "/login" });
     }
@@ -55,6 +61,15 @@ function DashboardPage() {
     localStorage.removeItem("flexora_user");
     document.cookie = "flexora_token=; path=/; max-age=0";
     navigate({ to: "/" });
+  }
+
+  function copyReferralLink() {
+    if (refStats?.referralLink) {
+      navigator.clipboard.writeText(refStats.referralLink).then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      }).catch(() => {});
+    }
   }
 
   if (loading) {
@@ -137,13 +152,13 @@ function DashboardPage() {
           </p>
         </div>
 
-        {isPt ? <PtDashboard data={dashData} /> : <ClientDashboard data={dashData} />}
+        {isPt ? <PtDashboard data={dashData} refStats={refStats} copyReferralLink={copyReferralLink} copySuccess={copySuccess} /> : <ClientDashboard data={dashData} refStats={refStats} copyReferralLink={copyReferralLink} copySuccess={copySuccess} />}
       </main>
     </div>
   );
 }
 
-function ClientDashboard({ data }: { data: any }) {
+function ClientDashboard({ data, refStats, copyReferralLink, copySuccess }: { data: any; refStats: any; copyReferralLink: () => void; copySuccess: boolean }) {
   const { t } = useTranslation();
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -168,8 +183,14 @@ function ClientDashboard({ data }: { data: any }) {
         )}
       </DashboardCard>
 
+      {/* Referral Card */}
+      <ReferralCard refStats={refStats} copyReferralLink={copyReferralLink} copySuccess={copySuccess} className="md:col-span-2 lg:col-span-2" />
+
       {/* Workout Plans */}
       <DashboardCard title={t("dashboard.workoutPlans")} className="md:col-span-2">
+
+
+
         {data?.workouts && data.workouts.length > 0 ? (
           <div className="space-y-3">
             {data.workouts.map((w: any) => (
@@ -218,7 +239,7 @@ function ClientDashboard({ data }: { data: any }) {
   );
 }
 
-function PtDashboard({ data }: { data: any }) {
+function PtDashboard({ data, refStats, copyReferralLink, copySuccess }: { data: any; refStats: any; copyReferralLink: () => void; copySuccess: boolean }) {
   const { t } = useTranslation();
   const profile = data?.profile;
 
@@ -260,8 +281,11 @@ function PtDashboard({ data }: { data: any }) {
         </div>
       </DashboardCard>
 
+      {/* Referral Card */}
+      <ReferralCard refStats={refStats} copyReferralLink={copyReferralLink} copySuccess={copySuccess} className="md:col-span-2 lg:col-span-1" />
+
       {/* Bookings */}
-      <DashboardCard title={t("dashboard.upcomingBookings")} className="md:col-span-2 lg:col-span-1">
+      <DashboardCard title={t("dashboard.upcomingBookings")} className="md:col-span-2 lg:col-span-2">
         {data?.bookings && data.bookings.length > 0 ? (
           <div className="space-y-3">
             {data.bookings.map((b: any) => (
@@ -308,7 +332,76 @@ function ActionLink({ href, children }: { href: string; children: ReactNode }) {
       href={href}
       className="block rounded-lg bg-gray-50 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
     >
-      {children} →
+      {children} &rarr;
     </a>
+  );
+}
+
+function ReferralCard({ refStats, copyReferralLink, copySuccess, className = "" }: { refStats: any; copyReferralLink: () => void; copySuccess: boolean; className?: string }) {
+  const referralCount = refStats?.referralCount || 0;
+  const referralLink = refStats?.referralLink || "";
+  const referralCode = refStats?.referralCode || "";
+
+  // Rewards thresholds
+  const nextThreshold = referralCount < 3 ? 3 : referralCount < 5 ? 5 : referralCount < 10 ? 10 : 0;
+  const rewardText = referralCount < 3
+    ? "Invite 3 friends = 1 month free"
+    : referralCount < 5
+    ? "Invite 5 friends = Premium upgrade"
+    : referralCount < 10
+    ? "Invite 10 friends = 3 months free"
+    : "You've unlocked all rewards!";
+
+  const progressPct = referralCount >= 10 ? 100 : (referralCount / nextThreshold) * 100;
+
+  return (
+    <div className={`rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 ${className}`}>
+      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">Referral Program</h3>
+
+      {/* Referral link */}
+      <div className="mb-4">
+        <label className="block text-xs font-medium text-gray-500 mb-1.5">Your referral link</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            readOnly
+            value={referralLink}
+            className="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 focus:outline-none"
+          />
+          <button
+            onClick={copyReferralLink}
+            className="rounded-lg bg-[#1A56DB] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1E40AF] transition-colors whitespace-nowrap"
+          >
+            {copySuccess ? "Copied!" : "Copy link"}
+          </button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="mb-4 flex items-center gap-4">
+        <div className="flex-1 rounded-lg bg-blue-50 p-3 text-center">
+          <p className="text-2xl font-bold text-[#1A56DB]">{referralCount}</p>
+          <p className="text-xs text-gray-500">Signups</p>
+        </div>
+        <div className="flex-1 rounded-lg bg-green-50 p-3 text-center">
+          <p className="text-2xl font-bold text-green-600">{referralCount >= 3 ? Math.floor(referralCount / 3) : 0}</p>
+          <p className="text-xs text-gray-500">Rewards earned</p>
+        </div>
+      </div>
+
+      {/* Rewards progress */}
+      <div>
+        <div className="flex justify-between text-xs mb-1.5">
+          <span className="text-gray-500">{referralCount} / {nextThreshold || referralCount} referrals</span>
+          <span className="font-medium text-[#1A56DB]">{rewardText}</span>
+        </div>
+        <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-[#1A56DB] to-[#3B82F6] transition-all duration-500"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
