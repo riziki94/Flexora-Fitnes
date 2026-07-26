@@ -4,15 +4,81 @@
   "description": "Book verified personal trainers worldwide or train with AI coaching. 3D muscle maps, live form correction, voice guidance, and global competitions. Free trial available.",
   "start_url": "/",
   "scope": "/",
+  "id": "/?pwa=flexora-fitnes",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#FFFFFF",
   "theme_color": "#1A56DB",
-  "categories": ["health-fitness", "lifestyle"],
+  "categories": ["health", "fitness", "lifestyle"],
   "iarc_rating_id": "",
   "lang": "en",
   "dir": "ltr",
   "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.flexora.fitnes",
+      "id": "com.flexora.fitnes"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/flexora-fitnes/idPLACEHOLDER_APP_ID"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Workout",
+      "short_name": "Workout",
+      "description": "Jump into your next workout session",
+      "url": "/app/workout/plans/",
+      "icons": [
+        {
+          "src": "/flexora-icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your fitness dashboard and stats",
+      "url": "/app/dashboard",
+      "icons": [
+        {
+          "src": "/flexora-icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Find a PT",
+      "short_name": "Find PT",
+      "description": "Browse and book verified personal trainers",
+      "url": "/app/pt/discover",
+      "icons": [
+        {
+          "src": "/flexora-icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Nutrition Scanner",
+      "short_name": "Nutrition",
+      "description": "Scan food and track your nutrition",
+      "url": "/app/nutrition/scan",
+      "icons": [
+        {
+          "src": "/flexora-icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "/flexora-icon-48.png",
