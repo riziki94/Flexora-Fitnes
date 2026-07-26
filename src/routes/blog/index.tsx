@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { blogPosts } from "~/lib/blog-posts";
 import iconSvg from "~/assets/flexora-icon.svg";
 import { trackEvent } from "~/lib/pageview-tracker";
+import { useTranslation } from "~/lib/i18n";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/blog/")({
 const BASE_URL = "https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app";
 
 function BlogIndex() {
+  const { t } = useTranslation();
   useEffect(() => {
     trackEvent({ eventType: "blog_view", path: "/blog" });
   }, []);
@@ -43,7 +45,7 @@ function BlogIndex() {
               href="/register"
               className="rounded-full bg-[#1A56DB] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors"
             >
-              Start gratis
+              {t("banner.startFree")}
             </a>
           </div>
         </div>
@@ -52,9 +54,9 @@ function BlogIndex() {
       {/* Header */}
       <section className="bg-gradient-to-br from-[#1A56DB] via-[#3B82F6] to-[#1E40AF] py-16 text-white">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <h1 className="text-4xl font-bold md:text-5xl">Flexora Blog</h1>
+          <h1 className="text-4xl font-bold md:text-5xl">{t("blog.header")}</h1>
           <p className="mt-4 text-lg text-blue-100 md:text-xl">
-            Fitness guides, technology insights, and training tips
+            {t("blog.subtitle")}
           </p>
         </div>
       </section>
@@ -91,7 +93,7 @@ function BlogIndex() {
                     })}
                   </span>
                   <span className="text-sm font-medium text-[#1A56DB] group-hover:translate-x-1 transition-transform">
-                    Read more →
+                    {t("blog.readMore")}
                   </span>
                 </div>
               </Link>
@@ -103,15 +105,15 @@ function BlogIndex() {
       {/* CTA */}
       <section className="bg-gradient-to-br from-[#1A56DB] to-[#1E40AF] py-16 text-white">
         <div className="mx-auto max-w-4xl px-6 text-center">
-          <h2 className="mb-4 text-3xl font-bold">Ready to Transform Your Training?</h2>
+          <h2 className="mb-4 text-3xl font-bold">{t("blog.ctaTitle")}</h2>
           <p className="mb-8 text-lg text-blue-100">
-            Join Flexora Fitnes and experience AI-powered coaching combined with world-class personal trainers.
+            {t("blog.ctaDescription")}
           </p>
           <a
             href="/register"
             className="inline-block rounded-full bg-white px-8 py-3.5 text-base font-semibold text-[#1A56DB] shadow-lg hover:bg-blue-50 transition-colors"
           >
-            Start Your Free Trial
+            {t("blog.ctaButton")}
           </a>
         </div>
       </section>

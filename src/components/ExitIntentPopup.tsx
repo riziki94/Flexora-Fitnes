@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "~/lib/i18n";
 
 const STORAGE_KEY = "flexora_exit_popup_shown";
 
 export function ExitIntentPopup() {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   const handleMouseLeave = useCallback((e: MouseEvent) => {
@@ -60,11 +62,10 @@ export function ExitIntentPopup() {
 
         {/* Content */}
         <h2 className="mb-3 text-center text-xl font-bold text-gray-900">
-          Wait! Before you go…
+          {t("exit.title")}
         </h2>
         <p className="mb-6 text-center text-gray-600 leading-relaxed">
-          Get <strong className="text-[#1A56DB]">2 months free</strong> when you join today.
-          Limited launch offer.
+          {t("exit.description")}
         </p>
 
         {/* Buttons */}
@@ -73,13 +74,13 @@ export function ExitIntentPopup() {
             href="/register"
             className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#1A56DB] to-[#3B82F6] px-6 py-3 text-base font-semibold text-white shadow-lg hover:from-[#1E40AF] hover:to-[#2563EB] transition-all min-h-[44px]"
           >
-            Claim Offer
+            {t("exit.claimOffer")}
           </a>
           <button
             onClick={close}
             className="rounded-full px-6 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors min-h-[44px]"
           >
-            No thanks
+            {t("exit.noThanks")}
           </button>
         </div>
       </div>

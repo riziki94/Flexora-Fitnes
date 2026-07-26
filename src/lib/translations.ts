@@ -185,6 +185,51 @@ export const translations = {
     "dashboard.upcomingBookings": "Upcoming Bookings",
     "dashboard.noBookings": "No upcoming bookings",
 
+    // Launch banner
+    "banner.launchText": "LAUNCH OFFER: 1 month free + no commitment. First 100 only!",
+    "banner.startFree": "Start Free",
+
+    // Pricing
+    "pricing.bestStart": "Best Start",
+
+    // Share section
+    "share.title": "Share Flexora",
+    "share.description": "Know someone who would love Flexora? Share it with your friends and earn rewards when they sign up!",
+    "share.referralHint": "Share your unique referral link from your dashboard to track your invites and earn rewards.",
+
+    // Newsletter
+    "newsletter.title": "Stay in the loop",
+    "newsletter.desc": "Get training tips, launch updates, and exclusive offers.",
+    "newsletter.placeholder": "your@email.com",
+    "newsletter.button": "Subscribe",
+    "newsletter.success": "Thanks for subscribing!",
+    "newsletter.error": "Something went wrong. Please try again.",
+
+    // Trainers
+    "trainers.worldwide": "Worldwide",
+    "trainers.yearLabel_one": "year",
+    "trainers.yearLabel_other": "years",
+    "trainers.ratingLabel_one": "rating",
+    "trainers.ratingLabel_other": "ratings",
+
+    // Exit intent
+    "exit.title": "Wait! Before you go…",
+    "exit.description": "Get 2 months free when you join today. Limited launch offer.",
+    "exit.claimOffer": "Claim Offer",
+    "exit.noThanks": "No thanks",
+
+    // Blog
+    "blog.header": "Flexora Blog",
+    "blog.subtitle": "Fitness guides, technology insights, and training tips",
+    "blog.ctaTitle": "Ready to Transform Your Training?",
+    "blog.ctaDescription": "Join Flexora Fitnes and experience AI-powered coaching combined with world-class personal trainers.",
+    "blog.ctaButton": "Start Your Free Trial",
+    "blog.readMore": "Read more →",
+    "blog.backToBlog": "Back to Blog",
+
+    // CTA free trial message
+    "cta.freeTrialMessage": "1 month free trial — no commitment, cancel anytime",
+
     // General
     "general.years": "years",
     "general.year": "year",
@@ -362,6 +407,51 @@ export const translations = {
     "dashboard.education": "Utdanning",
     "dashboard.upcomingBookings": "Kommende bookinger",
     "dashboard.noBookings": "Ingen kommende bookinger",
+
+    // Launch banner
+    "banner.launchText": "LANSERINGSTILBUD: 1 måned gratis + ingen binding. Kun for de første 100!",
+    "banner.startFree": "Start gratis",
+
+    // Pricing
+    "pricing.bestStart": "Beste start",
+
+    // Share section
+    "share.title": "Del Flexora",
+    "share.description": "Kjenner du noen som ville elsket Flexora? Del det med vennene dine og tjen belønninger når de registrerer seg!",
+    "share.referralHint": "Del din unike henvisningslink fra dashbordet for å spore invitasjoner og tjene belønninger.",
+
+    // Newsletter
+    "newsletter.title": "Hold deg oppdatert",
+    "newsletter.desc": "Få treningstips, lanseringsoppdateringer og eksklusive tilbud.",
+    "newsletter.placeholder": "din@epost.no",
+    "newsletter.button": "Abonner",
+    "newsletter.success": "Takk for at du abonnerer!",
+    "newsletter.error": "Noe gikk galt. Vennligst prøv igjen.",
+
+    // Trainers
+    "trainers.worldwide": "Globalt",
+    "trainers.yearLabel_one": "år",
+    "trainers.yearLabel_other": "år",
+    "trainers.ratingLabel_one": "vurdering",
+    "trainers.ratingLabel_other": "vurderinger",
+
+    // Exit intent
+    "exit.title": "Vent! Før du går…",
+    "exit.description": "Få 2 måneder gratis når du blir med i dag. Begrenset lanseringstilbud.",
+    "exit.claimOffer": "Få tilbud",
+    "exit.noThanks": "Nei takk",
+
+    // Blog
+    "blog.header": "Flexora Blogg",
+    "blog.subtitle": "Treningsguider, teknologiinnsikt og treningstips",
+    "blog.ctaTitle": "Klar for å transformere treningen din?",
+    "blog.ctaDescription": "Bli med i Flexora Fitnes og opplev AI-drevet coaching kombinert med personlige trenere i verdensklasse.",
+    "blog.ctaButton": "Start din gratis prøveperiode",
+    "blog.readMore": "Les mer →",
+    "blog.backToBlog": "Tilbake til bloggen",
+
+    // CTA free trial message
+    "cta.freeTrialMessage": "1 måned gratis prøveperiode — ingen binding, avslutt når som helst",
 
     "general.years": "år",
     "general.year": "år",
