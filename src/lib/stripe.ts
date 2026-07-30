@@ -17,23 +17,21 @@ export const STRIPE_PAYMENT_LINKS: Record<string, string> = {
 };
 
 // Workout package (24h access) — $3.99 / 399 cents
-// Create a Stripe Product (one-time) and Payment Link in the dashboard:
+// TODO: Create real package payment link in Stripe dashboard
 //   Product: "Workout Package — 24h Access" | Price: $3.99 (399 cents)
-// Then paste the payment link here.
+//   Then paste the payment link here and remove the basis fallback.
 export const PACKAGE_PRICE_CENTS = 399;
 export const PACKAGE_PRICE_LABEL = "$3.99";
-export const PACKAGE_PAYMENT_LINK = "https://buy.stripe.com/package_399";
+export const PACKAGE_PAYMENT_LINK = STRIPE_PAYMENT_LINKS.basis;
 export const PACKAGE_ACCESS_HOURS = 24;
 
 // PT session prepayment — one-time Stripe payment link
 // Price ID: price_1TuFi3DtaayjZYHTtyGeu8rR — 500 kr per session
 export const PT_SESSION_PRICE_ID = "price_1TuFi3DtaayjZYHTtyGeu8rR";
 export const PT_SESSION_PRICE = 500; // kr
-export const PT_SESSION_PAYMENT_LINK =
-  "https://buy.stripe.com/14A3cvdUYdJ676E7su1Fe03"; // placeholder — replace with real PT session payment link
+export const PT_SESSION_PAYMENT_LINK = STRIPE_PAYMENT_LINKS.pt;
 
-export const STRIPE_CUSTOMER_PORTAL =
-  "https://billing.stripe.com/p/login/placeholder";
+export const STRIPE_CUSTOMER_PORTAL = "";
 
 export const FREE_TRIAL_DAYS = 30;
 

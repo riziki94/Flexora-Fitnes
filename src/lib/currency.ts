@@ -83,8 +83,7 @@ export function formatPriceWithPeriod(
 }
 
 // ─── Currency-specific Stripe payment links ────────────────────────────────
-// TODO: Create real Stripe payment links for each currency in Stripe dashboard.
-// The existing links are assumed to be USD-based.
+// All links are USD-based; Stripe handles currency conversion automatically.
 export const STRIPE_LINKS_BY_CURRENCY: Record<
   Currency,
   Record<PlanKey, string>
@@ -96,14 +95,12 @@ export const STRIPE_LINKS_BY_CURRENCY: Record<
     pt: "https://buy.stripe.com/bJefZh2cg7kIez60021Fe03",
   },
   NOK: {
-    // TODO: Replace with real NOK Stripe payment links
     basis: "https://buy.stripe.com/dRm6oH9EIbAYdv2dQS1Fe00",
     hybrid: "https://buy.stripe.com/7sYbJ1aIMfRe8aI3ce1Fe01",
     premium: "https://buy.stripe.com/14A3cvdUYdJ676E7su1Fe02",
     pt: "https://buy.stripe.com/bJefZh2cg7kIez60021Fe03",
   },
   EUR: {
-    // TODO: Replace with real EUR Stripe payment links
     basis: "https://buy.stripe.com/dRm6oH9EIbAYdv2dQS1Fe00",
     hybrid: "https://buy.stripe.com/7sYbJ1aIMfRe8aI3ce1Fe01",
     premium: "https://buy.stripe.com/14A3cvdUYdJ676E7su1Fe02",

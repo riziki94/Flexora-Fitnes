@@ -165,7 +165,7 @@ function SubscriptionPage() {
 
   function handleCancel() {
     // Open Stripe customer portal or show instructions
-    if (STRIPE_CUSTOMER_PORTAL.includes("placeholder")) {
+    if (!STRIPE_CUSTOMER_PORTAL) {
       alert(
         "To cancel your subscription, please go to your Stripe billing portal. " +
         "You can find the link in your email receipt, or contact support@flexorafitnes.com"
