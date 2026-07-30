@@ -8,6 +8,8 @@ import {
   FREE_TRIAL_DAYS,
   getPaymentLink,
 } from "~/lib/stripe";
+import { useTranslation } from "~/lib/i18n";
+import { BASE_PRICES, getStripeLink } from "~/lib/currency";
 
 export const Route = createFileRoute("/app/subscription/")({
   component: SubscriptionPage,
@@ -21,64 +23,67 @@ interface PlanInfo {
   paymentLink: string;
 }
 
-const CLIENT_PLANS: PlanInfo[] = [
-  {
-    key: "basis",
-    name: "Basis",
-    price: "149 kr/mnd",
-    paymentLink: STRIPE_PAYMENT_LINKS.basis,
-    features: [
-      "Training plans",
-      "Chat support",
-      "Global ranking",
-      "Food scanning",
-      "Music integration",
-      "Competitions",
-    ],
-  },
-  {
-    key: "hybrid",
-    name: "Hybrid",
-    price: "249 kr/mnd",
-    paymentLink: STRIPE_PAYMENT_LINKS.hybrid,
-    features: [
-      "Everything in Basis",
-      "AI-PT coaching",
-      "Create groups",
-      "Arrange competitions",
-    ],
-  },
-  {
-    key: "premium",
-    name: "Premium",
-    price: "399 kr/mnd",
-    paymentLink: STRIPE_PAYMENT_LINKS.premium,
-    features: [
-      "Everything in Hybrid",
-      "Live video training",
-      "Movement correction",
-      "Breathing measurement",
-      "1-on-1 PT sessions",
-    ],
-  },
-];
-
-const PT_PLAN: PlanInfo = {
-  key: "pt",
-  name: "PT Professional",
-  price: "199 kr/mnd",
-  paymentLink: STRIPE_PAYMENT_LINKS.pt,
-  features: [
-    "Professional verified profile",
-    "Global marketing & visibility",
-    "Speed date matching with clients",
-    "Full access to global client base",
-    "Booking & scheduling tools",
-  ],
-};
-
 function SubscriptionPage() {
   const navigate = useNavigate();
+  const { t, lang, formatPriceWithPeriod } = useTranslation();
+  const periodSuffix = t("pricing.perMonth");
+
+  const CLIENT_PLANS: PlanInfo[] = [
+    {
+      key: "basis",
+      name: t("pricing.basis"),
+      price: formatPriceWithPeriod(BASE_PRICES.basis, periodSuffix),
+      paymentLink: getStripeLink("basis", lang),
+      features: [
+        "Training plans",
+        "Chat support",
+        "Global ranking",
+        "Food scanning",
+        "Music integration",
+        "Competitions",
+      ],
+    },
+    {
+      key: "hybrid",
+      name: t("pricing.hybrid"),
+      price: formatPriceWithPeriod(BASE_PRICES.hybrid, periodSuffix),
+      paymentLink: getStripeLink("hybrid", lang),
+      features: [
+        "Everything in Basis",
+        "AI-PT coaching",
+        "Create groups",
+        "Arrange competitions",
+      ],
+    },
+    {
+      key: "premium",
+      name: t("pricing.premium"),
+      price: formatPriceWithPeriod(BASE_PRICES.premium, periodSuffix),
+      paymentLink: getStripeLink("premium", lang),
+      features: [
+        "Everything in Hybrid",
+        "Live video training",
+        "Movement correction",
+        "Breathing measurement",
+        "1-on-1 PT sessions",
+      ],
+    },
+  ];
+
+  const PT_PLAN: PlanInfo = {
+    key: "pt",
+    name: t("pricing.ptPlan"),
+    price: formatPriceWithPeriod(BASE_PRICES.pt, periodSuffix),
+    paymentLink: getStripeLink("pt", lang),
+    features: [
+      "Professional verified profile",
+      "Global marketing & visibility",
+      "Speed date matching with clients",
+      "Full access to global client base",
+      "Booking & scheduling tools",
+    ],
+  };
+
   const [user, setUser] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -154,13 +159,13 @@ function SubscriptionPage() {
   }
 
   function handleUpgrade(planKey: string) {
-    const link = getPaymentLink(planKey);
+    const link = getPaymentLink(planKey, lang);
     window.open(link, "_blank", "noopener,noreferrer");
   }
 
   function handleCancel() {
     // Open Stripe customer portal or show instructions
-    if (STRIPE_CUSTOMER_PORTAL.includes("placeholder")) {
+    if (!STRIPE_CUSTOMER_PORTAL) {
       alert(
         "To cancel your subscription, please go to your Stripe billing portal. " +
         "You can find the link in your email receipt, or contact support@flexorafitnes.com"

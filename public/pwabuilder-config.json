@@ -1,0 +1,89 @@
+{
+  "name": "Flexora Fitnes",
+  "short_name": "Flexora Fitnes",
+  "description": "Book verified personal trainers worldwide or train with AI coaching. 3D muscle maps, live form correction, voice guidance, and global competitions. Free trial available.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFFFF",
+  "theme_color": "#1A56DB",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["health", "fitness", "lifestyle"],
+  "iarc_rating_id": "",
+
+  "googlePlay": {
+    "packageName": "com.flexora.fitnes",
+    "appName": "Flexora Fitnes",
+    "fullDescription": "Flexora Fitnes is your complete AI-powered personal training platform and global PT marketplace. Book verified, certified personal trainers from anywhere in the world, or train with our AI coach that offers real-time form correction via video, 3D muscle visualization, voice guidance, and automatic rep counting. Features include nutrition scanning, custom workout plans, global competitions with live leaderboards, and music integration. Whether you're a beginner looking to lose weight or an athlete building strength, Flexora adapts to your goals.",
+    "shortDescription": "AI-powered personal training & global PT marketplace. Book verified trainers worldwide or train with AI coaching.",
+    "privacyPolicyUrl": "https://flexorafitnes.com/privacy",
+    "websiteUrl": "https://flexorafitnes.com",
+    "supportEmail": "support@flexorafitnes.com",
+    "screenshots": [
+      "/marketing/hero-banner.png",
+      "/marketing/pt-marketplace.png",
+      "/marketing/feature-highlight.png",
+      "/marketing/global-competitions.png",
+      "/marketing/download-cta.png"
+    ],
+    "contentRating": "Everyone",
+    "targetAudience": "18+ fitness enthusiasts, athletes, personal trainers",
+    "price": "Free with in-app purchases"
+  },
+
+  "appleAppStore": {
+    "bundleId": "com.flexora.fitnes",
+    "appName": "Flexora Fitnes",
+    "subtitle": "AI Personal Trainer & PT Marketplace",
+    "description": "Flexora Fitnes is your complete AI-powered personal training platform and global PT marketplace. Book verified, certified personal trainers from anywhere in the world, or train with our AI coach that offers real-time form correction via video, 3D muscle visualization, voice guidance, and automatic rep counting.\n\nFEATURES:\n• AI-PT with real-time form correction\n• 3D muscle map visualization\n• Voice-guided workouts\n• Global PT marketplace — book verified trainers worldwide\n• Speed-date matching to find your ideal trainer\n• Nutrition scanner and meal tracking\n• Custom workout plan builder\n• Global competitions with live leaderboards\n• Direct messaging with trainers\n• Music integration for workouts\n\nSUBSCRIPTIONS:\n• Basic (~149 NOK/mo): plans, chat, ranking, nutrition scanner, music, competitions\n• Hybrid (~249 NOK/mo): + AI-PT, create groups, arrange competitions\n• Premium (~399 NOK/mo): + live video, form correction, breath tracking, 1:1 PT sessions\n\nPTs can register and market themselves globally for ~199 NOK/mo.",
+    "keywords": ["fitness", "personal trainer", "workout", "AI coach", "gym", "exercise", "health", "nutrition", "competition"],
+    "supportUrl": "https://flexorafitnes.com/support",
+    "marketingUrl": "https://flexorafitnes.com",
+    "privacyPolicyUrl": "https://flexorafitnes.com/privacy",
+    "primaryCategory": "Health & Fitness",
+    "secondaryCategory": "Lifestyle",
+    "rating": "4+",
+    "price": 0,
+    "screenshots": [
+      "/marketing/hero-banner.png",
+      "/marketing/pt-marketplace.png",
+      "/marketing/feature-highlight.png",
+      "/marketing/global-competitions.png",
+      "/marketing/download-cta.png"
+    ]
+  },
+
+  "pwaBuilder": {
+    "publisher": {
+      "name": "Flexora Fitnes",
+      "email": "support@flexorafitnes.com"
+    },
+    "signing": {
+      "android": {
+        "keystoreFile": "flexora-release.keystore",
+        "keystoreAlias": "flexora"
+      },
+      "ios": {
+        "provisioningProfile": "Flexora_Fitnes_App_Store.mobileprovision",
+        "certificate": "Flexora_Fitnes_Distribution.p12"
+      }
+    },
+    "icon": {
+      "src": "/flexora-icon-512.png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    "maskableIcon": {
+      "src": "/flexora-icon-512.png",
+      "sizes": "512x512",
+      "purpose": "maskable",
+      "backgroundColor": "#1A56DB"
+    },
+    "splashScreens": {
+      "directory": "/splash/",
+      "background": "#1A56DB"
+    }
+  }
+}

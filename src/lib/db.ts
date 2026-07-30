@@ -446,6 +446,27 @@ function runMigrations(db: any) {
 
     CREATE INDEX IF NOT EXISTS idx_package_purchases_user ON package_purchases(user_id);
     CREATE INDEX IF NOT EXISTS idx_package_purchases_status ON package_purchases(status);
+
+    -- Simple analytics / page-view tracking
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_type TEXT NOT NULL,
+      path TEXT NOT NULL DEFAULT '',
+      user_agent TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_type ON analytics_events(event_type);
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_path ON analytics_events(path);
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_created ON analytics_events(created_at);
+
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_email ON newsletter_subscribers(email);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
@@ -457,6 +478,25 @@ function runMigrations(db: any) {
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN hourly_rate REAL NOT NULL DEFAULT 500"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN speed_date_enabled INTEGER NOT NULL DEFAULT 0"); } catch (_) { /* exists */ }
   try { db.exec("ALTER TABLE pt_profiles ADD COLUMN certificate_image TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
+
+  // Referral system
+  try { db.exec("ALTER TABLE users ADD COLUMN referral_code TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE users ADD COLUMN referrer_id INTEGER REFERENCES users(id) ON DELETE SET NULL"); } catch (_) { /* exists */ }
+  try { db.exec("CREATE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)"); } catch (_) { /* exists */ }
+  try { db.exec("CREATE INDEX IF NOT EXISTS idx_users_referrer ON users(referrer_id)"); } catch (_) { /* exists */ }
+
+  // Generate referral codes for existing users who don't have one
+  try {
+    const usersWithoutCode = db.query("SELECT id, name FROM users WHERE referral_code = '' OR referral_code IS NULL").all() as any[];
+    for (const u of usersWithoutCode) {
+      const code = (u.name || "user")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        + "-" + u.id;
+      db.query("UPDATE users SET referral_code = ? WHERE id = ?").run(code, u.id);
+    }
+  } catch (_) { /* best-effort */ }
 
   // Seed first user as admin (idempotent)
   try {

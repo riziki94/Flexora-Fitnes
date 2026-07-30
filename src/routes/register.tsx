@@ -1,24 +1,36 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { registerUser } from "~/lib/auth-actions";
-import { getPaymentLink, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
+import { getPaymentLink, FREE_TRIAL_DAYS } from "~/lib/stripe";
+import { lookupReferrer } from "~/lib/referral-actions";
 import { useTranslation } from "~/lib/i18n";
+import { BASE_PRICES } from "~/lib/currency";
+import { trackEvent } from "~/lib/pageview-tracker";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
   validateSearch: (search: Record<string, unknown>) => ({
     plan: (search.plan as string) || "",
     ref_pt: (search.ref_pt as string) || "",
+    ref: (search.ref as string) || "",
   }),
 });
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, formatPrice } = useTranslation();
   const search = Route.useSearch();
+
+  // Track signup page view
+  useEffect(() => {
+    trackEvent({ eventType: "signup_started", path: "/register" });
+  }, []);
   const [role, setRole] = useState<"client" | "pt">("client");
   const [plan, setPlan] = useState(search.plan || "");
   const [refPtId, setRefPtId] = useState(search.ref_pt || "");
+  const [refCode, setRefCode] = useState(search.ref || "");
+  const [referrerName, setReferrerName] = useState("");
+  const [referrerId, setReferrerId] = useState<number | undefined>(undefined);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,6 +57,19 @@ function RegisterPage() {
     }
   }, [search.plan]);
 
+  // Look up referrer by referral code
+  useEffect(() => {
+    if (search.ref) {
+      setRefCode(search.ref);
+      lookupReferrer({ data: { code: search.ref } }).then((result) => {
+        if (result) {
+          setReferrerName(result.name);
+          setReferrerId(result.id);
+        }
+      }).catch(() => {});
+    }
+  }, [search.ref]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -66,6 +91,7 @@ function RegisterPage() {
           country: country || undefined,
           birthday: birthday || undefined,
           refPtId: refPtId ? Number(refPtId) : undefined,
+          referrerId: referrerId,
           certificationInfo: role === "pt" ? certificationInfo : undefined,
           yearsOfExperience: role === "pt" ? yearsOfExperience : undefined,
           educationLocation: role === "pt" ? educationLocation : undefined,
@@ -83,6 +109,12 @@ function RegisterPage() {
         const effectivePlan = plan || (role === "pt" ? "pt" : "basis");
         localStorage.setItem("flexora_pending_plan", effectivePlan);
       }
+
+      // Track signup completion
+      trackEvent({
+        eventType: role === "pt" ? "pt_signup" : "signup_completed",
+        path: "/register",
+      });
 
       // PT referral: redirect to PT profile with welcome
       if (refPtId) {
@@ -126,7 +158,7 @@ function RegisterPage() {
         </div>
         <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-100">
           <h1 className="mb-2 text-2xl font-bold text-gray-900">{t("auth.createAccount")}</h1>
-          <p className="mb-6 text-sm font-medium text-[#1A56DB]">{FREE_TRIAL_MESSAGE}</p>
+          <p className="mb-6 text-sm font-medium text-[#1A56DB]">{t("cta.freeTrialMessage")}</p>
 
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
@@ -136,7 +168,13 @@ function RegisterPage() {
 
           {refPtId && (
             <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700 border border-green-200">
-              🎯 {t("auth.referredByPT") || "You're registering via a Personal Trainer referral. You'll get a premium trial automatically!"}
+              {t("auth.referredByPT")}
+            </div>
+          )}
+
+          {referrerName && !refPtId && (
+            <div className="mb-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700 border border-blue-200">
+              {t("auth.invitedBy")} <strong>{referrerName}</strong>
             </div>
           )}
 
@@ -174,9 +212,9 @@ function RegisterPage() {
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { key: "basis", label: t("pricing.basis"), price: "149 kr" },
-                  { key: "hybrid", label: t("pricing.hybrid"), price: "249 kr" },
-                  { key: "premium", label: t("pricing.premium"), price: "399 kr" },
+                  { key: "basis", label: t("pricing.basis"), price: formatPrice(BASE_PRICES.basis) },
+                  { key: "hybrid", label: t("pricing.hybrid"), price: formatPrice(BASE_PRICES.hybrid) },
+                  { key: "premium", label: t("pricing.premium"), price: formatPrice(BASE_PRICES.premium) },
                 ].map((p) => (
                   <button
                     key={p.key}
@@ -189,7 +227,7 @@ function RegisterPage() {
                     }`}
                   >
                     <div className="font-semibold">{p.label}</div>
-                    <div className="text-xs mt-0.5">{p.price}/mnd</div>
+                    <div className="text-xs mt-0.5">{p.price}{t("pricing.perMonth")}</div>
                   </button>
                 ))}
               </div>

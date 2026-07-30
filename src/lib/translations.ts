@@ -1,13 +1,13 @@
 export type Language = "en" | "no" | "es" | "fr" | "de" | "ar" | "zh";
 
 export const languages: { code: Language; flag: string; label: string; nativeLabel: string }[] = [
-  { code: "en", flag: "🇺🇸", label: "English", nativeLabel: "English" },
-  { code: "no", flag: "🇳🇴", label: "Norwegian", nativeLabel: "Norsk" },
-  { code: "es", flag: "🇪🇸", label: "Spanish", nativeLabel: "Español" },
-  { code: "fr", flag: "🇫🇷", label: "French", nativeLabel: "Français" },
-  { code: "de", flag: "🇩🇪", label: "German", nativeLabel: "Deutsch" },
-  { code: "ar", flag: "🇸🇦", label: "Arabic", nativeLabel: "العربية" },
-  { code: "zh", flag: "🇨🇳", label: "Chinese", nativeLabel: "中文" },
+  { code: "en", flag: "US", label: "English", nativeLabel: "English" },
+  { code: "no", flag: "NO", label: "Norwegian", nativeLabel: "Norsk" },
+  { code: "es", flag: "ES", label: "Spanish", nativeLabel: "Español" },
+  { code: "fr", flag: "FR", label: "French", nativeLabel: "Français" },
+  { code: "de", flag: "DE", label: "German", nativeLabel: "Deutsch" },
+  { code: "ar", flag: "SA", label: "Arabic", nativeLabel: "العربية" },
+  { code: "zh", flag: "CN", label: "Chinese", nativeLabel: "中文" },
 ];
 
 export type TranslationKey = keyof typeof translations.en;
@@ -89,7 +89,8 @@ export const translations = {
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "PT Subscription",
-    "pricing.ptPrice": "199 kr/mnd",
+    "pricing.ptPrice": "{price}/mo",
+    "pricing.perMonth": "/mo",
     "pricing.ptFeatures": [
       "Professional verified profile",
       "Global marketing & visibility",
@@ -103,6 +104,17 @@ export const translations = {
     "cta.subtitle": "Join thousands of clients and verified PTs on the world's most advanced fitness platform. Start your journey today.",
     "cta.signUpClient": "Sign Up as Client",
     "cta.registerPT": "Register as PT",
+
+    // Landing page optimization
+    "hero.joinTagline": "Join PTs and clients building the future of fitness.",
+    "inline.cta.startFree": "Start Free",
+    "pricing.launchDiscount": "Launch Price — 50% off first 3 months",
+    "trust.verifiedPTs": " Verified PTs Only — every trainer diploma-checked",
+    "trust.securePayments": " Secure payments via Stripe",
+    "trust.satisfactionGuarantee": " 30-day satisfaction guarantee",
+    "ptRecruit.title": "Are you a Personal Trainer?",
+    "ptRecruit.description": "Join Flexora and reach clients worldwide. Showcase your certifications, get matched through speed dating, and grow your business globally. Only verified professionals — protecting your reputation.",
+    "ptRecruit.cta": "Register as PT",
 
     // Footer
     "footer.rights": "Flexora Fitnes. All rights reserved.",
@@ -174,21 +186,89 @@ export const translations = {
     "dashboard.upcomingBookings": "Upcoming Bookings",
     "dashboard.noBookings": "No upcoming bookings",
 
+    // Launch banner
+    "banner.launchText": "LAUNCH OFFER: 1 month free + no commitment. First 100 only!",
+    "banner.startFree": "Start Free",
+
+    // Pricing
+    "pricing.bestStart": "Best Start",
+
+    // Share section
+    "share.title": "Share Flexora",
+    "share.description": "Know someone who would love Flexora? Share it with your friends and earn rewards when they sign up!",
+    "share.referralHint": "Share your unique referral link from your dashboard to track your invites and earn rewards.",
+
+    // Newsletter
+    "newsletter.title": "Stay in the loop",
+    "newsletter.desc": "Get training tips, launch updates, and exclusive offers.",
+    "newsletter.placeholder": "your@email.com",
+    "newsletter.button": "Subscribe",
+    "newsletter.success": "Thanks for subscribing!",
+    "newsletter.error": "Something went wrong. Please try again.",
+
+    // Trainers
+    "trainers.worldwide": "Worldwide",
+    "trainers.yearLabel_one": "year",
+    "trainers.yearLabel_other": "years",
+    "trainers.ratingLabel_one": "rating",
+    "trainers.ratingLabel_other": "ratings",
+
+    // Exit intent
+    "exit.title": "Wait! Before you go…",
+    "exit.description": "Get 2 months free when you join today. Limited launch offer.",
+    "exit.claimOffer": "Claim Offer",
+    "exit.noThanks": "No thanks",
+
+    // Blog
+    "blog.header": "Flexora Blog",
+    "blog.subtitle": "Fitness guides, technology insights, and training tips",
+    "blog.ctaTitle": "Ready to Transform Your Training?",
+    "blog.ctaDescription": "Join Flexora Fitnes and experience AI-powered coaching combined with world-class personal trainers.",
+    "blog.ctaButton": "Start Your Free Trial",
+    "blog.readMore": "Read more →",
+    "blog.backToBlog": "Back to Blog",
+
+    // CTA free trial message
+    "cta.freeTrialMessage": "1 month free trial — no commitment, cancel anytime",
+
     // General
     "general.years": "years",
     "general.year": "year",
 
-    // Zongosol Save Design
-    "Save Design": "Save Design",
-    "Design Saved!": "Design Saved!",
-    "Send design to our team": "Send design to our team",
-    "Your name (optional)": "Your name (optional)",
-    "Your email (optional)": "Your email (optional)",
-    "Sending...": "Sending...",
-    "Send to patrick.kitolano@kitoslight.com": "Send to patrick.kitolano@kitoslight.com",
-    "Cancel": "Cancel",
-    "Price depends on materials": "Price depends on materials",
-    "From": "From",
+    // Tier features (pricing cards)
+    "tier.basis.1": "Training plans",
+    "tier.basis.2": "Chat support",
+    "tier.basis.3": "Global ranking",
+    "tier.basis.4": "Food scanning",
+    "tier.basis.5": "Music integration",
+    "tier.basis.6": "Competitions",
+    "tier.hybrid.1": "Everything in Basis",
+    "tier.hybrid.2": "AI-PT coaching",
+    "tier.hybrid.3": "Create groups",
+    "tier.hybrid.4": "Arrange competitions",
+    "tier.premium.1": "Everything in Hybrid",
+    "tier.premium.2": "Live video training",
+    "tier.premium.3": "Movement correction",
+    "tier.premium.4": "Breathing measurement",
+    "tier.premium.5": "1-on-1 PT sessions",
+
+    // Share section
+    "share.copyLink": "Copy Link",
+    "share.copied": "Copied!",
+    "share.twitterX": "Twitter / X",
+    "share.facebook": "Facebook",
+    "share.linkedin": "LinkedIn",
+    "share.shareText": "Check out Flexora Fitnes — AI-powered personal training with 3D muscle maps, live form correction, and global PT bookings. Free trial available!",
+
+    // Invite
+    "auth.invitedBy": "Invited by",
+    "auth.referredByPT": "You're registering via a Personal Trainer referral. You'll get a premium trial automatically!",
+
+    // Fallback PTs
+    "trainers.experience": "years experience",
+
+    // Newsletter in footer
+    "newsletter.emailLabel": "Email address",
   },
 
   no: {
@@ -261,7 +341,8 @@ export const translations = {
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "PT-abonnement",
-    "pricing.ptPrice": "199 kr/mnd",
+    "pricing.ptPrice": "{price}/mnd",
+    "pricing.perMonth": "/mnd",
     "pricing.ptFeatures": [
       "Profesjonell verifisert profil",
       "Global markedsføring og synlighet",
@@ -274,6 +355,17 @@ export const translations = {
     "cta.subtitle": "Bli med tusenvis av kunder og verifiserte PT-er på verdens mest avanserte treningsplattform. Start reisen din i dag.",
     "cta.signUpClient": "Registrer deg som kunde",
     "cta.registerPT": "Registrer deg som PT",
+
+    // Landing page optimization
+    "hero.joinTagline": "Bli med PT-er og kunder som bygger fremtidens trening.",
+    "inline.cta.startFree": "Start gratis",
+    "pricing.launchDiscount": "Lanseringspris — 50% rabatt første 3 mnd",
+    "trust.verifiedPTs": " Kun verifiserte PT-er — alle diplomer sjekkes",
+    "trust.securePayments": " Sikre betalinger via Stripe",
+    "trust.satisfactionGuarantee": " 30-dagers tilfredshetsgaranti",
+    "ptRecruit.title": "Er du personlig trener?",
+    "ptRecruit.description": "Bli med i Flexora og nå kunder over hele verden. Vis frem sertifiseringene dine, bli matchet gjennom speed dating, og bygg virksomheten din globalt. Kun verifiserte profesjonelle — beskytter ditt omdømme.",
+    "ptRecruit.cta": "Registrer deg som PT",
 
     "footer.rights": "Flexora Fitnes. Alle rettigheter reservert.",
 
@@ -341,20 +433,79 @@ export const translations = {
     "dashboard.upcomingBookings": "Kommende bookinger",
     "dashboard.noBookings": "Ingen kommende bookinger",
 
+    // Launch banner
+    "banner.launchText": "LANSERINGSTILBUD: 1 måned gratis + ingen binding. Kun for de første 100!",
+    "banner.startFree": "Start gratis",
+
+    // Pricing
+    "pricing.bestStart": "Beste start",
+
+    // Share section
+    "share.title": "Del Flexora",
+    "share.description": "Kjenner du noen som ville elsket Flexora? Del det med vennene dine og tjen belønninger når de registrerer seg!",
+    "share.referralHint": "Del din unike henvisningslink fra dashbordet for å spore invitasjoner og tjene belønninger.",
+
+    // Newsletter
+    "newsletter.title": "Hold deg oppdatert",
+    "newsletter.desc": "Få treningstips, lanseringsoppdateringer og eksklusive tilbud.",
+    "newsletter.placeholder": "din@epost.no",
+    "newsletter.button": "Abonner",
+    "newsletter.success": "Takk for at du abonnerer!",
+    "newsletter.error": "Noe gikk galt. Vennligst prøv igjen.",
+
+    // Trainers
+    "trainers.worldwide": "Globalt",
+    "trainers.yearLabel_one": "år",
+    "trainers.yearLabel_other": "år",
+    "trainers.ratingLabel_one": "vurdering",
+    "trainers.ratingLabel_other": "vurderinger",
+
+    // Exit intent
+    "exit.title": "Vent! Før du går…",
+    "exit.description": "Få 2 måneder gratis når du blir med i dag. Begrenset lanseringstilbud.",
+    "exit.claimOffer": "Få tilbud",
+    "exit.noThanks": "Nei takk",
+
+    // Blog
+    "blog.header": "Flexora Blogg",
+    "blog.subtitle": "Treningsguider, teknologiinnsikt og treningstips",
+    "blog.ctaTitle": "Klar for å transformere treningen din?",
+    "blog.ctaDescription": "Bli med i Flexora Fitnes og opplev AI-drevet coaching kombinert med personlige trenere i verdensklasse.",
+    "blog.ctaButton": "Start din gratis prøveperiode",
+    "blog.readMore": "Les mer →",
+    "blog.backToBlog": "Tilbake til bloggen",
+
+    // CTA free trial message
+    "cta.freeTrialMessage": "1 måned gratis prøveperiode — ingen binding, avslutt når som helst",
+
     "general.years": "år",
     "general.year": "år",
 
-    // Zongosol Save Design
-    "Save Design": "Lagre design",
-    "Design Saved!": "Design lagret!",
-    "Send design to our team": "Send design til vårt team",
-    "Your name (optional)": "Ditt navn (valgfritt)",
-    "Your email (optional)": "Din e-post (valgfritt)",
-    "Sending...": "Sender...",
-    "Send to patrick.kitolano@kitoslight.com": "Send til patrick.kitolano@kitoslight.com",
-    "Cancel": "Avbryt",
-    "Price depends on materials": "Pris avhenger av materialvalg",
-    "From": "Fra",
+    "tier.basis.1": "Treningsplaner",
+    "tier.basis.2": "Chat-støtte",
+    "tier.basis.3": "Global ranking",
+    "tier.basis.4": "Matskanning",
+    "tier.basis.5": "Musikkintegrasjon",
+    "tier.basis.6": "Konkurranser",
+    "tier.hybrid.1": "Alt i Basis",
+    "tier.hybrid.2": "AI-PT coaching",
+    "tier.hybrid.3": "Opprett grupper",
+    "tier.hybrid.4": "Arranger konkurranser",
+    "tier.premium.1": "Alt i Hybrid",
+    "tier.premium.2": "Live videotrening",
+    "tier.premium.3": "Bevegelseskorreksjon",
+    "tier.premium.4": "Pustemåling",
+    "tier.premium.5": "1-til-1 PT-økter",
+    "share.copyLink": "Kopier lenke",
+    "share.copied": "Kopiert!",
+    "share.twitterX": "Twitter / X",
+    "share.facebook": "Facebook",
+    "share.linkedin": "LinkedIn",
+    "share.shareText": "Sjekk ut Flexora Fitnes — AI-drevet personlig trening med 3D-muskelkart, live formkorreksjon og global PT-booking. Gratis prøveperiode tilgjengelig!",
+    "auth.invitedBy": "Invitert av",
+    "auth.referredByPT": "Du registrerer deg via en PT-henvisning. Du får automatisk en premium prøveperiode!",
+    "trainers.experience": "års erfaring",
+    "newsletter.emailLabel": "E-postadresse",
   },
 
   es: {
@@ -427,7 +578,8 @@ export const translations = {
     "pricing.hybrid": "Híbrido",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "Suscripción PT",
-    "pricing.ptPrice": "199 kr/mes",
+    "pricing.ptPrice": "{price}/mes",
+    "pricing.perMonth": "/mes",
     "pricing.ptFeatures": [
       "Perfil profesional verificado",
       "Marketing y visibilidad global",
@@ -440,6 +592,17 @@ export const translations = {
     "cta.subtitle": "Únete a miles de clientes y entrenadores verificados en la plataforma de fitness más avanzada del mundo. Comienza tu viaje hoy.",
     "cta.signUpClient": "Regístrate como cliente",
     "cta.registerPT": "Regístrate como entrenador",
+
+    // Landing page optimization
+    "hero.joinTagline": "Únete a entrenadores y clientes construyendo el futuro del fitness.",
+    "inline.cta.startFree": "Empieza gratis",
+    "pricing.launchDiscount": "Precio de lanzamiento — 50% descuento primeros 3 meses",
+    "trust.verifiedPTs": " Solo entrenadores verificados — cada diploma comprobado",
+    "trust.securePayments": " Pagos seguros vía Stripe",
+    "trust.satisfactionGuarantee": " Garantía de satisfacción de 30 días",
+    "ptRecruit.title": "¿Eres entrenador personal?",
+    "ptRecruit.description": "Únete a Flexora y llega a clientes en todo el mundo. Muestra tus certificaciones, conéctate mediante speed dating y haz crecer tu negocio globalmente. Solo profesionales verificados — protegiendo tu reputación.",
+    "ptRecruit.cta": "Regístrate como entrenador",
 
     "footer.rights": "Flexora Fitnes. Todos los derechos reservados.",
 
@@ -509,6 +672,32 @@ export const translations = {
 
     "general.years": "años",
     "general.year": "año",
+
+    "tier.basis.1": "Planes de entrenamiento",
+    "tier.basis.2": "Soporte por chat",
+    "tier.basis.3": "Ranking global",
+    "tier.basis.4": "Escaneo de alimentos",
+    "tier.basis.5": "Integración de música",
+    "tier.basis.6": "Competiciones",
+    "tier.hybrid.1": "Todo en Básico",
+    "tier.hybrid.2": "Coaching AI-PT",
+    "tier.hybrid.3": "Crear grupos",
+    "tier.hybrid.4": "Organizar competiciones",
+    "tier.premium.1": "Todo en Híbrido",
+    "tier.premium.2": "Entrenamiento con video en vivo",
+    "tier.premium.3": "Corrección de movimiento",
+    "tier.premium.4": "Medición de respiración",
+    "tier.premium.5": "Sesiones PT 1-a-1",
+    "share.copyLink": "Copiar enlace",
+    "share.copied": "¡Copiado!",
+    "share.twitterX": "Twitter / X",
+    "share.facebook": "Facebook",
+    "share.linkedin": "LinkedIn",
+    "share.shareText": "Descubre Flexora Fitnes — entrenamiento personal con IA, mapas musculares 3D, corrección de forma en vivo y reserva global de PT. ¡Prueba gratuita disponible!",
+    "auth.invitedBy": "Invitado por",
+    "auth.referredByPT": "Te estás registrando a través de una referencia de entrenador personal. ¡Obtendrás una prueba premium automáticamente!",
+    "trainers.experience": "años de experiencia",
+    "newsletter.emailLabel": "Dirección de correo",
   },
 
   fr: {
@@ -581,7 +770,8 @@ export const translations = {
     "pricing.hybrid": "Hybride",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "Abonnement coach",
-    "pricing.ptPrice": "199 kr/mois",
+    "pricing.ptPrice": "{price}/mois",
+    "pricing.perMonth": "/mois",
     "pricing.ptFeatures": [
       "Profil professionnel vérifié",
       "Marketing et visibilité mondiaux",
@@ -594,6 +784,17 @@ export const translations = {
     "cta.subtitle": "Rejoignez des milliers de clients et de coachs vérifiés sur la plateforme de fitness la plus avancée au monde. Commencez votre parcours aujourd'hui.",
     "cta.signUpClient": "S'inscrire comme client",
     "cta.registerPT": "S'inscrire comme coach",
+
+    // Landing page optimization
+    "hero.joinTagline": "Rejoignez les coachs et les clients qui construisent l'avenir du fitness.",
+    "inline.cta.startFree": "Commencer gratuitement",
+    "pricing.launchDiscount": "Prix de lancement — 50% de réduction les 3 premiers mois",
+    "trust.verifiedPTs": " Coachs vérifiés uniquement — chaque diplôme contrôlé",
+    "trust.securePayments": " Paiements sécurisés via Stripe",
+    "trust.satisfactionGuarantee": " Garantie de satisfaction de 30 jours",
+    "ptRecruit.title": "Vous êtes coach personnel ?",
+    "ptRecruit.description": "Rejoignez Flexora et atteignez des clients dans le monde entier. Présentez vos certifications, connectez-vous via speed dating et développez votre activité à l'échelle mondiale. Uniquement des professionnels vérifiés — protégeant votre réputation.",
+    "ptRecruit.cta": "S'inscrire comme coach",
 
     "footer.rights": "Flexora Fitnes. Tous droits réservés.",
 
@@ -663,6 +864,32 @@ export const translations = {
 
     "general.years": "ans",
     "general.year": "an",
+
+    "tier.basis.1": "Plans d'entraînement",
+    "tier.basis.2": "Support chat",
+    "tier.basis.3": "Classement mondial",
+    "tier.basis.4": "Scan des repas",
+    "tier.basis.5": "Intégration musicale",
+    "tier.basis.6": "Compétitions",
+    "tier.hybrid.1": "Tout dans Basique",
+    "tier.hybrid.2": "Coaching IA-PT",
+    "tier.hybrid.3": "Créer des groupes",
+    "tier.hybrid.4": "Organiser des compétitions",
+    "tier.premium.1": "Tout dans Hybride",
+    "tier.premium.2": "Entraînement vidéo en direct",
+    "tier.premium.3": "Correction de mouvement",
+    "tier.premium.4": "Mesure de la respiration",
+    "tier.premium.5": "Séances PT 1-à-1",
+    "share.copyLink": "Copier le lien",
+    "share.copied": "Copié !",
+    "share.twitterX": "Twitter / X",
+    "share.facebook": "Facebook",
+    "share.linkedin": "LinkedIn",
+    "share.shareText": "Découvrez Flexora Fitnes — entraînement personnel IA, cartes musculaires 3D, correction de forme en direct et réservation de coachs dans le monde entier. Essai gratuit disponible !",
+    "auth.invitedBy": "Invité par",
+    "auth.referredByPT": "Vous vous inscrivez via un parrainage de coach. Vous obtiendrez automatiquement un essai premium !",
+    "trainers.experience": "ans d'expérience",
+    "newsletter.emailLabel": "Adresse email",
   },
 
   de: {
@@ -735,7 +962,8 @@ export const translations = {
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
     "pricing.ptPlan": "PT-Abonnement",
-    "pricing.ptPrice": "199 kr/Monat",
+    "pricing.ptPrice": "{price}/Monat",
+    "pricing.perMonth": "/Monat",
     "pricing.ptFeatures": [
       "Professionelles verifiziertes Profil",
       "Globales Marketing & Sichtbarkeit",
@@ -748,6 +976,17 @@ export const translations = {
     "cta.subtitle": "Schließe dich Tausenden von Kunden und verifizierten Trainern auf der weltweit fortschrittlichsten Fitness-Plattform an. Starte deine Reise noch heute.",
     "cta.signUpClient": "Als Kunde registrieren",
     "cta.registerPT": "Als Trainer registrieren",
+
+    // Landing page optimization
+    "hero.joinTagline": "Gemeinsam mit Trainern und Kunden die Zukunft des Fitness gestalten.",
+    "inline.cta.startFree": "Kostenlos starten",
+    "pricing.launchDiscount": "Einführungspreis — 50% Rabatt in den ersten 3 Monaten",
+    "trust.verifiedPTs": " Nur verifizierte Trainer — jedes Diplom geprüft",
+    "trust.securePayments": " Sichere Zahlungen via Stripe",
+    "trust.satisfactionGuarantee": " 30-Tage-Zufriedenheitsgarantie",
+    "ptRecruit.title": "Bist du Personal Trainer?",
+    "ptRecruit.description": "Tritt Flexora bei und erreiche Kunden weltweit. Präsentiere deine Zertifizierungen, werde durch Speed-Dating gematched und baue dein Geschäft global aus. Nur verifizierte Profis — zum Schutz deines Rufs.",
+    "ptRecruit.cta": "Als Trainer registrieren",
 
     "footer.rights": "Flexora Fitnes. Alle Rechte vorbehalten.",
 
@@ -817,6 +1056,32 @@ export const translations = {
 
     "general.years": "Jahre",
     "general.year": "Jahr",
+
+    "tier.basis.1": "Trainingspläne",
+    "tier.basis.2": "Chat-Support",
+    "tier.basis.3": "Globale Rangliste",
+    "tier.basis.4": "Essensscan",
+    "tier.basis.5": "Musikintegration",
+    "tier.basis.6": "Wettbewerbe",
+    "tier.hybrid.1": "Alles in Basis",
+    "tier.hybrid.2": "KI-PT-Coaching",
+    "tier.hybrid.3": "Gruppen erstellen",
+    "tier.hybrid.4": "Wettbewerbe veranstalten",
+    "tier.premium.1": "Alles in Hybrid",
+    "tier.premium.2": "Live-Videotraining",
+    "tier.premium.3": "Bewegungskorrektur",
+    "tier.premium.4": "Atemmessung",
+    "tier.premium.5": "1-zu-1 PT-Sitzungen",
+    "share.copyLink": "Link kopieren",
+    "share.copied": "Kopiert!",
+    "share.twitterX": "Twitter / X",
+    "share.facebook": "Facebook",
+    "share.linkedin": "LinkedIn",
+    "share.shareText": "Entdecke Flexora Fitnes — KI-gestütztes Personal Training mit 3D-Muskelkarten, Live-Formkorrektur und globaler PT-Buchung. Kostenlose Testphase verfügbar!",
+    "auth.invitedBy": "Eingeladen von",
+    "auth.referredByPT": "Du registrierst dich über eine Trainer-Empfehlung. Du erhältst automatisch eine Premium-Testphase!",
+    "trainers.experience": "Jahre Erfahrung",
+    "newsletter.emailLabel": "E-Mail-Adresse",
   },
 
   ar: {
@@ -889,7 +1154,8 @@ export const translations = {
     "pricing.hybrid": "هجين",
     "pricing.premium": "مميز",
     "pricing.ptPlan": "اشتراك المدربين",
-    "pricing.ptPrice": "199 كر/شهر",
+    "pricing.ptPrice": "{price}/شهر",
+    "pricing.perMonth": "/شهر",
     "pricing.ptFeatures": [
       "ملف شخصي احترافي موثق",
       "تسويق وظهور عالمي",
@@ -902,6 +1168,17 @@ export const translations = {
     "cta.subtitle": "انضم إلى آلاف العملاء والمدربين المعتمدين على منصة اللياقة الأكثر تقدماً في العالم. ابدأ رحلتك اليوم.",
     "cta.signUpClient": "سجل كعميل",
     "cta.registerPT": "سجل كمدرب",
+
+    // Landing page optimization
+    "hero.joinTagline": "انضم إلى المدربين والعملاء الذين يبنون مستقبل اللياقة.",
+    "inline.cta.startFree": "ابدأ مجاناً",
+    "pricing.launchDiscount": "سعر الإطلاق — خصم 50% لأول 3 أشهر",
+    "trust.verifiedPTs": " مدربون معتمدون فقط — كل شهادة مدققة",
+    "trust.securePayments": " مدفوعات آمنة عبر Stripe",
+    "trust.satisfactionGuarantee": " ضمان الرضا لمدة 30 يوماً",
+    "ptRecruit.title": "هل أنت مدرب شخصي؟",
+    "ptRecruit.description": "انضم إلى فليكسورا وتواصل مع العملاء حول العالم. اعرض شهاداتك، واحصل على تطابق عبر المواعدة السريعة، ووسع نطاق عملك عالمياً. فقط المحترفون المعتمدون — حماية لسمعتك.",
+    "ptRecruit.cta": "سجل كمدرب",
 
     "footer.rights": "فليكسورا فيتنس. جميع الحقوق محفوظة.",
 
@@ -971,6 +1248,32 @@ export const translations = {
 
     "general.years": "سنوات",
     "general.year": "سنة",
+
+    "tier.basis.1": "خطط التمرين",
+    "tier.basis.2": "دعم الدردشة",
+    "tier.basis.3": "التصنيف العالمي",
+    "tier.basis.4": "مسح الطعام",
+    "tier.basis.5": "دمج الموسيقى",
+    "tier.basis.6": "المسابقات",
+    "tier.hybrid.1": "كل شيء في الأساسي",
+    "tier.hybrid.2": "تدريب AI-PT",
+    "tier.hybrid.3": "إنشاء مجموعات",
+    "tier.hybrid.4": "تنظيم المسابقات",
+    "tier.premium.1": "كل شيء في الهجين",
+    "tier.premium.2": "تدريب فيديو مباشر",
+    "tier.premium.3": "تصحيح الحركة",
+    "tier.premium.4": "قياس التنفس",
+    "tier.premium.5": "جلسات PT فردية",
+    "share.copyLink": "نسخ الرابط",
+    "share.copied": "تم النسخ!",
+    "share.twitterX": "تويتر / X",
+    "share.facebook": "فيسبوك",
+    "share.linkedin": "لينكد إن",
+    "share.shareText": "اكتشف فليكسورا فيتنس — تدريب شخصي بالذكاء الاصطناعي مع خرائط عضلات ثلاثية الأبعاد وتصحيح مباشر للحركة وحجز عالمي للمدربين. تجربة مجانية متاحة!",
+    "auth.invitedBy": "مدعو من قبل",
+    "auth.referredByPT": "أنت تسجل عبر إحالة مدرب شخصي. ستحصل على تجربة مميزة تلقائياً!",
+    "trainers.experience": "سنوات من الخبرة",
+    "newsletter.emailLabel": "عنوان البريد الإلكتروني",
   },
 
   zh: {
@@ -1043,7 +1346,8 @@ export const translations = {
     "pricing.hybrid": "混合版",
     "pricing.premium": "高级版",
     "pricing.ptPlan": "教练订阅",
-    "pricing.ptPrice": "199克朗/月",
+    "pricing.ptPrice": "{price}/月",
+    "pricing.perMonth": "/月",
     "pricing.ptFeatures": [
       "专业认证档案",
       "全球营销与曝光",
@@ -1056,6 +1360,17 @@ export const translations = {
     "cta.subtitle": "加入成千上万的客户和认证教练，在世界最先进的健身平台上。今天就开始您的旅程。",
     "cta.signUpClient": "注册为客户",
     "cta.registerPT": "注册为教练",
+
+    // Landing page optimization
+    "hero.joinTagline": "加入教练和客户，共同构建健身的未来。",
+    "inline.cta.startFree": "免费开始",
+    "pricing.launchDiscount": "首发价格 — 前3个月5折优惠",
+    "trust.verifiedPTs": " 仅限认证教练 — 每份证书已验证",
+    "trust.securePayments": " 通过Stripe安全支付",
+    "trust.satisfactionGuarantee": " 30天满意保证",
+    "ptRecruit.title": "您是私人教练吗？",
+    "ptRecruit.description": "加入Flexora，接触全球客户。展示您的认证，通过快速配对连接客户，在全球范围内发展您的业务。仅限认证专业人士 — 保护您的声誉。",
+    "ptRecruit.cta": "注册为教练",
 
     "footer.rights": "Flexora Fitnes。保留所有权利。",
 
@@ -1125,5 +1440,31 @@ export const translations = {
 
     "general.years": "年",
     "general.year": "年",
+
+    "tier.basis.1": "训练计划",
+    "tier.basis.2": "聊天支持",
+    "tier.basis.3": "全球排名",
+    "tier.basis.4": "食物扫描",
+    "tier.basis.5": "音乐集成",
+    "tier.basis.6": "竞赛",
+    "tier.hybrid.1": "基础版全部功能",
+    "tier.hybrid.2": "AI私教指导",
+    "tier.hybrid.3": "创建群组",
+    "tier.hybrid.4": "组织竞赛",
+    "tier.premium.1": "混合版全部功能",
+    "tier.premium.2": "实时视频训练",
+    "tier.premium.3": "动作纠正",
+    "tier.premium.4": "呼吸测量",
+    "tier.premium.5": "一对一私教课程",
+    "share.copyLink": "复制链接",
+    "share.copied": "已复制！",
+    "share.twitterX": "Twitter / X",
+    "share.facebook": "Facebook",
+    "share.linkedin": "LinkedIn",
+    "share.shareText": "发现Flexora Fitnes——AI驱动的个人训练，配备3D肌肉地图、实时动作纠正和全球私教预约。免费试用中！",
+    "auth.invitedBy": "受邀者",
+    "auth.referredByPT": "您通过私教推荐注册。您将自动获得高级试用！",
+    "trainers.experience": "年经验",
+    "newsletter.emailLabel": "邮箱地址",
   },
 } as const;
