@@ -58,7 +58,7 @@ export const getReferralStats = createServerFn()
     return {
       referralCode: code,
       referralCount,
-      referralLink: `https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app/register?ref=${code}`,
+      referralLink: `https://www.flexorafitnes.com/register?ref=${code}`,
     };
   });
 

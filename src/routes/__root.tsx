@@ -14,7 +14,7 @@ import favicon32 from "~/assets/favicon-32.png";
 import faviconSvg from "~/assets/favicon.svg";
 import faviconIco from "~/assets/favicon.ico";
 
-const BASE_URL = "https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app";
+const BASE_URL = "https://www.flexorafitnes.com";
 const SITE_TITLE = "Flexora Fitnes - Global PT Marketplace | AI-Powered Personal Training";
 const SITE_DESCRIPTION =
   "Book verified personal trainers worldwide or train with AI coaching. 3D muscle maps, live form correction, voice guidance. Free trial available.";

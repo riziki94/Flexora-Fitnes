@@ -18,14 +18,14 @@ export const Route = createFileRoute("/blog/$slug")({
       { property: "og:title", content: loaderData.metaTitle },
       { property: "og:description", content: loaderData.metaDescription },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: `https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app/blog/${loaderData.slug}` },
+      { property: "og:url", content: `https://www.flexorafitnes.com/blog/${loaderData.slug}` },
       { property: "article:published_time", content: loaderData.date },
       { property: "article:author", content: loaderData.author },
     ],
     links: [
       {
         rel: "canonical",
-        href: `https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app/blog/${loaderData.slug}`,
+        href: `https://www.flexorafitnes.com/blog/${loaderData.slug}`,
       },
     ],
   }),
