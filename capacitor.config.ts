@@ -1,12 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'no.kitozon.app',
-  appName: 'Kitozon',
+  appId: 'com.flexora.fitnes',
+  appName: 'Flexora Fitnes',
   webDir: 'dist/client',
   server: {
-    // Production: load from the live Kitozon site
-    url: 'https://99fd63a0f31eb0122b727076a94fe1ae.ctonew.app',
+    // Production: load from the live Flexora Fitnes site
+    url: 'https://www.flexorafitnes.com',
     cleartext: false,
   },
   ios: {
@@ -15,16 +15,16 @@ const config: CapacitorConfig = {
   },
   android: {
     allowMixedContent: false,
-    backgroundColor: '#059669',
+    backgroundColor: '#1A56DB',
   },
   plugins: {
     StatusBar: {
       style: 'dark',
-      backgroundColor: '#059669',
+      backgroundColor: '#1A56DB',
     },
     SplashScreen: {
       launchShowDuration: 2000,
-      backgroundColor: '#059669',
+      backgroundColor: '#1A56DB',
       showSpinner: false,
     },
   },

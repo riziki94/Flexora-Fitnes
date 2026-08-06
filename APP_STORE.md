@@ -1,4 +1,4 @@
-# Kitozon — App Store & Google Play Deployment Guide
+# Flexora Fitnes — App Store & Google Play Deployment Guide
 
 ## Prerequisites
 - Node.js 18+, Bun
@@ -38,11 +38,11 @@
 
 | Setting | Value |
 |---------|-------|
-| **Bundle ID** | `no.kitozon.app` |
-| **App Name** | `Kitozon` |
-| **Live URL** | `https://99fd63a0f31eb0122b727076a94fe1ae.ctonew.app` |
-| **Theme Color** | `#059669` (emerald green) |
-| **Splash Background** | `#059669` |
+| **Bundle ID** | `com.flexora.fitnes` |
+| **App Name** | `Flexora Fitnes` |
+| **Live URL** | `https://www.flexorafitnes.com` |
+| **Theme Color** | `#1A56DB` (blue) |
+| **Splash Background** | `#1A56DB` |
 | **Server Mode** | Live URL (production) |
 
 ---
@@ -101,7 +101,7 @@ open ios/App/App.xcworkspace
 
 3. **App Store Connect:**
    - Go to https://appstoreconnect.apple.com
-   - Create a new app with bundle ID `no.kitozon.app`
+   - Create a new app with bundle ID `com.flexora.fitnes`
    - Fill in app description, screenshots, privacy policy URL
 
 4. **Archive & upload:**
@@ -115,13 +115,13 @@ open ios/App/App.xcworkspace
 
 ### iOS-specific notes
 - `ios/App/App/Info.plist` is configured with:
-  - `CFBundleDisplayName` = `"Kitozon"`
+  - `CFBundleDisplayName` = `"Flexora Fitnes"`
   - `UILaunchStoryboardName` = `"LaunchScreen"` (the native launch screen storyboard)
   - `UIViewControllerBasedStatusBarAppearance` = `true`
   - Bundle ID is set via `$(PRODUCT_BUNDLE_IDENTIFIER)` (derived from Xcode project settings)
 - The app uses WKWebView to render web content from the live production URL.
-- Status bar style is dark with emerald (#059669) background.
-- Ensure `ios/App/App.xcodeproj` has `PRODUCT_BUNDLE_IDENTIFIER` set to `no.kitozon.app`.
+- Status bar style is dark with emerald (#1A56DB) background.
+- Ensure `ios/App/App.xcodeproj` has `PRODUCT_BUNDLE_IDENTIFIER` set to `com.flexora.fitnes`.
 
 ---
 
@@ -140,8 +140,8 @@ Or manually: open the `android/` directory in Android Studio.
 
 1. **Create a keystore** (first time only):
    ```bash
-   keytool -genkey -v -keystore kitozon-release.keystore \
-     -alias kitozon -keyalg RSA -keysize 2048 -validity 10000
+   keytool -genkey -v -keystore flexorafitnes-release.keystore \
+     -alias flexorafitnes -keyalg RSA -keysize 2048 -validity 10000
    ```
    Keep this keystore file safe — you need it for all future updates.
 
@@ -159,15 +159,15 @@ Or manually: open the `android/` directory in Android Studio.
 
 5. **Upload to Google Play Console:**
    - Go to https://play.google.com/console
-   - Create a new app with package name `no.kitozon.app`
+   - Create a new app with package name `com.flexora.fitnes`
    - Upload the `.aab` file under Production or Testing
    - Fill in store listing: description, screenshots, feature graphic
    - Submit for review
 
 ### Android-specific notes
-- Package name set to `no.kitozon.app` in `android/app/build.gradle`.
+- Package name set to `com.flexora.fitnes` in `android/app/build.gradle`.
 - `allowMixedContent` is `false` (HTTPS-only, production mode).
-- Launcher background color: `#059669`.
+- Launcher background color: `#1A56DB`.
 - Minimum SDK: 24 (Android 7.0 Nougat).
 - Target/Compile SDK: 36.
 - Permissions in `AndroidManifest.xml`: `INTERNET` only (add camera, location, etc. if needed).
@@ -205,9 +205,9 @@ bun run scripts/generate-capacitor-assets.js # Capacitor + splash
 ## Splash Screen
 
 A standalone splash screen is available at `public/splash.html`:
-- Solid emerald green (#059669) background
+- Solid blue (#1A56DB) background
 - White "K" logo in a rounded square
-- "Kitozon" title and "Sustainable Container Homes" subtitle
+- "Flexora Fitnes" title and "AI-Powered Personal Training" subtitle
 
 This shows briefly as the Capacitor WebView loads. The native splash is configured in `ios/App/App/LaunchScreen.storyboard` and via `SplashScreen` plugin in `capacitor.config.ts`.
 
@@ -215,12 +215,12 @@ This shows briefly as the Capacitor WebView loads. The native splash is configur
 
 ## Important: Live URL Mode
 
-Kitozon is configured to load from the **live production URL** in Capacitor:
+Flexora Fitnes is configured to load from the **live production URL** in Capacitor:
 
 ```ts
 // capacitor.config.ts
 server: {
-  url: 'https://99fd63a0f31eb0122b727076a94fe1ae.ctonew.app',
+  url: 'https://www.flexorafitnes.com',
   cleartext: false,
 }
 ```

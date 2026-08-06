@@ -15,12 +15,12 @@ export const Route = createFileRoute("/blog/")({
           "Read the latest fitness guides, technology insights, and training tips from Flexora Fitnes. Learn about AI coaching, 3D muscle visualization, and more.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app/blog" }],
+    links: [{ rel: "canonical", href: "https://www.flexorafitnes.com/blog" }],
   }),
   component: BlogIndex,
 });
 
-const BASE_URL = "https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app";
+const BASE_URL = "https://www.flexorafitnes.com";
 
 function BlogIndex() {
   const { t } = useTranslation();

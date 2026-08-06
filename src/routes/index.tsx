@@ -633,7 +633,7 @@ function CTA() {
 // ─── Share Section ────────────────────────────────────────────────
 function ShareSection() {
   const { t } = useTranslation();
-  const shareUrl = encodeURIComponent("https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app");
+  const shareUrl = encodeURIComponent("https://www.flexorafitnes.com");
   const shareText = encodeURIComponent("Check out Flexora Fitnes — AI-powered personal training with 3D muscle maps, live form correction, and global PT bookings. Free trial available!");
 
   const shareLinks = [
@@ -672,7 +672,7 @@ function ShareSection() {
   ];
 
   function handleCopyLink() {
-    navigator.clipboard.writeText("https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app").then(() => {
+    navigator.clipboard.writeText("https://www.flexorafitnes.com").then(() => {
       const btn = document.getElementById("share-copy-btn");
       if (btn) {
         const orig = btn.textContent;
