@@ -110,41 +110,14 @@ function Home() {
       {/* --- Hero --- */}
       <Hero />
 
-      {/* --- What is Flexora --- */}
-      <WhatIsFlexora />
-
-      {/* --- For Clients --- */}
-      <ForClients />
-
-      {/* --- Inline CTA after Complete Training Journey --- */}
-      <InlineCTA />
-
-      {/* --- For PTs --- */}
-      <ForPTs />
-
-      {/* --- Inline CTA after Trainers Go Global --- */}
-      <InlineCTA />
-
-      {/* --- PT Recruitment (NEW) --- */}
-      <PTRecruitment />
-
-      {/* --- Subscription Tiers --- */}
+      {/* --- Plans --- */}
       <ClientTiers />
 
-      {/* --- Trust Signals (NEW) --- */}
-      <TrustSignals />
-
-      {/* --- PT Subscription --- */}
+      {/* --- PT plan --- */}
       <PTSubscription />
 
-      {/* --- CTA --- */}
+      {/* --- Final CTA --- */}
       <CTA />
-
-      {/* --- Featured Trainers --- */}
-      <FeaturedTrainers />
-
-      {/* --- Share Flexora --- */}
-      <ShareSection />
 
       {/* --- Footer --- */}
       <Footer />
@@ -203,9 +176,6 @@ function Nav() {
           <span className="text-xl font-bold text-[#1A56DB]">Flexora</span>
         </a>
         <div className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-          <a href="#what" className="hover:text-[#1A56DB] transition-colors">{t("nav.whatIsFlexora")}</a>
-          <a href="#clients" className="hover:text-[#1A56DB] transition-colors">{t("nav.forClients")}</a>
-          <a href="#pts" className="hover:text-[#1A56DB] transition-colors">{t("nav.forPTs")}</a>
           <a href="#pricing" className="hover:text-[#1A56DB] transition-colors">{t("nav.pricing")}</a>
           <FlagSwitcher />
           <a
@@ -236,24 +206,20 @@ function Hero() {
           }}
         />
       </div>
-      <div className="relative mx-auto max-w-7xl px-6 py-20 md:py-32">
+      <div className="relative mx-auto max-w-7xl px-6 py-16 md:py-24">
         <div className="flex flex-col items-center text-center">
           {/* Logo */}
           <img
             src={logoSvg}
             alt="Flexora Fitnes"
-            className="mb-8 h-auto w-72 max-w-full drop-shadow-lg md:w-96"
+            className="mb-6 h-auto w-56 max-w-full drop-shadow-lg md:w-72"
           />
           {/* Tagline */}
           <h1 className="mb-4 max-w-3xl text-2xl font-bold leading-tight md:text-4xl lg:text-5xl">
             {t("hero.title")}
           </h1>
-          <p className="mb-10 max-w-2xl text-lg text-blue-100 md:text-xl">
+          <p className="mb-8 max-w-xl text-base text-blue-100 md:text-lg">
             {t("hero.subtitle")}
-          </p>
-          {/* NEW: Join tagline */}
-          <p className="mb-8 max-w-2xl text-base font-medium text-blue-200 md:text-lg">
-            {t("hero.joinTagline")}
           </p>
           <div className="flex flex-col gap-4 sm:flex-row">
             <a
@@ -339,7 +305,7 @@ function ForClients() {
     { tKey: "feature.bookPT", dKey: "feature.bookPTDesc" },
   ];
   return (
-    <section id="clients" className="py-20 md:py-28">
+    <section id="clients" className="py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           title={t("section.completeJourney")}
@@ -440,7 +406,7 @@ function ClientTiers() {
     { name: t("pricing.premium"), price: formatPriceWithPeriod(BASE_PRICES.premium, periodSuffix), key: "premium", color: "bg-white border-gray-200", highlight: false, entry: false },
   ];
   return (
-    <section id="pricing" className="py-20 md:py-28">
+    <section id="pricing" className="py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeading
           title={t("section.clientPlans")}
@@ -477,7 +443,7 @@ function ClientTiers() {
               <h3 className="mb-1 text-xl font-bold text-gray-900">{tier.name}</h3>
               <p className="mb-6 text-3xl font-extrabold text-[#1A56DB]">{tier.price}</p>
               <ul className="mb-8 space-y-3">
-                {(tierFeatureKeys[tier.key] || []).map((featureKey: string) => (
+                {(tierFeatureKeys[tier.key] || []).slice(0, 3).map((featureKey: string) => (
                   <li key={featureKey} className="flex items-start gap-2 text-sm text-gray-700">
                     <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -562,7 +528,7 @@ function PTSubscription() {
   const ptFeatures = (langTranslations["pricing.ptFeatures"] || translations.en["pricing.ptFeatures"]) as readonly string[];
   const ptPrice = t("pricing.ptPrice", { price: formatPrice(BASE_PRICES.pt) });
   return (
-    <section className="bg-gray-50 py-20 md:py-28">
+    <section className="bg-gray-50 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-lg rounded-2xl border-2 border-[#3B82F6] bg-white p-8 text-center shadow-lg ring-1 ring-[#3B82F6]/20">
           <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#3B82F6]/10">
@@ -574,7 +540,7 @@ function PTSubscription() {
           <p className="mb-4 text-3xl font-extrabold text-[#1A56DB]">{ptPrice}</p>
           <p className="mb-6 text-gray-500">{t("section.ptSubDesc")}</p>
           <ul className="mb-8 space-y-3 text-left">
-            {ptFeatures.map((f: string, i: number) => (
+            {ptFeatures.slice(0, 3).map((f: string, i: number) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
                 <svg className="mt-0.5 h-4 w-4 shrink-0 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

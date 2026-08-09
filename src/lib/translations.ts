@@ -27,8 +27,8 @@ export const translations = {
     "nav.signOut": "Sign Out",
 
     // Hero
-    "hero.title": "The World's First PT Marketplace",
-    "hero.subtitle": "AI-powered fitness meets global personal training. Train smarter with 3D muscle visualization, live form correction, voice coaching, and book verified PTs anywhere in the world.",
+    "hero.title": "Train smarter. Go further.",
+    "hero.subtitle": "AI coaching and verified PTs — all in one place.",
     "hero.startFree": "Start Training Free",
     "hero.viewPlans": "View Plans",
 
@@ -43,8 +43,8 @@ export const translations = {
     "section.journeySubtitle": "Everything you need to reach your goals, powered by AI.",
     "section.trainersGlobal": "Trainers, Go Global",
     "section.trainersSubtitle": "Join the world's premier PT marketplace. Verified. Professional. Borderless.",
-    "section.clientPlans": "Client Subscription Plans",
-    "section.clientPlansSubtitle": "Choose the tier that fits your fitness journey. All plans include a 1-month free trial.",
+    "section.clientPlans": "Simple plans. Real progress.",
+    "section.clientPlansSubtitle": "Start free. Upgrade when you are ready.",
     "section.ptSubscription": "PT Subscription",
     "section.ptSubDesc": "Everything you need to grow your training business globally.",
     "section.featuredTrainers": "Our Trainers",
