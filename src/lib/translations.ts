@@ -27,8 +27,8 @@ export const translations = {
     "nav.signOut": "Sign Out",
 
     // Hero
-    "hero.title": "Train smarter. Go further.",
-    "hero.subtitle": "AI coaching and verified PTs — all in one place.",
+    "hero.title": "Train with the world's best PTs — right from your living room",
+    "hero.subtitle": "Personal coaching, live form correction, and a plan that fits you. Wherever you are.",
     "hero.startFree": "Start Training Free",
     "hero.viewPlans": "View Plans",
 
@@ -283,8 +283,8 @@ export const translations = {
     "nav.verification": "Verifisering",
     "nav.signOut": "Logg ut",
 
-    "hero.title": "AI-coaching møter globale PT-er",
-    "hero.subtitle": "Tren smartere. Book verifiserte trenere. Alt på ett sted.",
+    "hero.title": "Tren med de beste PT-ene i verden — fra din egen stue",
+    "hero.subtitle": "Få personlig coaching, live formkorreksjon, og en plan som passer deg. Uansett hvor du er.",
     "hero.startFree": "Start gratis trening",
     "hero.viewPlans": "Se abonnement",
 
@@ -520,8 +520,8 @@ export const translations = {
     "nav.verification": "Verificación",
     "nav.signOut": "Cerrar sesión",
 
-    "hero.title": "Coaching IA con entrenadores globales",
-    "hero.subtitle": "Entrena mejor. Reserva entrenadores verificados. Todo en un solo lugar.",
+    "hero.title": "Entrena con los mejores entrenadores del mundo — desde tu salón",
+    "hero.subtitle": "Coaching personal, corrección de forma en vivo y un plan a tu medida. Estés donde estés.",
     "hero.startFree": "Empieza a entrenar gratis",
     "hero.viewPlans": "Ver planes",
 
@@ -712,8 +712,8 @@ export const translations = {
     "nav.verification": "Vérification",
     "nav.signOut": "Déconnexion",
 
-    "hero.title": "Coaching IA et coachs sportifs globaux",
-    "hero.subtitle": "Entraînez-vous mieux. Réservez des coachs vérifiés. Tout au même endroit.",
+    "hero.title": "Entraînez-vous avec les meilleurs coachs du monde — depuis votre salon",
+    "hero.subtitle": "Coaching personnalisé, correction de forme en direct et un plan qui vous correspond. Où que vous soyez.",
     "hero.startFree": "Commencez l'entraînement gratuit",
     "hero.viewPlans": "Voir les offres",
 
@@ -904,8 +904,8 @@ export const translations = {
     "nav.verification": "Verifizierung",
     "nav.signOut": "Abmelden",
 
-    "hero.title": "KI-Coaching trifft globale Trainer",
-    "hero.subtitle": "Trainiere besser. Buche verifizierte Trainer. Alles an einem Ort.",
+    "hero.title": "Trainiere mit den besten Trainern der Welt — direkt aus deinem Wohnzimmer",
+    "hero.subtitle": "Persönliches Coaching, Live-Formkorrektur und ein Plan, der zu dir passt. Egal, wo du bist.",
     "hero.startFree": "Kostenlos trainieren",
     "hero.viewPlans": "Pläne ansehen",
 
