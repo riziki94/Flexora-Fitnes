@@ -283,8 +283,8 @@ export const translations = {
     "nav.verification": "Verifisering",
     "nav.signOut": "Logg ut",
 
-    "hero.title": "Verdens første tosidige PT-markedsplass",
-    "hero.subtitle": "AI-drevet trening møter global personlig trening. Tren smartere med 3D-muskelvisualisering, live formkorreksjon, stemmeveiledning, og book verifiserte PT-er hvor som helst i verden.",
+    "hero.title": "AI-coaching møter globale PT-er",
+    "hero.subtitle": "Tren smartere. Book verifiserte trenere. Alt på ett sted.",
     "hero.startFree": "Start gratis trening",
     "hero.viewPlans": "Se abonnement",
 
@@ -520,8 +520,8 @@ export const translations = {
     "nav.verification": "Verificación",
     "nav.signOut": "Cerrar sesión",
 
-    "hero.title": "El primer mercado de entrenadores personales de dos lados del mundo",
-    "hero.subtitle": "Fitness impulsado por IA se une al entrenamiento personal global. Entrena de forma más inteligente con visualización muscular 3D, corrección de forma en vivo, coaching por voz y reserva entrenadores verificados en cualquier parte del mundo.",
+    "hero.title": "Coaching IA con entrenadores globales",
+    "hero.subtitle": "Entrena mejor. Reserva entrenadores verificados. Todo en un solo lugar.",
     "hero.startFree": "Empieza a entrenar gratis",
     "hero.viewPlans": "Ver planes",
 
@@ -712,8 +712,8 @@ export const translations = {
     "nav.verification": "Vérification",
     "nav.signOut": "Déconnexion",
 
-    "hero.title": "Le premier marché de coachs sportifs double face au monde",
-    "hero.subtitle": "Le fitness propulsé par l'IA rencontre l'entraînement personnel mondial. Entraînez-vous plus intelligemment avec la visualisation musculaire 3D, la correction de forme en direct, le coaching vocal et réservez des coachs vérifiés partout dans le monde.",
+    "hero.title": "Coaching IA et coachs sportifs globaux",
+    "hero.subtitle": "Entraînez-vous mieux. Réservez des coachs vérifiés. Tout au même endroit.",
     "hero.startFree": "Commencez l'entraînement gratuit",
     "hero.viewPlans": "Voir les offres",
 
@@ -904,8 +904,8 @@ export const translations = {
     "nav.verification": "Verifizierung",
     "nav.signOut": "Abmelden",
 
-    "hero.title": "Der weltweit erste zweiseitige PT-Marktplatz",
-    "hero.subtitle": "KI-gestütztes Fitness trifft auf globales Personal Training. Trainiere intelligenter mit 3D-Muskelvisualisierung, Live-Formkorrektur, Sprachcoaching und buche verifizierte Trainer überall auf der Welt.",
+    "hero.title": "KI-Coaching trifft globale Trainer",
+    "hero.subtitle": "Trainiere besser. Buche verifizierte Trainer. Alles an einem Ort.",
     "hero.startFree": "Kostenlos trainieren",
     "hero.viewPlans": "Pläne ansehen",
 
