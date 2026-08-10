@@ -116,6 +116,9 @@ function Home() {
       {/* --- PT plan --- */}
       <PTSubscription />
 
+      {/* --- Featured Trainers --- */}
+      <FeaturedTrainers />
+
       {/* --- Final CTA --- */}
       <CTA />
 
@@ -849,11 +852,11 @@ function FeaturedTrainers() {
         />
 
         {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex gap-6 overflow-hidden">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="animate-pulse rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
+                className="min-w-[260px] animate-pulse rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
               >
                 <div className="mb-4 flex justify-center">
                   <div className="h-20 w-20 rounded-full bg-gray-200" />
@@ -868,54 +871,70 @@ function FeaturedTrainers() {
             ))}
           </div>
         ) : displayTrainers.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {displayTrainers.slice(0, 6).map((pt) => (
-              <a
-                key={pt.id}
-                href={`/app/pt/${pt.id}`}
-                className="group rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-[#3B82F6]/40 hover:-translate-y-1"
-              >
-                <div className="mb-4 flex justify-center">
-                  {pt.profilePicture ? (
-                    <img
-                      src={pt.profilePicture}
-                      alt={pt.name}
-                      className="h-20 w-20 rounded-full object-cover ring-2 ring-[#1A56DB]/20"
-                    />
-                  ) : (
-                    <AvatarPlaceholder name={pt.name} />
-                  )}
-                </div>
-                <div className="text-center">
-                  <h4 className="mb-1 font-semibold text-gray-900 group-hover:text-[#1A56DB] transition-colors">
-                    {pt.name}
-                  </h4>
-                  <p className="mb-2 text-sm text-gray-500">
-                    {pt.country || t("trainers.worldwide")}
-                  </p>
-                  <p className="mb-2 text-xs text-gray-400">
-                    {pt.yearsOfExperience}{" "}
-                    {pt.yearsOfExperience === 1 ? t("trainers.yearLabel_one") : t("trainers.yearLabel_other")} experience
-                  </p>
-                  <div className="flex justify-center">
-                    <StarRating pct={pt.ratingPct} />
-                  </div>
-                  {pt.totalRatings > 0 && (
-                    <p className="mt-1 text-xs text-gray-400">
-                      ({pt.totalRatings} {pt.totalRatings === 1 ? t("trainers.ratingLabel_one") : t("trainers.ratingLabel_other")})
-                    </p>
-                  )}
-                </div>
-              </a>
-            ))}
-          </div>
+          <>
+            <style>{`
+              @keyframes scroll-trainers {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .trainer-scroll {
+                animation: scroll-trainers 40s linear infinite;
+              }
+              .trainer-scroll:hover {
+                animation-play-state: paused;
+              }
+            `}</style>
+            <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+              <div className="trainer-scroll flex gap-6 py-2 w-max">
+                {[...displayTrainers, ...displayTrainers].map((pt, i) => (
+                  <a
+                    key={`${pt.id}-${i}`}
+                    href={`/app/pt/${pt.id}`}
+                    className="group min-w-[260px] rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-[#3B82F6]/40 hover:-translate-y-1"
+                  >
+                    <div className="mb-4 flex justify-center">
+                      {pt.profilePicture ? (
+                        <img
+                          src={pt.profilePicture}
+                          alt={pt.name}
+                          className="h-20 w-20 rounded-full object-cover ring-2 ring-[#1A56DB]/20"
+                        />
+                      ) : (
+                        <AvatarPlaceholder name={pt.name} />
+                      )}
+                    </div>
+                    <div className="text-center">
+                      <h4 className="mb-1 font-semibold text-gray-900 group-hover:text-[#1A56DB] transition-colors">
+                        {pt.name}
+                      </h4>
+                      <p className="mb-2 text-sm text-gray-500">
+                        {pt.country || t("trainers.worldwide")}
+                      </p>
+                      <p className="mb-2 text-xs text-gray-400">
+                        {pt.yearsOfExperience}{" "}
+                        {pt.yearsOfExperience === 1 ? t("trainers.yearLabel_one") : t("trainers.yearLabel_other")} experience
+                      </p>
+                      <div className="flex justify-center">
+                        <StarRating pct={pt.ratingPct} />
+                      </div>
+                      {pt.totalRatings > 0 && (
+                        <p className="mt-1 text-xs text-gray-400">
+                          ({pt.totalRatings} {pt.totalRatings === 1 ? t("trainers.ratingLabel_one") : t("trainers.ratingLabel_other")})
+                        </p>
+                      )}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </>
         ) : (
           /* Fallback: 4 placeholder cards using static data */
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex gap-6 overflow-hidden">
             {placeholderPTs.map((pt, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
+                className="min-w-[260px] rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
               >
                 <div className="mb-4 flex justify-center">
                   <AvatarPlaceholder name={pt.name} />
