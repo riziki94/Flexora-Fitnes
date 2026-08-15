@@ -12,6 +12,9 @@ export const Route = createFileRoute("/register")({
     plan: (search.plan as string) || "",
     ref_pt: (search.ref_pt as string) || "",
     ref: (search.ref as string) || "",
+    utm_source: (search.utm_source as string) || "",
+    utm_medium: (search.utm_medium as string) || "",
+    utm_campaign: (search.utm_campaign as string) || "",
   }),
 });
 
@@ -24,6 +27,24 @@ function RegisterPage() {
   useEffect(() => {
     trackEvent({ eventType: "signup_started", path: "/register" });
   }, []);
+
+  // UTM capture — read utm_source/utm_medium/utm_campaign from the URL at load
+  // and persist them so every registration can be attributed to a channel
+  // (reddit/linkedin/instagram/facebook/direkte). Stored on the user at submit.
+  useEffect(() => {
+    const utm = {
+      source: search.utm_source || "",
+      medium: search.utm_medium || "",
+      campaign: search.utm_campaign || "",
+    };
+    if (utm.source || utm.medium || utm.campaign) {
+      try {
+        localStorage.setItem("flexora_utm", JSON.stringify(utm));
+      } catch (_) {
+        /* storage unavailable — attribution is best-effort */
+      }
+    }
+  }, [search.utm_source, search.utm_medium, search.utm_campaign]);
   const [role, setRole] = useState<"client" | "pt">("client");
   const [plan, setPlan] = useState(search.plan || "basis");
   const [refPtId, setRefPtId] = useState(search.ref_pt || "");
@@ -81,6 +102,17 @@ function RegisterPage() {
     setLoading(true);
 
     try {
+      // UTM attribution — send the captured channel info (from URL, persisted in
+      // localStorage) with the registration so it can be stored on the user.
+      let storedUtm: { source?: string; medium?: string; campaign?: string } = {};
+      if (typeof window !== "undefined") {
+        try {
+          storedUtm = JSON.parse(localStorage.getItem("flexora_utm") || "{}");
+        } catch (_) {
+          storedUtm = {};
+        }
+      }
+
       const result = await registerUser({
         data: {
           email,
@@ -96,6 +128,9 @@ function RegisterPage() {
           yearsOfExperience: role === "pt" ? yearsOfExperience : undefined,
           educationLocation: role === "pt" ? educationLocation : undefined,
           bio: role === "pt" ? bio : undefined,
+          utmSource: storedUtm.source || "",
+          utmMedium: storedUtm.medium || "",
+          utmCampaign: storedUtm.campaign || "",
         },
       });
 

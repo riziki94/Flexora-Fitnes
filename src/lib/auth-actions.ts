@@ -58,6 +58,10 @@ export const registerUser = createServerFn()
     yearsOfExperience?: number;
     educationLocation?: string;
     bio?: string;
+    // UTM attribution (empty strings when no UTM in the URL)
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
   }) => {
     if (!data.email || !data.password || !data.name || !data.role) {
       throw new Error("Required fields: email, password, name, role");
@@ -87,14 +91,17 @@ export const registerUser = createServerFn()
       .replace(/^-+|-+$/g, "");
 
     const result = db.query(
-      "INSERT INTO users (email, password_hash, role, name, country, birthday) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO users (email, password_hash, role, name, country, birthday, utm_source, utm_medium, utm_campaign) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     ).run(
       data.email,
       passwordHash,
       data.role,
       data.name,
       data.country || "",
-      data.birthday || ""
+      data.birthday || "",
+      data.utmSource || "",
+      data.utmMedium || "",
+      data.utmCampaign || ""
     );
 
     const userId = Number(result.lastInsertRowid);
@@ -127,6 +134,17 @@ export const registerUser = createServerFn()
         data.yearsOfExperience || 0,
         data.educationLocation || "",
         data.bio || ""
+      );
+
+      // Lead log for PT applications — every PT registration is logged with its
+      // acquisition channel (UTM source, or 'direkte' when no UTM was present).
+      db.query(
+        "INSERT INTO pt_leads (name, email, certification, source, status) VALUES (?, ?, ?, ?, 'new')"
+      ).run(
+        data.name,
+        data.email,
+        data.certificationInfo || "",
+        data.utmSource || "direkte"
       );
     }
 
