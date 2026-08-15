@@ -46,7 +46,7 @@ function OfflinePage() {
 
         {/* Helpful tip */}
         <p className="mt-6 text-sm text-gray-400">
-          Kitozon will automatically reload once your connection is restored.
+          Flexora Fitnes will automatically reload once your connection is restored.
         </p>
       </div>
     </main>

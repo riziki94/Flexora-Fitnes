@@ -137,7 +137,7 @@ const createProfile = createServerFn({ method: "POST" })
       const { getServerClient } = await import("./supabase");
       const client = getServerClient();
       await client.auth.admin.updateUserById(data.userId, {
-        user_metadata: { full_name: data.fullName, subscription_tier: "kitoslight" },
+        user_metadata: { full_name: data.fullName, subscription_tier: "basis" },
       });
     } catch (e) {
       console.error("Failed to set user metadata:", e);

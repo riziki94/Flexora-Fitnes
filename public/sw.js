@@ -1,7 +1,7 @@
-// Kitozon Service Worker
+// Flexora Fitnes Service Worker
 // Cache-first for static assets, network-first for API calls
 
-const CACHE_NAME = "kitozon-v1";
+const CACHE_NAME = "flexora-v2";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
@@ -99,7 +99,7 @@ async function networkFirst(request) {
 
       // Fallback offline HTML
       return new Response(
-        `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kitozon — Offline</title><style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;color:#111827}main{text-align:center;padding:2rem}.logo{width:80px;height:80px;background:#059669;border-radius:20px;display:flex;align-items:center;justify-content:center;color:white;font-size:40px;font-weight:bold;margin:0 auto 1.5rem}h1{font-size:1.5rem;margin-bottom:.5rem}p{color:#6b7280;margin-bottom:1.5rem}button{background:#059669;color:white;border:none;padding:12px 32px;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer}button:hover{background:#047857}</style></head><body><main><div class="logo">K</div><h1>You're offline</h1><p>Please check your internet connection and try again.</p><button onclick="location.reload()">Retry</button></main></body></html>`,
+        `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flexora Fitnes — Offline</title><style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;color:#111827}main{text-align:center;padding:2rem}.logo{width:80px;height:80px;background:#059669;border-radius:20px;display:flex;align-items:center;justify-content:center;color:white;font-size:40px;font-weight:bold;margin:0 auto 1.5rem}h1{font-size:1.5rem;margin-bottom:.5rem}p{color:#6b7280;margin-bottom:1.5rem}button{background:#059669;color:white;border:none;padding:12px 32px;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer}button:hover{background:#047857}</style></head><body><main><div class="logo">F</div><h1>You're offline</h1><p>Please check your internet connection and try again.</p><button onclick="location.reload()">Retry</button></main></body></html>`,
         {
           status: 200,
           headers: { "Content-Type": "text/html" },
