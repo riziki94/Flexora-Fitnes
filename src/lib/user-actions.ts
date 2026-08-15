@@ -65,11 +65,49 @@ export const getDashboardData = createServerFn()
       "SELECT * FROM workout_plans WHERE user_id = ? ORDER BY created_at DESC LIMIT 10"
     ).all(user.id);
 
+    // Latest subscription regardless of status — then derive an honest status
+    // so an expired trial is never presented as active.
     const subscription = db.query(
-      "SELECT * FROM subscriptions WHERE user_id = ? AND status = 'active' ORDER BY started_at DESC LIMIT 1"
-    ).get(user.id);
+      "SELECT * FROM subscriptions WHERE user_id = ? ORDER BY started_at DESC LIMIT 1"
+    ).get(user.id) as any;
 
-    return { user, workouts, subscription };
+    let sub = subscription || null;
+    if (sub) {
+      const nowIso = new Date().toISOString().replace("T", " ").slice(0, 19);
+      if (
+        sub.expires_at &&
+        String(sub.expires_at) < nowIso &&
+        (sub.status === "trial" || sub.status === "active")
+      ) {
+        sub = { ...sub, status: "expired" };
+      }
+    }
+
+    return { user, workouts, subscription: sub };
+  });
+
+// Latest subscription for the current user, with an honest derived status
+// ('expired' when the trial/active period has passed).
+export const getMySubscription = createServerFn()
+  .handler(async () => {
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const db = getDb();
+    const subscription = db.query(
+      "SELECT * FROM subscriptions WHERE user_id = ? ORDER BY started_at DESC LIMIT 1"
+    ).get(user.id) as any;
+    if (!subscription) return null;
+
+    const nowIso = new Date().toISOString().replace("T", " ").slice(0, 19);
+    if (
+      subscription.expires_at &&
+      String(subscription.expires_at) < nowIso &&
+      (subscription.status === "trial" || subscription.status === "active")
+    ) {
+      return { ...subscription, status: "expired" };
+    }
+    return subscription;
   });
 
 export const uploadPTCertificate = createServerFn()

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { getMyBookings, cancelBooking, cancelBookingClient, markNoShow, getRefundInfo } from "~/lib/booking-actions";
+import { getMyBookings, cancelBooking, cancelBookingClient, markNoShow, getRefundInfo, markBookingPaid, confirmBooking } from "~/lib/booking-actions";
 import { ratePtSession, hasUserRatedBooking } from "~/lib/pt-ratings-actions";
 import Avatar from "~/components/Avatar";
-import { PT_PREPAYMENT_POLICY, PT_REFUND_HOURS_THRESHOLD, PT_SESSION_PRICE } from "~/lib/stripe";
+import { PT_PREPAYMENT_POLICY, PT_REFUND_HOURS_THRESHOLD, PT_SESSION_PRICE, PT_SESSION_PAYMENT_LINK } from "~/lib/stripe";
 
 export const Route = createFileRoute("/app/bookings/")({
   component: MyBookingsPage,
@@ -130,11 +130,14 @@ function isWithinVideoWindow(scheduledAt: string): boolean {
 }
 
 function PaymentStatusBadge({ status }: { status: string }) {
+  // refunded_50/refunded_full are INTERNAL markers for the refund policy applied
+  // to a cancelled booking — no real Stripe refund happens without API keys, so
+  // the UI states the policy, never a processed refund.
   const labels: Record<string, string> = {
     unpaid: "Unpaid",
     paid: "Paid",
-    refunded_50: "50% Refunded",
-    refunded_full: "No Refund",
+    refunded_50: "Refusjon 50 % (policy)",
+    refunded_full: "Ingen refusjon (policy)",
   };
   const colors: Record<string, string> = {
     unpaid: "bg-yellow-100 text-yellow-700",
@@ -166,14 +169,22 @@ function MyBookingsPage() {
 
     loadBookings();
 
-    // Check for payment success param
+    // Check for payment return params
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
+      const bookingId = params.get("bookingId");
       if (params.get("payment") === "success") {
-        setActionMsg("Payment successful! Your booking is confirmed.");
+        // The client returned from Stripe — record the payment. The booking
+        // stays 'pending' until the PT confirms it (the honest step).
+        if (bookingId) {
+          markBookingPaid({ bookingId: Number(bookingId) })
+            .then(() => loadBookings())
+            .catch(() => {});
+        }
+        setActionMsg("Payment received! The trainer will confirm your booking.");
         setActionType("success");
       } else if (params.get("payment") === "cancelled") {
-        setActionMsg("Payment was cancelled. Your booking is not confirmed.");
+        setActionMsg("Payment was cancelled. Your booking is not paid and not confirmed.");
         setActionType("error");
       }
     }
@@ -215,6 +226,37 @@ function MyBookingsPage() {
       setActionType("error");
       setShowCancelConfirm(null);
     }
+  }
+
+  // Client confirms they have paid via the Stripe link (returned from payment,
+  // or clicked "I have paid"). The booking stays pending until the PT confirms.
+  async function handleMarkPaid(bookingId: number) {
+    try {
+      await markBookingPaid({ bookingId });
+      setActionMsg("Payment recorded. The trainer will confirm your booking.");
+      setActionType("success");
+      loadBookings();
+    } catch (e: any) {
+      setActionMsg(e.message || "Failed to record payment.");
+      setActionType("error");
+    }
+  }
+
+  // PT confirms a paid, pending booking — the honest step to 'confirmed'.
+  async function handleConfirmBooking(bookingId: number) {
+    try {
+      await confirmBooking({ bookingId });
+      setActionMsg("Booking confirmed.");
+      setActionType("success");
+      loadBookings();
+    } catch (e: any) {
+      setActionMsg(e.message || "Failed to confirm booking.");
+      setActionType("error");
+    }
+  }
+
+  function handleGoToPayment() {
+    window.open(PT_SESSION_PAYMENT_LINK, "_blank", "noopener,noreferrer");
   }
 
   async function handleNoShow(bookingId: number) {
@@ -430,6 +472,30 @@ function MyBookingsPage() {
 
                     {/* Actions */}
                     <div className="ml-4 flex flex-col gap-2">
+                      {/* PT actions — pending: confirm after payment, or cancel */}
+                      {isPt && b.status === "pending" && (
+                        <>
+                          {b.payment_status === "paid" ? (
+                            <button
+                              onClick={() => handleConfirmBooking(b.id)}
+                              className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors text-center"
+                            >
+                              ✓ Bekreft booking
+                            </button>
+                          ) : (
+                            <span className="rounded-lg bg-yellow-100 px-3 py-1.5 text-xs font-medium text-yellow-700 text-center">
+                              Venter på betaling
+                            </span>
+                          )}
+                          <button
+                            onClick={() => handleCancel(b.id)}
+                            className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      )}
+
                       {/* PT actions */}
                       {isPt && b.status === "confirmed" && (
                         <>
@@ -452,6 +518,36 @@ function MyBookingsPage() {
                             className="rounded-lg border border-amber-200 px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-50 transition-colors"
                           >
                             Møtte ikke
+                          </button>
+                        </>
+                      )}
+
+                      {/* Client actions — pending: pay to secure, then trainer confirms */}
+                      {!isPt && b.status === "pending" && (
+                        <>
+                          {b.payment_status !== "paid" && (
+                            <>
+                              <button
+                                onClick={handleGoToPayment}
+                                className="rounded-lg bg-[#1A56DB] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#1E40AF] transition-colors text-center"
+                              >
+                                Gå til betaling — {b.price} kr
+                              </button>
+                              <button
+                                onClick={() => handleMarkPaid(b.id)}
+                                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                              >
+                                Jeg har betalt
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (confirm("Avbestille denne bookingen?")) handleClientCancel(b.id);
+                            }}
+                            className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            Avbestill
                           </button>
                         </>
                       )}

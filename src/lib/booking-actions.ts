@@ -181,7 +181,7 @@ export const createBooking = createServerFn()
 
     const result = db.query(
       `INSERT INTO pt_bookings (client_id, pt_id, status, scheduled_at, session_type, price, payment_status)
-       VALUES (?, ?, 'confirmed', ?, ?, ?, 'unpaid')`
+       VALUES (?, ?, 'pending', ?, ?, ?, 'unpaid')`
     ).run(user.id, data.ptId, data.scheduledAt, data.sessionType, price);
 
     const bookingId = Number(result.lastInsertRowid);
@@ -208,6 +208,34 @@ export const markBookingPaid = createServerFn()
     if (!booking) throw new Error("Booking not found");
 
     db.query("UPDATE pt_bookings SET payment_status = 'paid' WHERE id = ?")
+      .run(data.bookingId);
+
+    return { success: true, bookingId: data.bookingId };
+  });
+
+// ── Confirm booking (PT) — the honest step after payment ───
+// A booking becomes 'confirmed' only when the client has paid (payment_status
+// = 'paid') AND the PT confirms it. No confirmed booking without both.
+
+export const confirmBooking = createServerFn()
+  .validator((data: { bookingId: number }) => data)
+  .handler(async ({ data }) => {
+    const user = await getAuthUser();
+    if (user.role !== "pt") throw new Error("Only PTs can confirm bookings");
+
+    const db = getDb();
+    const booking = db.query("SELECT * FROM pt_bookings WHERE id = ? AND pt_id = ?")
+      .get(data.bookingId, user.id) as any;
+    if (!booking) throw new Error("Booking not found");
+
+    if (booking.status !== "pending") {
+      throw new Error("Only pending bookings can be confirmed");
+    }
+    if (booking.payment_status !== "paid") {
+      throw new Error("The client must pay before the booking can be confirmed");
+    }
+
+    db.query("UPDATE pt_bookings SET status = 'confirmed' WHERE id = ?")
       .run(data.bookingId);
 
     return { success: true, bookingId: data.bookingId };
@@ -306,6 +334,21 @@ export const cancelBookingClient = createServerFn()
     }
     if (booking.status === "completed") {
       throw new Error("Cannot cancel a completed session");
+    }
+
+    // Unpaid/pending booking: nothing was charged, so simply cancel it.
+    // Refund markers (refunded_50/refunded_full) are internal only — they are
+    // applied only to paid bookings and never claim a processed Stripe refund.
+    if (booking.payment_status !== "paid") {
+      db.query(
+        "UPDATE pt_bookings SET status = 'cancelled', cancellation_status = 'client_cancelled' WHERE id = ?"
+      ).run(data.bookingId);
+      return {
+        success: true,
+        refundStatus: "none",
+        refundMessage: "Bookingen er avbestilt. Ingen betaling ble gjort.",
+        hoursUntilSession: 0,
+      };
     }
 
     const now = new Date();

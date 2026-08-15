@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { registerUser } from "~/lib/auth-actions";
-import { getPaymentLink, FREE_TRIAL_DAYS } from "~/lib/stripe";
 import { lookupReferrer } from "~/lib/referral-actions";
 import { useTranslation } from "~/lib/i18n";
 import { BASE_PRICES } from "~/lib/currency";
@@ -26,7 +25,7 @@ function RegisterPage() {
     trackEvent({ eventType: "signup_started", path: "/register" });
   }, []);
   const [role, setRole] = useState<"client" | "pt">("client");
-  const [plan, setPlan] = useState(search.plan || "");
+  const [plan, setPlan] = useState(search.plan || "basis");
   const [refPtId, setRefPtId] = useState(search.ref_pt || "");
   const [refCode, setRefCode] = useState(search.ref || "");
   const [referrerName, setReferrerName] = useState("");
@@ -88,6 +87,7 @@ function RegisterPage() {
           password,
           name,
           role,
+          plan: plan || undefined,
           country: country || undefined,
           birthday: birthday || undefined,
           refPtId: refPtId ? Number(refPtId) : undefined,
@@ -104,10 +104,6 @@ function RegisterPage() {
         localStorage.setItem("flexora_token", result.token);
         localStorage.setItem("flexora_user", JSON.stringify(result.user));
         document.cookie = `flexora_token=${result.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-
-        // Store selected plan for subscription setup
-        const effectivePlan = plan || (role === "pt" ? "pt" : "basis");
-        localStorage.setItem("flexora_pending_plan", effectivePlan);
       }
 
       // Track signup completion
@@ -122,14 +118,8 @@ function RegisterPage() {
         return;
       }
 
-      // Redirect to Stripe payment link (only if no referral)
-      const effectivePlan = plan || (role === "pt" ? "pt" : "basis");
-      const paymentLink = getPaymentLink(effectivePlan);
-
-      if (typeof window !== "undefined") {
-        window.open(paymentLink, "_blank", "noopener,noreferrer");
-      }
-
+      // Launch offer: registration gives immediate access to the chosen plan —
+      // no payment required (first 100 spots).
       navigate({ to: "/app/dashboard" });
     } catch (e: any) {
       setError(e.message || t("auth.registerFailed"));
@@ -204,35 +194,59 @@ function RegisterPage() {
             </button>
           </div>
 
-          {/* Plan selector (clients only) */}
-          {role === "client" && (
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("auth.selectPlan")}
-              </label>
-              <div className="grid grid-cols-3 gap-2">
+          {/* Plan selector — big, simple buttons: tap a plan, get everything in it */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {role === "pt" ? t("auth.ptPlanLabel") : t("auth.selectPlan")}
+            </label>
+            {role === "pt" ? (
+              <button
+                type="button"
+                onClick={() => setPlan("pt")}
+                className={`w-full rounded-xl border-2 px-5 py-4 text-left transition-colors ${
+                  plan === "pt"
+                    ? "border-[#1A56DB] bg-blue-50"
+                    : "border-gray-200 bg-white hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-base font-bold text-gray-900">{t("pricing.ptPlan")}</span>
+                  <span className="text-base font-extrabold text-[#1A56DB]">
+                    {formatPrice(BASE_PRICES.pt)}{t("pricing.perMonth")}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-gray-600">{t("auth.planPtDesc")}</p>
+              </button>
+            ) : (
+              <div className="space-y-3">
                 {[
-                  { key: "basis", label: t("pricing.basis"), price: formatPrice(BASE_PRICES.basis) },
-                  { key: "hybrid", label: t("pricing.hybrid"), price: formatPrice(BASE_PRICES.hybrid) },
-                  { key: "premium", label: t("pricing.premium"), price: formatPrice(BASE_PRICES.premium) },
+                  { key: "basis", label: t("pricing.basis"), price: formatPrice(BASE_PRICES.basis), desc: t("auth.planBasisDesc") },
+                  { key: "hybrid", label: t("pricing.hybrid"), price: formatPrice(BASE_PRICES.hybrid), desc: t("auth.planHybridDesc") },
+                  { key: "premium", label: t("pricing.premium"), price: formatPrice(BASE_PRICES.premium), desc: t("auth.planPremiumDesc") },
                 ].map((p) => (
                   <button
                     key={p.key}
                     type="button"
                     onClick={() => setPlan(p.key)}
-                    className={`rounded-lg border px-3 py-3 text-center text-sm transition-colors ${
+                    className={`w-full rounded-xl border-2 px-5 py-4 text-left transition-colors ${
                       plan === p.key
-                        ? "border-[#1A56DB] bg-blue-50 text-[#1A56DB] font-semibold"
-                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                        ? "border-[#1A56DB] bg-blue-50"
+                        : "border-gray-200 bg-white hover:border-gray-300"
                     }`}
                   >
-                    <div className="font-semibold">{p.label}</div>
-                    <div className="text-xs mt-0.5">{p.price}{t("pricing.perMonth")}</div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-base font-bold text-gray-900">{p.label}</span>
+                      <span className="text-base font-extrabold text-[#1A56DB]">
+                        {p.price}{t("pricing.perMonth")}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-600">{p.desc}</p>
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+            <p className="mt-2 text-xs text-gray-500">{t("auth.planTapHint")}</p>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -393,7 +407,7 @@ function RegisterPage() {
               {loading
                 ? t("auth.creatingAccount")
                 : t("auth.startFreeTrial", {
-                    plan: role === "pt" ? t("pricing.ptPlan") : plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : t("auth.selectPlan"),
+                    plan: plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Basis",
                   })}
             </button>
           </form>

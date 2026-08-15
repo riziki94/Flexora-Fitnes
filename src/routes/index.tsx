@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import logoSvg from "~/assets/flexora-logo.svg";
 import iconSvg from "~/assets/flexora-icon.svg";
 import { getFeaturedPTs, type FeaturedPT } from "~/lib/pt-ratings-actions";
-import { STRIPE_PAYMENT_LINKS } from "~/lib/stripe";
 import { useTranslation } from "~/lib/i18n";
 import { BASE_PRICES } from "~/lib/currency";
 import { FlagSwitcher } from "~/components/FlagSwitcher";

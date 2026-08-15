@@ -1,6 +1,5 @@
-// Stripe payment links — created in Stripe dashboard
-// These are production-ready payment links for each plan tier.
-// Links are currency-specific; see src/lib/currency.ts for the full mapping.
+// Stripe payment links — real links created in the Stripe dashboard (NOK).
+// One honest price per plan in NOK; see src/lib/currency.ts for the plan↔link map.
 
 import { STRIPE_LINKS_BY_CURRENCY, getStripeLink as getCurrencyStripeLink, type PlanKey } from "./currency";
 import type { Language } from "./translations";
@@ -8,29 +7,23 @@ import type { Language } from "./translations";
 // Re-export for convenience
 export { STRIPE_LINKS_BY_CURRENCY };
 
-// Legacy flat map (USD fallback)
+// Flat map of the real payment links (NOK) — same source as STRIPE_LINKS_BY_CURRENCY.
 export const STRIPE_PAYMENT_LINKS: Record<string, string> = {
-  basis: STRIPE_LINKS_BY_CURRENCY.USD.basis,
-  hybrid: STRIPE_LINKS_BY_CURRENCY.USD.hybrid,
-  premium: STRIPE_LINKS_BY_CURRENCY.USD.premium,
-  pt: STRIPE_LINKS_BY_CURRENCY.USD.pt,
+  basis: STRIPE_LINKS_BY_CURRENCY.NOK.basis,
+  hybrid: STRIPE_LINKS_BY_CURRENCY.NOK.hybrid,
+  premium: STRIPE_LINKS_BY_CURRENCY.NOK.premium,
+  pt: STRIPE_LINKS_BY_CURRENCY.NOK.pt,
 };
 
-// Workout package (24h access) — $3.99 / 399 cents
-// TODO: Create real package payment link in Stripe dashboard
-//   Product: "Workout Package — 24h Access" | Price: $3.99 (399 cents)
-//   Then paste the payment link here and remove the basis fallback.
-export const PACKAGE_PRICE_CENTS = 399;
-export const PACKAGE_PRICE_LABEL = "$3.99";
-export const PACKAGE_PAYMENT_LINK = STRIPE_PAYMENT_LINKS.basis;
-export const PACKAGE_ACCESS_HOURS = 24;
-
-// PT session prepayment — one-time Stripe payment link
-// Price ID: price_1TuFi3DtaayjZYHTtyGeu8rR — 500 kr per session
+// PT session prepayment — one-time Stripe payment link, 500 kr per session.
+// Price ID: price_1TuFi3DtaayjZYHTtyGeu8rR
 export const PT_SESSION_PRICE_ID = "price_1TuFi3DtaayjZYHTtyGeu8rR";
 export const PT_SESSION_PRICE = 500; // kr
-export const PT_SESSION_PAYMENT_LINK = STRIPE_PAYMENT_LINKS.pt;
+export const PT_SESSION_PAYMENT_LINK = "https://buy.stripe.com/6oU4gzaIM9sQfDa5km1Fe17";
 
+// No customer portal yet — that requires the owner's own Stripe account and API
+// keys (a later decision). Until then cancellations/refunds are handled honestly
+// via support@flexorafitnes.com. Keep this empty on purpose.
 export const STRIPE_CUSTOMER_PORTAL = "";
 
 export const FREE_TRIAL_DAYS = 30;
@@ -62,14 +55,6 @@ export function openPaymentLink(plan: string) {
   if (typeof window !== "undefined") {
     window.open(link, "_blank", "noopener,noreferrer");
   }
-}
-
-export function openPackagePaymentLink(packageId: number) {
-  if (typeof window === "undefined") return;
-  const successUrl = `${window.location.origin}/app/store?payment=success&packageId=${packageId}`;
-  const cancelUrl = `${window.location.origin}/app/store?payment=cancelled`;
-  const paymentUrl = `${PACKAGE_PAYMENT_LINK}?client_reference_id=package_${packageId}`;
-  window.open(paymentUrl, "_blank", "noopener,noreferrer");
 }
 
 export function openPtSessionPaymentLink(bookingId: number, forClientId: number) {
