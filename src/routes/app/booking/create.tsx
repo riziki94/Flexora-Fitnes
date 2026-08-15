@@ -149,7 +149,8 @@ function BookingCreatePage() {
               </div>
               <h1 className="text-xl font-bold text-gray-900">Complete Payment</h1>
               <p className="mt-2 text-sm text-gray-500">
-                Your booking is reserved — pay to confirm it
+                Your booking is reserved — pay to secure it. The trainer confirms
+                the booking after your payment is received.
               </p>
             </div>
 
@@ -202,7 +203,7 @@ function BookingCreatePage() {
 
             <p className="mt-3 text-center text-xs text-gray-400">
               You will be redirected to Stripe to complete payment securely.
-              After payment you'll be taken to your bookings.
+              After payment the trainer confirms your booking.
             </p>
           </div>
         ) : error ? (
@@ -306,7 +307,7 @@ function BookingCreatePage() {
                   <span className="font-semibold text-gray-900">{price} kr</span>
                 </div>
                 <div className="mt-1 text-xs text-gray-400">
-                  Payment required to confirm booking
+                  Payment required — the trainer confirms the booking after payment
                 </div>
               </div>
 

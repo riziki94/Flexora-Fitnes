@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getDb } from "~/lib/db";
 import { hashPassword, verifyPassword, createSession } from "~/lib/auth";
+import { FREE_TRIAL_DAYS } from "~/lib/stripe";
 
 export const loginUser = createServerFn()
   .validator((data: { email: string; password: string }) => {
@@ -47,6 +48,7 @@ export const registerUser = createServerFn()
     password: string;
     name: string;
     role: "client" | "pt";
+    plan?: string;
     country?: string;
     birthday?: string;
     refPtId?: number;
@@ -128,27 +130,35 @@ export const registerUser = createServerFn()
       );
     }
 
-    // PT referral: auto-create premium trial subscription
-    if (data.refPtId && data.role === "client") {
-      const now = new Date().toISOString().replace("T", " ").slice(0, 19);
-      const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .replace("T", " ")
-        .slice(0, 19);
+    // Launch offer: every new user gets immediate access — a FREE_TRIAL_DAYS-day
+    // free trial of their CHOSEN plan (basis/hybrid/premium for clients, pt for
+    // PTs). No payment is required in the launch phase (first 100 spots).
+    const VALID_PLANS = ["basis", "hybrid", "premium", "pt"];
+    const requestedPlan = (data.plan || (data.role === "pt" ? "pt" : "basis")).toLowerCase();
+    const plan = VALID_PLANS.includes(requestedPlan)
+      ? requestedPlan
+      : data.role === "pt"
+      ? "pt"
+      : "basis";
 
-      db.query(
-        "INSERT INTO subscriptions (user_id, plan, status, started_at, expires_at) VALUES (?, 'premium', 'trial', ?, ?)"
-      ).run(userId, now, expires);
+    const now = new Date().toISOString().replace("T", " ").slice(0, 19);
+    const expires = new Date(Date.now() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .replace("T", " ")
+      .slice(0, 19);
 
-      // Log activity
-      db.query(
-        "INSERT INTO activity_log (event_type, user_id, description, metadata) VALUES ('subscription', ?, ?, ?)"
-      ).run(
-        userId,
-        "Premium trial activated via PT referral",
-        JSON.stringify({ ref_pt_id: data.refPtId, plan: "premium", status: "trial" })
-      );
-    }
+    db.query(
+      "INSERT INTO subscriptions (user_id, plan, status, started_at, expires_at) VALUES (?, ?, 'trial', ?, ?)"
+    ).run(userId, plan, now, expires);
+
+    // Log activity
+    db.query(
+      "INSERT INTO activity_log (event_type, user_id, description, metadata) VALUES ('subscription', ?, ?, ?)"
+    ).run(
+      userId,
+      `${plan} trial activated (${FREE_TRIAL_DAYS} days)`,
+      JSON.stringify({ plan, status: "trial", expires_at: expires })
+    );
 
     const token = await createSession(userId);
 

@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { getCurrentUser } from "~/lib/user-actions";
+import { getCurrentUser, getMySubscription } from "~/lib/user-actions";
 import {
-  STRIPE_PAYMENT_LINKS,
   STRIPE_CUSTOMER_PORTAL,
   FREE_TRIAL_MESSAGE,
   FREE_TRIAL_DAYS,
   getPaymentLink,
 } from "~/lib/stripe";
 import { useTranslation } from "~/lib/i18n";
-import { BASE_PRICES, getStripeLink } from "~/lib/currency";
+import { BASE_PRICES } from "~/lib/currency";
 
 export const Route = createFileRoute("/app/subscription/")({
   component: SubscriptionPage,
@@ -20,12 +19,11 @@ interface PlanInfo {
   name: string;
   price: string;
   features: string[];
-  paymentLink: string;
 }
 
 function SubscriptionPage() {
   const navigate = useNavigate();
-  const { t, lang, formatPriceWithPeriod } = useTranslation();
+  const { t, formatPriceWithPeriod } = useTranslation();
   const periodSuffix = t("pricing.perMonth");
 
   const CLIENT_PLANS: PlanInfo[] = [
@@ -33,7 +31,6 @@ function SubscriptionPage() {
       key: "basis",
       name: t("pricing.basis"),
       price: formatPriceWithPeriod(BASE_PRICES.basis, periodSuffix),
-      paymentLink: getStripeLink("basis", lang),
       features: [
         "Training plans",
         "Chat support",
@@ -47,7 +44,6 @@ function SubscriptionPage() {
       key: "hybrid",
       name: t("pricing.hybrid"),
       price: formatPriceWithPeriod(BASE_PRICES.hybrid, periodSuffix),
-      paymentLink: getStripeLink("hybrid", lang),
       features: [
         "Everything in Basis",
         "AI-PT coaching",
@@ -59,7 +55,6 @@ function SubscriptionPage() {
       key: "premium",
       name: t("pricing.premium"),
       price: formatPriceWithPeriod(BASE_PRICES.premium, periodSuffix),
-      paymentLink: getStripeLink("premium", lang),
       features: [
         "Everything in Hybrid",
         "Live video training",
@@ -74,7 +69,6 @@ function SubscriptionPage() {
     key: "pt",
     name: t("pricing.ptPlan"),
     price: formatPriceWithPeriod(BASE_PRICES.pt, periodSuffix),
-    paymentLink: getStripeLink("pt", lang),
     features: [
       "Professional verified profile",
       "Global marketing & visibility",
@@ -87,7 +81,6 @@ function SubscriptionPage() {
   const [user, setUser] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [trialDaysLeft, setTrialDaysLeft] = useState(0);
 
   useEffect(() => {
     const stored = localStorage.getItem("flexora_user");
@@ -99,51 +92,21 @@ function SubscriptionPage() {
       const parsed = JSON.parse(stored);
       setUser(parsed);
 
-      // Check for pending plan from registration
-      const pendingPlan = localStorage.getItem("flexora_pending_plan");
-
-      // Try to load subscription data
       getCurrentUser()
         .then((u) => {
-          if (u) {
-            // Calculate trial days left based on user creation
-            // For demo purposes, use localStorage or assume 30 days from registration
-            const trialStart = localStorage.getItem("flexora_trial_start");
-            if (!trialStart) {
-              const now = new Date().toISOString();
-              localStorage.setItem("flexora_trial_start", now);
-            }
-            const start = new Date(trialStart || new Date().toISOString());
-            const now = new Date();
-            const daysElapsed = Math.floor(
-              (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-            );
-            const remaining = Math.max(0, FREE_TRIAL_DAYS - daysElapsed);
-            setTrialDaysLeft(remaining);
+          if (!u) {
+            navigate({ to: "/login" });
+            return;
           }
+          setUser(u);
         })
+        .catch(() => {});
+
+      // Load the real subscription from the server (honest status incl. expiry)
+      getMySubscription()
+        .then((sub) => setSubscription(sub))
         .catch(() => {})
         .finally(() => setLoading(false));
-
-      // Check for stored subscription
-      const storedSub = localStorage.getItem("flexora_subscription");
-      if (storedSub) {
-        try {
-          setSubscription(JSON.parse(storedSub));
-        } catch {}
-      }
-
-      // If there's a pending plan, set it up
-      if (pendingPlan) {
-        const newSub = {
-          plan: pendingPlan,
-          status: "trialing",
-          started_at: new Date().toISOString(),
-        };
-        localStorage.setItem("flexora_subscription", JSON.stringify(newSub));
-        localStorage.removeItem("flexora_pending_plan");
-        setSubscription(newSub);
-      }
     } catch {
       navigate({ to: "/login" });
     }
@@ -152,23 +115,23 @@ function SubscriptionPage() {
   function handleLogout() {
     localStorage.removeItem("flexora_token");
     localStorage.removeItem("flexora_user");
-    localStorage.removeItem("flexora_subscription");
-    localStorage.removeItem("flexora_trial_start");
     document.cookie = "flexora_token=; path=/; max-age=0";
     navigate({ to: "/" });
   }
 
   function handleUpgrade(planKey: string) {
-    const link = getPaymentLink(planKey, lang);
+    // Opens the real Stripe payment link for the plan.
+    const link = getPaymentLink(planKey);
     window.open(link, "_blank", "noopener,noreferrer");
   }
 
   function handleCancel() {
-    // Open Stripe customer portal or show instructions
+    // No Stripe customer portal yet (needs the owner's own Stripe account + API
+    // keys). Give an honest answer instead of a dead end or false promises.
     if (!STRIPE_CUSTOMER_PORTAL) {
       alert(
-        "To cancel your subscription, please go to your Stripe billing portal. " +
-        "You can find the link in your email receipt, or contact support@flexorafitnes.com"
+        "For å avslutte eller endre abonnementet, kontakt oss på support@flexorafitnes.com " +
+          "så hjelper vi deg. Refusjoner behandles manuelt."
       );
     } else {
       window.open(STRIPE_CUSTOMER_PORTAL, "_blank", "noopener,noreferrer");
@@ -183,10 +146,23 @@ function SubscriptionPage() {
     );
   }
 
-  const hasSubscription = subscription && subscription.status !== "cancelled";
+  const isExpired = subscription?.status === "expired";
+  const hasSubscription = !!subscription && subscription.status !== "cancelled" && !isExpired;
   const currentPlan = subscription?.plan || "none";
   const isPt = user?.role === "pt";
   const plans = isPt ? [PT_PLAN] : CLIENT_PLANS;
+
+  // Days left until the trial/access period ends (from the server's expires_at)
+  let trialDaysLeft = 0;
+  if (subscription?.expires_at && !isExpired) {
+    const now = new Date().getTime();
+    const expires = new Date(String(subscription.expires_at).replace(" ", "T")).getTime();
+    trialDaysLeft = Math.max(0, Math.ceil((expires - now) / (1000 * 60 * 60 * 24)));
+  }
+
+  const isTrial = subscription?.status === "trial" || subscription?.status === "trialing";
+  const planName = (key: string) =>
+    key === "pt" ? t("pricing.ptPlan") : key.charAt(0).toUpperCase() + key.slice(1);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -218,7 +194,7 @@ function SubscriptionPage() {
         </div>
 
         {/* Trial Banner */}
-        {(!hasSubscription || subscription?.status === "trialing") && trialDaysLeft > 0 && (
+        {isTrial && !isExpired && trialDaysLeft > 0 && (
           <div className="mb-8 rounded-xl bg-gradient-to-r from-[#1A56DB] to-[#3B82F6] p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
@@ -235,6 +211,26 @@ function SubscriptionPage() {
           </div>
         )}
 
+        {/* Expired trial banner */}
+        {isExpired && (
+          <div className="mb-8 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 p-6 text-white">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold">Prøvetiden er over</h2>
+                <p className="text-sm text-red-100 mt-1">
+                  Fortsett med {planName(subscription.plan)} for å beholde alle tjenestene dine.
+                </p>
+              </div>
+              <button
+                onClick={() => handleUpgrade(subscription.plan)}
+                className="shrink-0 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+              >
+                Fortsett med {planName(subscription.plan)} →
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Current Plan */}
         {hasSubscription && (
           <div className="mb-8 rounded-xl border-2 border-[#1A56DB] bg-white p-6 shadow-sm">
@@ -244,14 +240,10 @@ function SubscriptionPage() {
                   Current Plan
                 </span>
                 <h2 className="mt-1 text-2xl font-bold text-[#1A56DB] capitalize">
-                  {currentPlan}
+                  {planName(currentPlan)}
                 </h2>
                 <p className="mt-1 text-sm text-gray-500">
-                  {subscription.status === "trialing"
-                    ? "🕐 Trial Period"
-                    : subscription.status === "active"
-                    ? "✅ Active"
-                    : `Status: ${subscription.status}`}
+                  {isTrial ? "🕐 Prøveperiode (gratis)" : subscription.status === "active" ? "✅ Aktiv" : `Status: ${subscription.status}`}
                 </p>
                 <p className="mt-1 text-xs text-gray-400">
                   Started: {new Date(subscription.started_at).toLocaleDateString()}
@@ -269,7 +261,7 @@ function SubscriptionPage() {
         )}
 
         {/* No Subscription */}
-        {!hasSubscription && (
+        {!hasSubscription && !isExpired && (
           <div className="mb-8 rounded-xl border-2 border-dashed border-gray-300 bg-white p-8 text-center">
             <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
               <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -321,7 +313,7 @@ function SubscriptionPage() {
                     ))}
                   </ul>
 
-                  {isCurrent ? (
+                  {isCurrent && hasSubscription ? (
                     <div className="rounded-full bg-[#1A56DB]/10 px-4 py-2.5 text-center text-sm font-semibold text-[#1A56DB]">
                       ✓ Current Plan
                     </div>
@@ -330,13 +322,7 @@ function SubscriptionPage() {
                       onClick={() => handleUpgrade(plan.key)}
                       className="w-full rounded-full bg-[#1A56DB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1E40AF] transition-colors"
                     >
-                      {hasSubscription
-                        ? currentPlan === "none"
-                          ? `Choose ${plan.name}`
-                          : planIndex(plans, plan.key) > planIndex(plans, currentPlan)
-                          ? `Upgrade to ${plan.name}`
-                          : `Downgrade to ${plan.name}`
-                        : `Start ${plan.name} Free Trial`}
+                      {isExpired ? `Fortsett med ${plan.name}` : `Choose ${plan.name}`}
                     </button>
                   )}
                 </div>
@@ -350,26 +336,18 @@ function SubscriptionPage() {
           <div className="rounded-xl border border-red-200 bg-red-50 p-6">
             <h3 className="mb-2 text-lg font-semibold text-red-700">Avslutt abonnement</h3>
             <p className="mb-4 text-sm text-red-600">
-              You can cancel your subscription at any time. Your access will continue until the end
-              of your billing period. To cancel, visit the Stripe customer portal.
+              Du kan avslutte når som helst — ingen binding. Skriv til
+              support@flexorafitnes.com, så hjelper vi deg med kansellering og eventuell refusjon.
             </p>
-            <button
-              onClick={handleCancel}
-              className="rounded-full border-2 border-red-300 bg-white px-6 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+            <a
+              href="mailto:support@flexorafitnes.com?subject=Avslutte abonnement"
+              className="inline-block rounded-full border-2 border-red-300 bg-white px-6 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
             >
-              Go to Billing Portal →
-            </button>
-            <p className="mt-3 text-xs text-red-400">
-              You can also cancel directly from your Stripe receipt email. If you need help,
-              contact support@flexorafitnes.com
-            </p>
+              Kontakt support@flexorafitnes.com
+            </a>
           </div>
         )}
       </main>
     </div>
   );
-}
-
-function planIndex(plans: PlanInfo[], key: string): number {
-  return plans.findIndex((p) => p.key === key);
 }

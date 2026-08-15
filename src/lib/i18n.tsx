@@ -151,7 +151,8 @@ export { languages };
 
 export function useLanguage() {
   const { t, lang } = useTranslation();
-  const currency = lang === "no" ? "NOK" : "USD";
+  // One price, one currency: NOK (matches the real Stripe payment links).
+  const currency: Currency = "NOK";
   return { t, lang, currency };
 }
 

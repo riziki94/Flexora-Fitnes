@@ -1,116 +1,70 @@
 import type { Language } from "./translations";
 
-// ─── Currency types ────────────────────────────────────────────────────────
-export type Currency = "USD" | "NOK" | "EUR";
+// ─── Currency ───────────────────────────────────────────────────────────────
+// The owner decided on ONE honest price per plan, charged in NOK via real
+// Stripe payment links. No fictional per-language conversion: every visitor
+// sees the same price in NOK — the exact amount that is charged.
+export type Currency = "NOK";
 
-// ─── Language → currency mapping ──────────────────────────────────────────
-// EN → USD, NO → NOK, ES/FR/DE → EUR, AR/ZH → USD
-export function getCurrencyForLang(lang: Language): Currency {
-  switch (lang) {
-    case "no":
-      return "NOK";
-    case "es":
-    case "fr":
-    case "de":
-      return "EUR";
-    default:
-      return "USD";
-  }
+// Language → currency: always NOK (one price, one currency)
+export function getCurrencyForLang(_lang: Language): Currency {
+  return "NOK";
 }
 
-// ─── Base prices in USD cents ─────────────────────────────────────────────
+// ─── Plan prices in NOK (whole kroner) ──────────────────────────────────────
+// These match the real Stripe payment links exactly (see src/lib/stripe.ts).
 export const BASE_PRICES = {
-  basis: 1490,   // $14.90
-  hybrid: 2490,  // $24.90
-  premium: 3990, // $39.90
-  pt: 1990,      // $19.90
+  basis: 149, // kr / month
+  hybrid: 249, // kr / month
+  premium: 399, // kr / month
+  pt: 199, // kr / month
 } as const;
 
 export type PlanKey = keyof typeof BASE_PRICES;
 
-// ─── Fixed exchange rates ─────────────────────────────────────────────────
-// 1 USD ≈ 10 NOK, 1 EUR ≈ 11 NOK  →  1 EUR ≈ 1.1 USD
-const USD_TO_NOK = 10;
-const EUR_TO_NOK = 11;
+// ─── Price helpers ──────────────────────────────────────────────────────────
+// Prices are displayed in NOK only. Conversion helpers remain as pass-throughs
+// for API compatibility, but no conversion happens anymore.
 
-// ─── Conversion helpers ───────────────────────────────────────────────────
-
-/** Convert USD cents to the target currency's cents (or whole units for NOK). */
-export function convertPrice(usdCents: number, lang: Language): number {
-  const currency = getCurrencyForLang(lang);
-  switch (currency) {
-    case "NOK":
-      // Convert to whole NOK (not cents)
-      return Math.round((usdCents * USD_TO_NOK) / 100);
-    case "EUR":
-      // Convert to EUR cents
-      return Math.round((usdCents * USD_TO_NOK) / EUR_TO_NOK);
-    default:
-      return usdCents;
-  }
+/** Return the price in NOK (whole kroner). */
+export function convertPrice(nokPrice: number, _lang: Language): number {
+  return nokPrice;
 }
 
-/** Format a price (in USD cents) for the given language with proper currency symbol. */
-export function formatPrice(usdCents: number, lang: Language): string {
-  const currency = getCurrencyForLang(lang);
-  switch (currency) {
-    case "NOK": {
-      const nok = Math.round((usdCents * USD_TO_NOK) / 100);
-      return `${nok} kr`;
-    }
-    case "EUR": {
-      const eurCents = Math.round((usdCents * USD_TO_NOK) / EUR_TO_NOK);
-      const euros = Math.floor(eurCents / 100);
-      const cents = eurCents % 100;
-      return `${euros},${cents.toString().padStart(2, "0")} €`;
-    }
-    default: {
-      // USD
-      const dollars = Math.floor(usdCents / 100);
-      const cents = usdCents % 100;
-      return `$${dollars}.${cents.toString().padStart(2, "0")}`;
-    }
-  }
+/** Format a price in NOK with the kr suffix. */
+export function formatPrice(nokPrice: number, _lang?: Language): string {
+  return `${nokPrice} kr`;
 }
 
 /** Format a price with a trailing "/period" suffix. */
 export function formatPriceWithPeriod(
-  usdCents: number,
+  nokPrice: number,
   lang: Language,
   periodSuffix: string,
 ): string {
-  return `${formatPrice(usdCents, lang)}${periodSuffix}`;
+  return `${formatPrice(nokPrice, lang)}${periodSuffix}`;
 }
 
-// ─── Currency-specific Stripe payment links ────────────────────────────────
-// All links are USD-based; Stripe handles currency conversion automatically.
+// ─── Real Stripe payment links (NOK, verified 2026-08-15) ───────────────────
+// One set of real payment links, shown for every language. Prices in NOK.
+const REAL_PAYMENT_LINKS: Record<PlanKey, string> = {
+  basis: "https://buy.stripe.com/eVqeVd2cg8oM8aI6oq1Fe1a", // 149 kr
+  hybrid: "https://buy.stripe.com/14A7sLcQUeNa3Us0021Fe19", // 249 kr
+  premium: "https://buy.stripe.com/bJe8wP6sw8oM4YwcMO1Fe18", // 399 kr
+  pt: "https://buy.stripe.com/fZu6oHaIM20o4Yw3ce1Fe16", // 199 kr
+};
+
+// Kept as a Record keyed by currency for API compatibility — every currency
+// resolves to the same real NOK links (there is only one real price).
 export const STRIPE_LINKS_BY_CURRENCY: Record<
   Currency,
   Record<PlanKey, string>
 > = {
-  USD: {
-    basis: "https://buy.stripe.com/dRm6oH9EIbAYdv2dQS1Fe00",
-    hybrid: "https://buy.stripe.com/7sYbJ1aIMfRe8aI3ce1Fe01",
-    premium: "https://buy.stripe.com/14A3cvdUYdJ676E7su1Fe02",
-    pt: "https://buy.stripe.com/bJefZh2cg7kIez60021Fe03",
-  },
-  NOK: {
-    basis: "https://buy.stripe.com/dRm6oH9EIbAYdv2dQS1Fe00",
-    hybrid: "https://buy.stripe.com/7sYbJ1aIMfRe8aI3ce1Fe01",
-    premium: "https://buy.stripe.com/14A3cvdUYdJ676E7su1Fe02",
-    pt: "https://buy.stripe.com/bJefZh2cg7kIez60021Fe03",
-  },
-  EUR: {
-    basis: "https://buy.stripe.com/dRm6oH9EIbAYdv2dQS1Fe00",
-    hybrid: "https://buy.stripe.com/7sYbJ1aIMfRe8aI3ce1Fe01",
-    premium: "https://buy.stripe.com/14A3cvdUYdJ676E7su1Fe02",
-    pt: "https://buy.stripe.com/bJefZh2cg7kIez60021Fe03",
-  },
+  NOK: { ...REAL_PAYMENT_LINKS },
 };
 
-/** Get the Stripe payment link for a plan, based on the current language. */
-export function getStripeLink(plan: string, lang: Language): string {
-  const currency = getCurrencyForLang(lang);
-  const links = STRIPE_LINKS_BY_CURRENCY[currency] ?? STRIPE_LINKS_BY_CURRENCY.USD;
-  return (links as Record<string, string>)[plan] ?? links.basis ?? "#pricing";
+/** Get the real Stripe payment link for a plan. */
+export function getStripeLink(plan: string, _lang?: Language): string {
+  const links = STRIPE_LINKS_BY_CURRENCY.NOK;
+  return links[plan as PlanKey] ?? links.basis ?? "#pricing";
 }

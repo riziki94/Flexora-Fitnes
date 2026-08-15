@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getDashboardData } from "~/lib/user-actions";
 import { getReferralStats } from "~/lib/referral-actions";
-import { FREE_TRIAL_DAYS, FREE_TRIAL_MESSAGE } from "~/lib/stripe";
+import { FREE_TRIAL_DAYS, FREE_TRIAL_MESSAGE, getPaymentLink } from "~/lib/stripe";
 import { useTranslation } from "~/lib/i18n";
 import Avatar from "~/components/Avatar";
 
@@ -32,22 +32,31 @@ function DashboardPage() {
       const parsed = JSON.parse(stored);
       setUser(parsed);
 
-      // Calculate trial days
-      const trialStart = localStorage.getItem("flexora_trial_start");
-      if (!trialStart) {
-        const now = new Date().toISOString();
-        localStorage.setItem("flexora_trial_start", now);
-      }
-      const start = new Date(trialStart || new Date().toISOString());
-      const now = new Date();
-      const daysElapsed = Math.floor(
-        (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-      );
-      const remaining = Math.max(0, FREE_TRIAL_DAYS - daysElapsed);
-      setTrialDaysLeft(remaining);
-
       // Load dashboard data
-      getDashboardData().then(setDashData).catch(console.error).finally(() => setLoading(false));
+      getDashboardData().then((data) => {
+        setDashData(data);
+        // Trial days from the server's subscription expiry (source of truth).
+        // Falls back to the localStorage marker only for legacy users without a
+        // server subscription.
+        const sub = data?.subscription as any;
+        if (sub?.expires_at && sub.status !== "expired") {
+          const now = new Date().getTime();
+          const expires = new Date(String(sub.expires_at).replace(" ", "T")).getTime();
+          setTrialDaysLeft(Math.max(0, Math.ceil((expires - now) / (1000 * 60 * 60 * 24))));
+        } else if (!sub) {
+          const trialStart = localStorage.getItem("flexora_trial_start");
+          if (!trialStart) {
+            const nowIso = new Date().toISOString();
+            localStorage.setItem("flexora_trial_start", nowIso);
+          }
+          const start = new Date(trialStart || new Date().toISOString());
+          const now = new Date();
+          const daysElapsed = Math.floor(
+            (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+          );
+          setTrialDaysLeft(Math.max(0, FREE_TRIAL_DAYS - daysElapsed));
+        }
+      }).catch(console.error).finally(() => setLoading(false));
 
       // Load referral stats
       getReferralStats().then(setRefStats).catch(() => {});
@@ -119,8 +128,8 @@ function DashboardPage() {
       </nav>
 
       <main className="mx-auto max-w-7xl px-6 py-8">
-        {/* Trial Banner — show when no active subscription */}
-        {!isPt && !dashData?.subscription && trialDaysLeft > 0 && (
+        {/* Trial Banner — active free trial */}
+        {!isPt && dashData?.subscription?.status === "trial" && trialDaysLeft > 0 && (
           <div className="mb-8 rounded-xl bg-gradient-to-r from-[#1A56DB] to-[#3B82F6] p-5 text-white shadow-md">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
@@ -138,6 +147,26 @@ function DashboardPage() {
               >
                 {t("dashboard.chooseSubscription")}
               </a>
+            </div>
+          </div>
+        )}
+
+        {/* Expired trial banner — honest: trial is over, continue with the real link */}
+        {!isPt && dashData?.subscription?.status === "expired" && (
+          <div className="mb-8 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 p-5 text-white shadow-md">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="font-semibold">Prøvetiden er over</p>
+                <p className="text-sm text-red-100">
+                  Fortsett med {planDisplayName(dashData.subscription.plan)} for å beholde alle tjenestene dine.
+                </p>
+              </div>
+              <button
+                onClick={() => window.open(getPaymentLink(dashData.subscription.plan), "_blank", "noopener,noreferrer")}
+                className="shrink-0 rounded-full bg-white px-5 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors text-center"
+              >
+                Fortsett med {planDisplayName(dashData.subscription.plan)} →
+              </button>
             </div>
           </div>
         )}
@@ -164,14 +193,33 @@ function ClientDashboard({ data, refStats, copyReferralLink, copySuccess }: { da
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {/* Quick Stats */}
       <DashboardCard title={t("dashboard.subscription")} className="md:col-span-2 lg:col-span-1">
-        {data?.subscription ? (
+        {data?.subscription?.status === "expired" ? (
+          <div>
+            <span className="inline-block rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
+              {data.subscription.plan.toUpperCase()} — PRØVETIDEN ER OVER
+            </span>
+            <p className="mt-2 text-sm text-gray-500">
+              Fortsett med {planDisplayName(data.subscription.plan)} for å beholde alle tjenestene.
+            </p>
+            <button
+              onClick={() => window.open(getPaymentLink(data.subscription.plan), "_blank", "noopener,noreferrer")}
+              className="mt-3 inline-block rounded-full bg-[#1A56DB] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E40AF] transition-colors"
+            >
+              Fortsett med {planDisplayName(data.subscription.plan)} →
+            </button>
+          </div>
+        ) : data?.subscription ? (
           <div>
             <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
               {data.subscription.plan.toUpperCase()}
+              {data.subscription.status === "trial" ? " — PRØVEPERIODE" : ""}
             </span>
             <p className="mt-2 text-sm text-gray-500">
               {t("dashboard.activeSince")} {new Date(data.subscription.started_at).toLocaleDateString()}
             </p>
+            <a href="/app/subscription" className="mt-2 inline-block text-sm font-medium text-[#1A56DB] hover:underline">
+              {t("dashboard.viewPlans")}
+            </a>
           </div>
         ) : (
           <div>
@@ -315,6 +363,11 @@ function PtDashboard({ data, refStats, copyReferralLink, copySuccess }: { data: 
       </DashboardCard>
     </div>
   );
+}
+
+function planDisplayName(key: string): string {
+  if (key === "pt") return "PT";
+  return key.charAt(0).toUpperCase() + key.slice(1);
 }
 
 function DashboardCard({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
