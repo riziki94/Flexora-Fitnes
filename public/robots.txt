@@ -2,4 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /app/
 
-Sitemap: https://www.flexorafitnes.com/sitemap.xml
+# TEMP-D1: bytt tilbake til https://www.flexorafitnes.com/sitemap.xml når SSL er på plass
+Sitemap: https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app/sitemap.xml

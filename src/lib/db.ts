@@ -467,6 +467,21 @@ function runMigrations(db: any) {
     );
 
     CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_email ON newsletter_subscribers(email);
+
+    -- PT lead log (day-1 acquisition): one row per PT application, tagged with
+    -- its acquisition channel so we can attribute PT signups to a source.
+    CREATE TABLE IF NOT EXISTS pt_leads (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      certification TEXT DEFAULT '',
+      source TEXT DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'new',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_pt_leads_status ON pt_leads(status);
+    CREATE INDEX IF NOT EXISTS idx_pt_leads_created ON pt_leads(created_at);
     `);
 
     // Add new columns to existing tables if they don't exist (safe ALTER)
@@ -484,6 +499,12 @@ function runMigrations(db: any) {
   try { db.exec("ALTER TABLE users ADD COLUMN referrer_id INTEGER REFERENCES users(id) ON DELETE SET NULL"); } catch (_) { /* exists */ }
   try { db.exec("CREATE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)"); } catch (_) { /* exists */ }
   try { db.exec("CREATE INDEX IF NOT EXISTS idx_users_referrer ON users(referrer_id)"); } catch (_) { /* exists */ }
+
+  // UTM attribution — acquisition channel stored per user (empty when no UTM in URL)
+  try { db.exec("ALTER TABLE users ADD COLUMN utm_source TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE users ADD COLUMN utm_medium TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
+  try { db.exec("ALTER TABLE users ADD COLUMN utm_campaign TEXT NOT NULL DEFAULT ''"); } catch (_) { /* exists */ }
+  try { db.exec("CREATE INDEX IF NOT EXISTS idx_users_utm_source ON users(utm_source)"); } catch (_) { /* exists */ }
 
   // Generate referral codes for existing users who don't have one
   try {
