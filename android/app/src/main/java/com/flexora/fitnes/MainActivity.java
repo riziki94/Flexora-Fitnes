@@ -1,4 +1,4 @@
-package com.kitozon.app;
+package com.flexora.fitnes;
 
 import com.getcapacitor.BridgeActivity;
 
