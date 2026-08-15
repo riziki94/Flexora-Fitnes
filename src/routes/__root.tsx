@@ -150,12 +150,7 @@ function RootDocument({ children }: { children: ReactNode }) {
                 "@type": "Offer",
                 price: "0",
                 priceCurrency: "NOK",
-                description: "Free trial available",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "250",
+                description: "1 month free trial available",
               },
             }),
           }}

@@ -64,7 +64,7 @@ Flexora combines the best of both worlds:
 
 The future of personal training is here — and it doesn't care where you live.
 
-[Start your free trial today](/register)
+[Start your 1 month free today](/register)
     `.trim()
   },
   {
@@ -122,7 +122,7 @@ Flexora Fitnes was built for this exact future:
 
 AI handles the routine. Humans provide the magic. Together, they create the perfect training experience.
 
-[Try the hybrid approach — free trial](/register)
+[Try the hybrid approach — 1 month free](/register)
     `.trim()
   },
   {
@@ -183,7 +183,7 @@ The 3D muscle map is available right now on Flexora Fitnes. No additional hardwa
     slug: 'online-personal-training-norway',
     title: 'Online Personal Training in Norway: The Complete 2026 Guide',
     metaTitle: 'Online Personal Training Norway 2026 | Flexora Fitnes',
-    metaDescription: 'Find the best online personal trainers in Norway. Compare prices, platforms, and training styles. Get started with a free trial today.',
+    metaDescription: 'Find the best online personal trainers in Norway. Compare prices, platforms, and training styles. Get started with 1 month free today.',
     date: '2026-07-26',
     author: 'Flexora Team',
     category: 'Fitness Guide',
@@ -224,9 +224,9 @@ Online training cuts costs by 40-60% while delivering the same expertise.
 
 ## Getting Started
 
-Flexora Fitnes connects you with verified Norwegian PTs — plus thousands of trainers worldwide. Start with a free trial and get matched with your ideal trainer in 60 seconds via Speed Date.
+Flexora Fitnes connects you with verified Norwegian PTs — plus trainers from around the world. Start with 1 month free and get matched with your ideal trainer in 60 seconds via Speed Date.
 
-[Try Flexora Fitnes — free trial](/register)
+[Try Flexora Fitnes — 1 month free](/register)
     `.trim()
   },
   {
@@ -308,7 +308,7 @@ The hardest step — and where platforms like Flexora help most:
 - **Global visibility** means clients in the US, UK, Australia can discover your profile
 - **Verified badge** builds instant trust
 
-[Join Flexora as a PT — free trial](/register)
+[Join Flexora as a PT — 1 month free](/register)
     `.trim()
   }
 ];
