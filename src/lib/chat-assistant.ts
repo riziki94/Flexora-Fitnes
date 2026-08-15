@@ -1,5 +1,5 @@
 /**
- * Kitozon AI Assistant — local keyword-matching knowledge base.
+ * Flexora Fitnes AI Assistant — local keyword-matching knowledge base.
  * No external API needed. Supports both Norwegian and English queries.
  */
 
@@ -11,166 +11,156 @@ interface QAPair {
 const knowledgeBase: QAPair[] = [
   {
     keywords: [
-      "kitoslight", "hva er kitoslight", "what is kitoslight",
-      "kito", "kitos", "environmental monitoring", "miljøovervåking",
-      "overvåking",
+      "flexora", "hva er flexora", "what is flexora", "om flexora",
+      "plattform", "platform", "tjeneste", "service", "hva er dette",
+      "what is this", "om dere", "about",
     ],
     answer:
-      "**Kitoslight** er Kitozons sanntids miljøovervåkingssystem. Det består av smarte benker, busskur og sensorstolper som måler luftkvalitet (CO₂, SO₂, H₂S, CO, NO₂, PM2.5), sporer energiproduksjon fra solcellepaneler, og tilbyr offentlige tjenester som telefonlading og WiFi. Alle data visualiseres på et interaktivt kart i sanntid. Kitoslight er tilgjengelig i Norge og i DRC Kongo for vulkangass-måling.",
+      "**Flexora Fitnes** er en global, tosidig PT-markedsplass og AI-drevet treningsplattform. Du får en komplett treningsreise med 3D-muskelvisualisering, live video med bevegelseskorreksjon, stemmeveiledning, pustemåling, fargekodet innsats, automatisk timer, matskanning, musikk-integrasjon, ranking og globale konkurranser. I tillegg kan du booke PT-timer fra godkjente, verifiserte personlige trenere verden over — alt på ett sted.",
   },
   {
     keywords: [
-      "zongosol", "hva er zongosol", "what is zongosol",
-      "container", "containerbolig", "container home", "containerhus",
-      "zongo", "zong",
+      "pt", "personlig trener", "personal trainer", "booke", "booking",
+      "book", "time", "timer", "session", "treningstime", "trener",
+      "trainer", "coach", "markedsplass", "marketplace",
     ],
     answer:
-      "**Zongosol** er Kitozons containerbolig-designverktøy. Du kan skreddersy interiør og eksteriør på din containerbolig: velg romløsninger, vinduer, dører, materialer og solcellepanel-integrasjon. Når designet er klart, kan du bestille det ferdige containerhuset direkte fra plattformen. Alt i ett verktøy — design, visualiser og bestill.",
+      "Med Flexora Fitnes kan du **booke PT-timer fra verifiserte, profesjonelle PT-er** over hele verden:\n\n" +
+      "1. Bla gjennom PT-profiler med diplom, erfaring og omtaler\n" +
+      "2. Bruk **speed date** for å bli matchet med PT-er som passer dine mål\n" +
+      "3. Book en time direkte — live video eller 1:1 via Premium-abonnementet\n\n" +
+      "Kun verifiserte PT-er med dokumentert utdanning er godkjent på plattformen.",
   },
   {
     keywords: [
       "pris", "pricing", "koster", "kostnad", "abonnement", "subscription",
       "price", "cost", "hva koster", "priser", "tiers", "planer", "plans",
-      "måned", "month", "nok",
+      "måned", "month", "basis", "hybrid", "premium", "kr", "nok",
     ],
     answer:
-      "Kitozon har **tre produkter** med fleksible betalingsalternativer:\n\n" +
-      " **Kitoslight** — Miljøovervåking\n" +
-      "   • Engangsbetaling: 4 449 kr (konsulent kobles på etter kjøp)\n" +
-      "   • Månedlig: 1 499 kr/md (konsulent følger deg hele veien)\n" +
-      "   • Årlig: 15 290 kr/år — spar 15% — (konsulent følger deg hele veien)\n\n" +
-      " **Zongosol** — Containerbolig-design (mest populær)\n" +
-      "   • Engangsbetaling: 7 449 kr (konsulent kobles på etter kjøp)\n" +
-      "   • Månedlig: 2 499 kr/md (konsulent følger deg hele veien)\n" +
-      "   • Årlig: 25 490 kr/år — spar 15% — (konsulent følger deg hele veien)\n\n" +
-      " **Dashboard** — Admin-dashbord\n" +
-      "   • Månedlig: 4 999 kr/md (konsulent følger deg hele veien)\n\n" +
-      "Alle abonnementer betales via Stripe. Gå til /pricing for full oversikt!",
+      "Flexora Fitnes har **tre kundeabonnementer** og ett PT-abonnement:\n\n" +
+      " **Basis** — ~149 kr/mnd\n" +
+      "   • Treningsplaner, chat, ranking, matskanning, musikk og konkurranser\n\n" +
+      " **Hybrid** — ~249 kr/mnd\n" +
+      "   • Alt i Basis + AI-PT, opprett grupper og arranger egne konkurranser\n\n" +
+      " **Premium** — ~399 kr/mnd\n" +
+      "   • Alt i Hybrid + live video, bevegelseskorreksjon, pustemåling og 1:1 PT\n\n" +
+      " **PT-abonnement** — ~199 kr/mnd (for profesjonelle trenere)\n" +
+      "   • Profil, markedsføring, speed date og tilgang til kundebasen\n\n" +
+      "Alle abonnementer betales via Stripe. Gå til registreringssiden for å komme i gang!",
   },
   {
     keywords: [
-      "esg", "rapportering", "report", "reporting", "esg-rapport",
-      "esg rapport", "bærekraft", "sustainability", "co2 rapport",
-      "climate", "klima",
+      "3d", "muskel", "muscle", "visualisering", "visualization",
+      "muskelvisualisering", "anatomi", "anatomy", "kroppen", "body",
     ],
     answer:
-      "**ESG-rapportering** gjøres via Kitozons admin-dashbord. Alle Kitoslight-enheter kobles til dashbordet via IP-adresse, og sanntidsdata om CO₂-utslipp, energiproduksjon og luftkvalitet mates automatisk inn i ESG-rapportene. Du kan generere ferdige rapporter med ett klikk — perfekt for bedrifter med rapporteringskrav. Dashboard-abonnementet (990 NOK/mnd) gir full tilgang til ESG-funksjonaliteten.",
+      "**3D-muskelvisualiseringen** viser deg nøyaktig hvilke muskler som jobber i hver øvelse. Du kan se treningsøkten din i 3D, følge muskelaktiveringen i sanntid og spore fremgangen din visuelt over tid — perfekt for alle nivåer, enten målet er vekt, muskler, cardio eller styrke.",
   },
   {
     keywords: [
-      "gass", "gasser", "måler", "sensor", "co2", "so2", "h2s", "no2",
-      "pm2.5", "co", "luftkvalitet", "air quality", "forurensning",
-      "pollution", "hvilke gasser", "what gases", "måling",
+      "bevegelse", "korreksjon", "form", "korrekt", "live video",
+      "kamera", "camera", "teknikk", "technique", "øvelse", "exercise",
+      "bevegelseskorreksjon",
     ],
     answer:
-      "Kitoslight måler følgende gasser og partikler:\n\n" +
-      "• **CO₂** — karbondioksid\n" +
-      "• **SO₂** — svoveldioksid\n" +
-      "• **H₂S** — hydrogensulfid\n" +
-      "• **CO** — karbonmonoksid\n" +
-      "• **NO₂** — nitrogendioksid\n" +
-      "• **PM2.5** — fine svevestøvpartikler\n\n" +
-      "I DRC Kongo brukes sensorene spesielt til overvåking av vulkanske gasser. All data er tilgjengelig i sanntid via Kitoslight-abonnementet.",
+      "**Live video med bevegelseskorreksjon** gjør at AI-en analyserer teknikken din i sanntid og gir deg tilbakemelding — som å ha en PT som følger med på hver eneste repetisjon. Sammen med stemmeveiledning, pustemåling, fargekodet innsats og automatisk timer får du full feedback på hver økt. Funksjonen er inkludert i Premium-abonnementet.",
   },
   {
     keywords: [
-      "design", "hvordan designer", "lage", "bygg", "bygge", "containerhus",
-      "designer jeg", "how do i design", "create", "build", "lag",
-      "skreddersy", "customize",
+      "stemme", "voice", "puste", "breath", "pustemåling", "innsats",
+      "effort", "timer", "musikk", "music", "lyd", "veiledning",
+      "guidance", "spotify", "tempo",
     ],
     answer:
-      "Slik designer du et containerhus med Zongosol:\n\n" +
-      "1. Gå til **Zongosol**-siden på Kitozon\n" +
-      "2. Velg en basismodell (20-fot, 40-fot, eller multi-container)\n" +
-      "3. Skreddersy interiøret: romløsninger, kjøkken, bad, soverom\n" +
-      "4. Velg eksteriør: vinduer, dører, terrasse, farge\n" +
-      "5. Planlegg solcellepanel-integrasjon\n" +
-      "6. Gå gjennom designet og bestill\n\n" +
-      "Du trenger Zongosol-abonnementet (fra 2 499 kr/mnd) for full tilgang til designverktøyet.",
+      "Under økten får du **stemmeveiledning**, **pustemåling**, **fargekodet innsats** og en **automatisk timer** som holder styr på sett og pauser. Du kan også koble til musikkappen din og trene i takt med tempo-tilpassede spillelister. Alt dette gjør at du kan fokusere 100% på treningen.",
+  },
+  {
+    keywords: [
+      "mat", "food", "skanning", "scan", "ernæring", "nutrition",
+      "kalorier", "calories", "kosthold", "diet", "makro", "macro",
+    ],
+    answer:
+      "**Matskanningen** lar deg skanne måltidene dine og få kalori- og næringsinnhold med én gang. Kombinert med treningsplanene dine får du full oversikt over kosthold og trening på samme sted. Funksjonen er inkludert i Basis-abonnementet.",
+  },
+  {
+    keywords: [
+      "ranking", "konkurranse", "competition", "leaderboard", "global",
+      "verden", "world", "utfordring", "challenge", "premie", "prize",
+      "sponsor",
+    ],
+    answer:
+      "Flexora Fitnes har **ranking og globale konkurranser** der du kan konkurrere mot treningsentusiaster over hele verden. Med Hybrid-abonnementet kan du opprette egne grupper og arrangere dine egne konkurranser — og du kan vinne premier fra sponsorer. Konkurranser er en morsom måte å holde motivasjonen oppe!",
   },
   {
     keywords: [
       "installer", "app", "pwa", "mobil", "phone", "installere",
       "nedlasting", "download", "home screen", "add to home",
-      "home screen", "homescreen", "app store", "google play",
+      "homescreen", "app store", "google play",
     ],
     answer:
-      "Kitozon er en **PWA** (Progressive Web App) — du trenger ikke laste ned fra App Store eller Google Play!\n\n" +
+      "Flexora Fitnes er en **PWA** (Progressive Web App) — du trenger ikke laste ned fra App Store eller Google Play!\n\n" +
       "Slik installerer du:\n" +
-      " **iPhone/iPad**: Åpne Kitozon i Safari, trykk på del-ikonet (), og velg «Add to Home Screen».\n" +
-      " **Android**: Åpne Kitozon i Chrome, trykk på menyen (⋮), og velg «Add to Home Screen».\n" +
-      " **Desktop**: Åpne Kitozon i Chrome/Edge, og trykk på installasjonsikonet i adressefeltet.\n\n" +
-      "Appen fungerer offline og gir deg rask tilgang til alle Kitozon-funksjoner.",
+      " **iPhone/iPad**: Åpne Flexora Fitnes i Safari, trykk på del-ikonet, og velg «Add to Home Screen».\n" +
+      " **Android**: Åpne Flexora Fitnes i Chrome, trykk på menyen (⋮), og velg «Add to Home Screen».\n" +
+      " **Desktop**: Åpne Flexora Fitnes i Chrome/Edge, og trykk på installasjonsikonet i adressefeltet.\n\n" +
+      "Appen fungerer offline og gir deg rask tilgang til alle Flexora Fitnes-funksjoner.",
   },
   {
     keywords: [
-      "hvor", "tilgjengelig", "location", "available", "norge",
-      "congo", "drc", "kongo", "land", "countries", "steder",
+      "bli pt", "bli personlig trener", "pt abonnement", "hvordan blir jeg pt",
+      "sertifisert", "sertifikat", "diplom", "verifisert", "verified",
+      "certified", "speed date", "utdanning", "education", "erfaring",
+      "experience",
     ],
     answer:
-      "Kitoslight er for tiden tilgjengelig i:\n\n" +
-      " **Norge** — byer og kommuner med smarte benker, busskur og sensorstolper for miljøovervåking.\n" +
-      " **DRC Kongo** — spesialtilpasset for vulkangass-måling i nærheten av aktive vulkaner.\n\n" +
-      "Vi utvider fortløpende til nye markeder. Kontakt oss for å bli en pilotkunde i ditt område!",
+      "Slik blir du **verifisert PT** på Flexora Fitnes:\n\n" +
+      "1. Registrer deg med **PT-abonnementet** (~199 kr/mnd)\n" +
+      "2. Last opp **diplom og dokumentasjon** på utdanningen din\n" +
+      "3. Bygg profilen din med erfaring og spesialiteter\n" +
+      "4. Bruk **speed date** for å matche med potensielle kunder\n\n" +
+      "Plattformen tar 10–15% provisjon per booket PT-time. Kun verifiserte, profesjonelle PT-er med dokumentert utdanning blir godkjent.",
   },
   {
     keywords: [
-      "dashboard", "admin", "admin-dashbord", "administrator",
-      "dashbord", "admin panel", "kontrollpanel", "hva er dashboard",
-      "what is dashboard",
+      "hvor", "tilgjengelig", "location", "available", "land", "countries",
+      "norge", "norway", "globalt", "internasjonalt", "international",
+      "verdensomspennende", "worldwide",
     ],
     answer:
-      "**Admin-dashbordet** er Kitozons sentrale kontrollpanel (4 999 kr/mnd). Det gir deg:\n\n" +
-      "• **Full enhetsoversikt** — alle Kitoslight-enheter koblet via IP-adresse\n" +
-      "• **Sanntidsdata** — CO₂, gasser, energiproduksjon, ladestatus\n" +
-      "• **ESG-rapportgenerering** — automatiske bærekraftsrapporter\n" +
-      "• **Brukeradministrasjon** — administrer teammedlemmer og tilganger\n" +
-      "• **Abonnementskontroll** — oppgrader, nedgrader eller endre abonnementer\n\n" +
-      "Perfekt for kommuner og bedrifter som trenger full kontroll over sine miljødata.",
+      "Flexora Fitnes er en **global plattform** — du kan trene og booke PT-er over hele verden, uansett hvor du befinner deg. PT-er kan markedsføre seg selv og få kunder globalt. Alt du trenger er internettforbindelse!",
   },
   {
     keywords: [
       "subscribe", "subscribing", "how do i subscribe", "betaling",
       "payment", "stripe", "kjøp", "buy", "purchase", "abonnere",
-      "hvordan abonnerer", "bli kunde", "sign up", "registrere",
+      "hvordan abonnerer", "bli medlem", "sign up", "registrere",
+      "komme i gang", "get started",
     ],
     answer:
-      "Slik abonnerer du på Kitozon:\n\n" +
-      "1. Gå til **landingssiden** og scroll ned til abonnements-seksjonen\n" +
-      "2. Velg abonnementet som passer deg: Kitoslight, Zongosol, eller Dashboard\n" +
-      "3. Klikk på «Subscribe»-knappen — du blir sendt til **Stripe** for sikker betaling\n" +
-      "4. Etter betaling får du umiddelbar tilgang til alle funksjoner i ditt abonnement\n\n" +
-      "Du kan når som helst oppgradere eller avslutte abonnementet ditt via kontosiden.",
-  },
-  {
-    keywords: [
-      "benker", "benk", "bench", "smart bench", "smarte benker",
-      "busskur", "bus shelter", "stolper", "poles", "sensorstolpe",
-      "devices", "enheter", "device",
-    ],
-    answer:
-      "Kitoslight består av tre typer enheter:\n\n" +
-      " **Smarte benker** — med solcellepanel, telefonlading (USB + trådløs), WiFi-sone, og integrerte miljøsensorer.\n" +
-      " **Busskur** — utvidet versjon med EV-lading for elbiler, større solcellepanel, og full miljøovervåking.\n" +
-      " **Sensorstolper** — kompakte enheter for gassmåling og luftkvalitetsovervåking, inkludert vulkangass-måling i DRC Kongo.\n\n" +
-      "Alle enheter kobles til admin-dashbordet via IP-adresse for sanntidsdata.",
+      "Slik kommer du i gang med Flexora Fitnes:\n\n" +
+      "1. Registrer deg på landingssiden\n" +
+      "2. Velg abonnementet som passer deg: Basis, Hybrid eller Premium\n" +
+      "3. Klikk på betalingsknappen — du blir sendt til **Stripe** for sikker betaling\n" +
+      "4. Etter betaling får du umiddelbar tilgang til alle funksjonene i ditt abonnement\n\n" +
+      "Du kan når som helst oppgradere eller endre abonnementet ditt via kontosiden.",
   },
 ];
 
 /** Welcome message shown on first open */
 export const WELCOME_MESSAGE =
-  "Hei!  Jeg er Hilde, Kitozons AI-assistent. Jeg kan svare på alt om Kitoslight, Zongosol og Dashboard — spør meg om priser, enheter, gassmåling eller hvordan du designer et containerhus!";
+  "Hei!  Jeg er Hilde, Flexora Fitnes sin AI-assistent. Jeg kan hjelpe deg med alt om trening, priser og abonnementer, PT-booking, 3D-muskelvisualisering og konkurranser. Hva lurer du på?";
 
 /** Fallback when no keyword match is found */
 export const FALLBACK_RESPONSE =
-  "Hei, jeg er Hilde!  Jeg kan hjelpe deg med spørsmål om Kitoslight, Zongosol og Dashboard. Du kan for eksempel spørre om priser, gassmåling, containerhus-design, ESG-rapportering, eller hvordan du installerer appen. Hva lurer du på? ";
+  "Hei, jeg er Hilde!  Jeg kan hjelpe deg med spørsmål om Flexora Fitnes. Du kan for eksempel spørre om priser og abonnementer, hvordan du booker en PT, 3D-muskelvisualisering, matskanning, eller hvordan du installerer appen. Hva lurer du på? ";
 
 /** Suggested questions shown as clickable chips */
 export const SUGGESTED_QUESTIONS = [
   "Hva koster abonnementene?",
-  "Hvilke gasser måler Kitoslight?",
-  "Hvordan designer jeg et hus?",
-  "Hvordan fungerer ESG?",
+  "Hvordan booker jeg en PT?",
+  "Hva er 3D-muskelvisualisering?",
+  "Hvordan blir jeg verifisert PT?",
 ];
 
 /**

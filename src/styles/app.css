@@ -119,7 +119,7 @@
     break-inside: avoid;
   }
 
-  /* Hide the main Zongosol hero, model selector, layout selector, etc. */
+  /* Hide legacy landing-page hero and interactive sections when printing */
   .bg-gradient-to-br.from-emerald-700,
   section:has(> .grid > button),
   .grid:has(> button > .text-left) {

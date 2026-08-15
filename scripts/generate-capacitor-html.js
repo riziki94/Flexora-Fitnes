@@ -39,11 +39,11 @@ async function main() {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#059669" />
-  <meta name="description" content="Sustainable Container Homes &amp; Environmental Monitoring" />
+  <meta name="description" content="AI-Powered Personal Training" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Kitozon" />
-  <title>Kitozon — Sustainable Container Homes &amp; Environmental Monitoring</title>
+  <meta name="apple-mobile-web-app-title" content="Flexora Fitnes" />
+  <title>Flexora Fitnes — AI-Powered Personal Training</title>
   <link rel="stylesheet" href="/assets/${cssFile}" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="/favicon.ico" sizes="32x32" />

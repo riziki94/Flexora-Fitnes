@@ -12,7 +12,7 @@ interface Message {
   isBot: boolean;
 }
 
-const STORAGE_KEY = "kitozon-chat-messages";
+const STORAGE_KEY = "flexora-chat-messages";
 
 function loadMessages(): Message[] {
   try {
