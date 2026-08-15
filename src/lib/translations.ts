@@ -115,6 +115,23 @@ export const translations = {
     "ptRecruit.title": "Are you a Personal Trainer?",
     "ptRecruit.description": "Join Flexora and reach clients worldwide. Showcase your certifications, get matched through speed dating, and grow your business globally. Only verified professionals — protecting your reputation.",
     "ptRecruit.cta": "Register as PT",
+    // For PTs section (landing)
+    "ptSection.headline": "For PTs: reach clients worldwide",
+    "ptSection.intro": "Flexora is a global marketplace for personal trainers. We just launched and are looking for the first 100 trainers — free first month, no commitment.",
+    "ptSection.benefit1": "Global client base",
+    "ptSection.benefit1Desc": "Clients anywhere in the world can find you and book sessions, not just people in your city.",
+    "ptSection.benefit2": "Verified profile",
+    "ptSection.benefit2Desc": "Show your diploma and certification. Only documented, professional PTs get a profile.",
+    "ptSection.benefit3": "Speed date",
+    "ptSection.benefit3Desc": "Meet potential clients in short video calls and find the ones that fit you.",
+    "ptSection.benefit4": "Easy booking",
+    "ptSection.benefit4Desc": "Clients book sessions directly with you (sessions at 500 kr). The platform takes a 10–15% commission per booked session.",
+    "ptSection.benefit5": "1 month free, no commitment",
+    "ptSection.benefit5Desc": "The first 100 trainers pay nothing for the first month. Then 199 kr/month.",
+    "ptSection.cta": "Sign up as a PT",
+    "ptSection.ctaNote": "1 month free, no commitment, first 100.",
+    "ptSection.honesty": "We just launched, so there are no trainers on the platform yet. That means the first trainers to join get to help shape how Flexora works — and the first 100 get a free first month.",
+
 
     // Footer
     "footer.rights": "Flexora Fitnes. All rights reserved.",
@@ -374,6 +391,23 @@ export const translations = {
     "ptRecruit.title": "Er du personlig trener?",
     "ptRecruit.description": "Bli med i Flexora og nå kunder over hele verden. Vis frem sertifiseringene dine, bli matchet gjennom speed dating, og bygg virksomheten din globalt. Kun verifiserte profesjonelle — beskytter ditt omdømme.",
     "ptRecruit.cta": "Registrer deg som PT",
+    // For PT-er-seksjon (landing)
+    "ptSection.headline": "For PT-er: få kunder i hele verden",
+    "ptSection.intro": "Flexora er en global markedsplass for personlige trenere. Vi har nettopp lansert, og vi ser etter de første 100 PT-ene — gratis første måned, ingen binding.",
+    "ptSection.benefit1": "Global kundebase",
+    "ptSection.benefit1Desc": "Kunder over hele verden kan finne deg og booke timer, ikke bare folk i din by.",
+    "ptSection.benefit2": "Verifisert profil",
+    "ptSection.benefit2Desc": "Vis frem diplomet og sertifiseringen din. Kun dokumenterte, profesjonelle PT-er får profil.",
+    "ptSection.benefit3": "Speed date",
+    "ptSection.benefit3Desc": "Møt potensielle kunder gjennom korte videomøter og finn de som passer for deg.",
+    "ptSection.benefit4": "Enkel booking",
+    "ptSection.benefit4Desc": "Kunder booker timer direkte hos deg (timer à 500 kr). Plattformen tar 10–15 % provisjon per booket time.",
+    "ptSection.benefit5": "1 måned gratis, ingen binding",
+    "ptSection.benefit5Desc": "De første 100 PT-ene betaler ingenting den første måneden. Deretter 199 kr/mnd.",
+    "ptSection.cta": "Meld deg som PT",
+    "ptSection.ctaNote": "1 måned gratis, ingen binding, første 100.",
+    "ptSection.honesty": "Vi har akkurat lansert, så det er ingen PT-er på plattformen ennå. Det betyr at du som er blant de første får være med på å forme hvordan Flexora fungerer — og de første 100 får gratis første måned.",
+
 
     "footer.rights": "Flexora Fitnes. Alle rettigheter reservert.",
 
@@ -619,6 +653,23 @@ export const translations = {
     "ptRecruit.title": "¿Eres entrenador personal?",
     "ptRecruit.description": "Únete a Flexora y llega a clientes en todo el mundo. Muestra tus certificaciones, conéctate mediante speed dating y haz crecer tu negocio globalmente. Solo profesionales verificados — protegiendo tu reputación.",
     "ptRecruit.cta": "Regístrate como entrenador",
+    // Sección para entrenadores (landing)
+    "ptSection.headline": "Para entrenadores: consigue clientes en todo el mundo",
+    "ptSection.intro": "Flexora es un mercado global para entrenadores personales. Acabamos de lanzar y buscamos a los primeros 100 entrenadores — primer mes gratis, sin compromiso.",
+    "ptSection.benefit1": "Base de clientes global",
+    "ptSection.benefit1Desc": "Clientes de todo el mundo pueden encontrarte y reservar sesiones contigo, no solo gente de tu ciudad.",
+    "ptSection.benefit2": "Perfil verificado",
+    "ptSection.benefit2Desc": "Muestra tu diploma y certificación. Solo los entrenadores profesionales con documentación obtienen perfil.",
+    "ptSection.benefit3": "Speed date",
+    "ptSection.benefit3Desc": "Conoce a clientes potenciales en videollamadas cortas y encuentra los que encajan contigo.",
+    "ptSection.benefit4": "Reservas fáciles",
+    "ptSection.benefit4Desc": "Los clientes reservan sesiones directamente contigo (sesiones a 500 kr). La plataforma cobra una comisión del 10–15 % por sesión reservada.",
+    "ptSection.benefit5": "1 mes gratis, sin compromiso",
+    "ptSection.benefit5Desc": "Los primeros 100 entrenadores no pagan nada el primer mes. Después, 199 kr/mes.",
+    "ptSection.cta": "Regístrate como entrenador",
+    "ptSection.ctaNote": "1 mes gratis, sin compromiso, primeros 100.",
+    "ptSection.honesty": "Acabamos de lanzar, así que todavía no hay entrenadores en la plataforma. Eso significa que los primeros en unirse pueden ayudar a dar forma a cómo funciona Flexora — y los primeros 100 reciben el primer mes gratis.",
+
 
     "footer.rights": "Flexora Fitnes. Todos los derechos reservados.",
 
@@ -825,6 +876,23 @@ export const translations = {
     "ptRecruit.title": "Vous êtes coach personnel ?",
     "ptRecruit.description": "Rejoignez Flexora et atteignez des clients dans le monde entier. Présentez vos certifications, connectez-vous via speed dating et développez votre activité à l'échelle mondiale. Uniquement des professionnels vérifiés — protégeant votre réputation.",
     "ptRecruit.cta": "S'inscrire comme coach",
+    // Section pour les coachs (landing)
+    "ptSection.headline": "Pour les coachs : touchez des clients dans le monde entier",
+    "ptSection.intro": "Flexora est un marché mondial pour les coachs sportifs. Nous venons de lancer et nous cherchons les 100 premiers coachs — premier mois gratuit, sans engagement.",
+    "ptSection.benefit1": "Base de clients mondiale",
+    "ptSection.benefit1Desc": "Des clients du monde entier peuvent vous trouver et réserver des séances, pas seulement les gens de votre ville.",
+    "ptSection.benefit2": "Profil vérifié",
+    "ptSection.benefit2Desc": "Présentez votre diplôme et votre certification. Seuls les coachs professionnels avec documents justificatifs obtiennent un profil.",
+    "ptSection.benefit3": "Speed date",
+    "ptSection.benefit3Desc": "Rencontrez des clients potentiels lors de courts appels vidéo et trouvez ceux qui vous conviennent.",
+    "ptSection.benefit4": "Réservation simple",
+    "ptSection.benefit4Desc": "Les clients réservent des séances directement chez vous (séances à 500 kr). La plateforme prend une commission de 10–15 % par séance réservée.",
+    "ptSection.benefit5": "1 mois gratuit, sans engagement",
+    "ptSection.benefit5Desc": "Les 100 premiers coachs ne paient rien le premier mois. Ensuite, 199 kr/mois.",
+    "ptSection.cta": "Inscrivez-vous comme coach",
+    "ptSection.ctaNote": "1 mois gratuit, sans engagement, premiers 100.",
+    "ptSection.honesty": "Nous venons de lancer, il n'y a donc pas encore de coachs sur la plateforme. Cela signifie que les premiers à rejoindre peuvent contribuer à façonner Flexora — et les 100 premiers bénéficient d'un premier mois gratuit.",
+
 
     "footer.rights": "Flexora Fitnes. Tous droits réservés.",
 
@@ -1031,6 +1099,23 @@ export const translations = {
     "ptRecruit.title": "Bist du Personal Trainer?",
     "ptRecruit.description": "Tritt Flexora bei und erreiche Kunden weltweit. Präsentiere deine Zertifizierungen, werde durch Speed-Dating gematched und baue dein Geschäft global aus. Nur verifizierte Profis — zum Schutz deines Rufs.",
     "ptRecruit.cta": "Als Trainer registrieren",
+    // Bereich für Trainer (Landing)
+    "ptSection.headline": "Für Trainer: gewinnen Sie Kunden weltweit",
+    "ptSection.intro": "Flexora ist ein globaler Marktplatz für Personal Trainer. Wir sind gerade gestartet und suchen die ersten 100 Trainer — erster Monat gratis, ohne Bindung.",
+    "ptSection.benefit1": "Globale Kundenbasis",
+    "ptSection.benefit1Desc": "Kunden auf der ganzen Welt können Sie finden und Termine buchen — nicht nur Menschen in Ihrer Stadt.",
+    "ptSection.benefit2": "Verifiziertes Profil",
+    "ptSection.benefit2Desc": "Zeigen Sie Ihr Diplom und Ihre Zertifizierung. Nur dokumentierte, professionelle Trainer erhalten ein Profil.",
+    "ptSection.benefit3": "Speed Date",
+    "ptSection.benefit3Desc": "Lernen Sie potenzielle Kunden in kurzen Videoanrufen kennen und finden Sie die passenden.",
+    "ptSection.benefit4": "Einfache Buchung",
+    "ptSection.benefit4Desc": "Kunden buchen Termine direkt bei Ihnen (Termine à 500 kr). Die Plattform nimmt 10–15 % Provision pro gebuchtem Termin.",
+    "ptSection.benefit5": "1 Monat gratis, ohne Bindung",
+    "ptSection.benefit5Desc": "Die ersten 100 Trainer zahlen im ersten Monat nichts. Danach 199 kr/Monat.",
+    "ptSection.cta": "Als Trainer registrieren",
+    "ptSection.ctaNote": "1 Monat gratis, ohne Bindung, erste 100.",
+    "ptSection.honesty": "Wir sind gerade gestartet, daher gibt es noch keine Trainer auf der Plattform. Das bedeutet: Die ersten, die sich anschließen, können mitgestalten, wie Flexora funktioniert — und die ersten 100 erhalten den ersten Monat gratis.",
+
 
     "footer.rights": "Flexora Fitnes. Alle Rechte vorbehalten.",
 
@@ -1237,6 +1322,23 @@ export const translations = {
     "ptRecruit.title": "هل أنت مدرب شخصي؟",
     "ptRecruit.description": "انضم إلى فليكسورا وتواصل مع العملاء حول العالم. اعرض شهاداتك، واحصل على تطابق عبر المواعدة السريعة، ووسع نطاق عملك عالمياً. فقط المحترفون المعتمدون — حماية لسمعتك.",
     "ptRecruit.cta": "سجل كمدرب",
+    // قسم المدربين (الرئيسية)
+    "ptSection.headline": "للمدربين: احصل على عملاء حول العالم",
+    "ptSection.intro": "فليكسورا سوق عالمية للمدربين الشخصيين. لقد أطلقنا للتو ونبحث عن أول 100 مدرب — الشهر الأول مجاناً، بدون التزام.",
+    "ptSection.benefit1": "قاعدة عملاء عالمية",
+    "ptSection.benefit1Desc": "يمكن للعملاء في جميع أنحاء العالم العثور عليك وحجز الجلسات، وليس فقط الأشخاص في مدينتك.",
+    "ptSection.benefit2": "ملف موثق",
+    "ptSection.benefit2Desc": "اعرض شهادتك وإثبات اعتمادك. فقط المدربون المحترفون الموثقون يحصلون على ملف.",
+    "ptSection.benefit3": "مواعدة سريعة",
+    "ptSection.benefit3Desc": "قابل العملاء المحتملين في مكالمات فيديو قصيرة واعثر على من يناسبك.",
+    "ptSection.benefit4": "حجز سهل",
+    "ptSection.benefit4Desc": "يحجز العملاء الجلسات مباشرة معك (الجلسات بـ 500 كرونة). تأخذ المنصة عمولة 10–15٪ عن كل جلسة محجوزة.",
+    "ptSection.benefit5": "شهر مجاناً، بدون التزام",
+    "ptSection.benefit5Desc": "أول 100 مدرب لا يدفعون شيئاً في الشهر الأول. بعد ذلك 199 كرونة شهرياً.",
+    "ptSection.cta": "سجل كمدرب",
+    "ptSection.ctaNote": "شهر مجاناً، بدون التزام، أول 100.",
+    "ptSection.honesty": "لقد أطلقنا للتو، لذلك لا يوجد مدربون على المنصة بعد. هذا يعني أن أول المدربين المنضمين يساعدون في تشكيل كيفية عمل فليكسورا — وأول 100 يحصلون على شهر أول مجاني.",
+
 
     "footer.rights": "فليكسورا فيتنس. جميع الحقوق محفوظة.",
 
@@ -1443,6 +1545,23 @@ export const translations = {
     "ptRecruit.title": "您是私人教练吗？",
     "ptRecruit.description": "加入Flexora，接触全球客户。展示您的认证，通过快速配对连接客户，在全球范围内发展您的业务。仅限认证专业人士 — 保护您的声誉。",
     "ptRecruit.cta": "注册为教练",
+    // 教练专区（首页）
+    "ptSection.headline": "致教练：触达全球客户",
+    "ptSection.intro": "Flexora 是面向私人教练的全球市场。我们刚刚上线，正在寻找首批 100 名教练 — 首月免费，无承诺。",
+    "ptSection.benefit1": "全球客户群",
+    "ptSection.benefit1Desc": "世界各地的客户都能找到你并预约课程，而不仅仅是你所在城市的人。",
+    "ptSection.benefit2": "认证档案",
+    "ptSection.benefit2Desc": "展示你的文凭和认证。只有有据可查的专业教练才能获得档案。",
+    "ptSection.benefit3": "快速配对",
+    "ptSection.benefit3Desc": "通过简短的视频通话结识潜在客户，找到适合你的那一位。",
+    "ptSection.benefit4": "轻松预约",
+    "ptSection.benefit4Desc": "客户直接向你预约课程（每节课 500 克朗）。平台对每节预约课程收取 10–15% 的佣金。",
+    "ptSection.benefit5": "首月免费，无承诺",
+    "ptSection.benefit5Desc": "首批 100 名教练首月无需支付任何费用。之后每月 199 克朗。",
+    "ptSection.cta": "注册为教练",
+    "ptSection.ctaNote": "首月免费，无承诺，仅限前 100 名。",
+    "ptSection.honesty": "我们刚刚上线，平台上还没有教练。这意味着最先加入的教练可以参与塑造 Flexora 的运作方式 — 首批 100 名可获得免费首月。",
+
 
     "footer.rights": "Flexora Fitnes。保留所有权利。",
 

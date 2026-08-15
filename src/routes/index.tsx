@@ -115,6 +115,9 @@ function Home() {
       {/* --- PT plan --- */}
       <PTSubscription />
 
+      {/* --- For PTs (value pitch) --- */}
+      <ForPTSection />
+
       {/* --- Featured Trainers --- */}
       <FeaturedTrainers />
 
@@ -559,6 +562,101 @@ function PTSubscription() {
           >
             {t("pricing.startTrial", { plan: t("pricing.ptPlan") })}
           </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── For PTs section (value pitch — landing) ─────────────────────
+function ForPTSection() {
+  const { t } = useTranslation();
+  const benefits = [
+    {
+      tKey: "ptSection.benefit1",
+      dKey: "ptSection.benefit1Desc",
+      icon: (
+        <svg className="h-6 w-6 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0 0c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3 7.5 7.03 7.5 12s2.015 9 4.5 9zm-9-9h18" />
+        </svg>
+      ),
+    },
+    {
+      tKey: "ptSection.benefit2",
+      dKey: "ptSection.benefit2Desc",
+      icon: (
+        <svg className="h-6 w-6 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+    },
+    {
+      tKey: "ptSection.benefit3",
+      dKey: "ptSection.benefit3Desc",
+      icon: (
+        <svg className="h-6 w-6 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
+    {
+      tKey: "ptSection.benefit4",
+      dKey: "ptSection.benefit4Desc",
+      icon: (
+        <svg className="h-6 w-6 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
+    {
+      tKey: "ptSection.benefit5",
+      dKey: "ptSection.benefit5Desc",
+      icon: (
+        <svg className="h-6 w-6 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 10-2 2h2zm7 4h3a3 3 0 01-3 3v-3zm-7 0H9a3 3 0 003 3v-3zm0 0v6a4 4 0 01-4 4H5a2 2 0 01-2-2v-3a2 2 0 012-2h1a4 4 0 004 4v-7zm7 0h1a2 2 0 012 2v3a2 2 0 01-2 2h-3a4 4 0 004-4v-3z" />
+        </svg>
+      ),
+    },
+  ];
+  return (
+    <section id="for-pts" className="bg-[#1A56DB]/5 py-20 md:py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <SectionHeading
+          title={t("ptSection.headline")}
+          subtitle={t("ptSection.intro")}
+        />
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {benefits.map((b) => (
+            <div
+              key={b.tKey}
+              className="group rounded-xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md hover:border-[#3B82F6]/30 transition-all"
+            >
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-[#3B82F6]/10 group-hover:bg-[#3B82F6]/20 transition-colors">
+                {b.icon}
+              </div>
+              <h4 className="mb-2 font-semibold text-gray-900">{t(b.tKey as any)}</h4>
+              <p className="text-sm text-gray-500 leading-relaxed">{t(b.dKey as any)}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-12 text-center">
+          <a
+            href="/register?plan=pt"
+            className="inline-flex items-center justify-center rounded-full bg-[#1A56DB] px-10 py-4 text-base font-semibold text-white shadow-lg hover:bg-[#1E40AF] transition-colors min-h-[44px]"
+          >
+            {t("ptSection.cta")}
+          </a>
+          <p className="mt-3 text-sm font-medium text-gray-500">
+            {t("ptSection.ctaNote")}
+          </p>
+        </div>
+        <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-dashed border-[#3B82F6]/40 bg-white px-6 py-6 text-center">
+          <svg className="mx-auto mb-3 h-6 w-6 text-[#3B82F6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            {t("ptSection.honesty")}
+          </p>
         </div>
       </div>
     </section>
