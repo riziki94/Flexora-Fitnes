@@ -1973,7 +1973,7 @@ const Container3D = forwardRef<Container3DHandle, Container3DProps>(function Con
             <div className="space-y-4 text-sm text-gray-600">
               <div className="flex items-start gap-3">
                 <span className="text-xl flex-shrink-0 mt-0.5">1⃣</span>
-                <p><strong>Open on your phone</strong><br/>Visit <code className="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-xs">kitozon.app</code> in your mobile browser</p>
+                <p><strong>Open on your phone</strong><br/>Visit <code className="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-xs">www.flexorafitnes.com</code> in your mobile browser</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-xl flex-shrink-0 mt-0.5">2⃣</span>

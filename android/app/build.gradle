@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "no.kitozon.app"
+    namespace = "com.flexora.fitnes"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "no.kitozon.app"
+        applicationId "com.flexora.fitnes"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
