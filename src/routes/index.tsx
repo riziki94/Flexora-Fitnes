@@ -786,14 +786,6 @@ function Footer() {
   );
 }
 
-// --- Placeholder PTs for fallback ---
-const placeholderPTs = [
-  { name: "Maria Jensen", country: "Norway", yearsOfExperience: 8, ratingPct: 96 },
-  { name: "John Smith", country: "United Kingdom", yearsOfExperience: 12, ratingPct: 92 },
-  { name: "Elena Rossi", country: "Italy", yearsOfExperience: 5, ratingPct: 88 },
-  { name: "Carlos Mendez", country: "Spain", yearsOfExperience: 10, ratingPct: 94 },
-];
-
 // --- SVG Avatar Placeholder ---
 function AvatarPlaceholder({ name }: { name: string }) {
   const initials = name
@@ -929,28 +921,9 @@ function FeaturedTrainers() {
             </div>
           </>
         ) : (
-          /* Fallback: 4 placeholder cards using static data */
-          <div className="flex gap-6 overflow-hidden">
-            {placeholderPTs.map((pt, i) => (
-              <div
-                key={i}
-                className="min-w-[260px] rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
-              >
-                <div className="mb-4 flex justify-center">
-                  <AvatarPlaceholder name={pt.name} />
-                </div>
-                <div className="text-center">
-                  <h4 className="mb-1 font-semibold text-gray-900">{pt.name}</h4>
-                  <p className="mb-2 text-sm text-gray-500">{pt.country}</p>
-                  <p className="mb-2 text-xs text-gray-400">
-                    {pt.yearsOfExperience} {t("trainers.experience")}
-                  </p>
-                  <div className="flex justify-center">
-                    <StarRating pct={pt.ratingPct} />
-                  </div>
-                </div>
-              </div>
-            ))}
+          /* No real trainers yet — show an honest "coming soon" state instead of fake profiles */
+          <div className="mx-auto max-w-xl rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+            <p className="text-sm text-gray-600">{t("section.trainersComingSoon")}</p>
           </div>
         )}
       </div>

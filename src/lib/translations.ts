@@ -84,7 +84,7 @@ export const translations = {
 
     // Pricing
     "pricing.mostPopular": "Most Popular",
-    "pricing.startTrial": "Start {plan} — Free Trial",
+    "pricing.startTrial": "Start {plan} — 1 Month Free",
     "pricing.basis": "Basis",
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
@@ -101,14 +101,14 @@ export const translations = {
 
     // CTA
     "cta.title": "Ready to Transform Your Fitness?",
-    "cta.subtitle": "Join thousands of clients and verified PTs on the world's most advanced fitness platform. Start your journey today.",
+    "cta.subtitle": "Join Flexora Fitnes on the world's most advanced fitness platform. Start your journey today.",
     "cta.signUpClient": "Sign Up as Client",
     "cta.registerPT": "Register as PT",
 
     // Landing page optimization
     "hero.joinTagline": "Join PTs and clients building the future of fitness.",
     "inline.cta.startFree": "Start Free",
-    "pricing.launchDiscount": "Launch Price — 50% off first 3 months",
+    "pricing.launchDiscount": "Launch offer — 1 month free",
     "trust.verifiedPTs": " Verified PTs Only — every trainer diploma-checked",
     "trust.securePayments": " Secure payments via Stripe",
     "trust.satisfactionGuarantee": " 30-day satisfaction guarantee",
@@ -149,7 +149,7 @@ export const translations = {
     "auth.educationLocation": "Education Location",
     "auth.bio": "Bio",
     "auth.bioPlaceholder": "Tell clients about your training philosophy...",
-    "auth.startFreeTrial": "Start Free Trial — {plan}",
+    "auth.startFreeTrial": "Start {plan} — 1 Month Free",
     "auth.haveAccount": "Already have an account?",
     "auth.registerFailed": "Registration failed",
 
@@ -186,6 +186,8 @@ export const translations = {
     "dashboard.upcomingBookings": "Upcoming Bookings",
     "dashboard.noBookings": "No upcoming bookings",
 
+    // Trainers empty state
+    "section.trainersComingSoon": "Verified PTs are joining soon — check back for our first trainers.",
     // Launch banner
     "banner.launchText": "LAUNCH OFFER: 1 month free + no commitment. First 100 only!",
     "banner.startFree": "Start Free",
@@ -215,7 +217,7 @@ export const translations = {
 
     // Exit intent
     "exit.title": "Wait! Before you go…",
-    "exit.description": "Get 2 months free when you join today. Limited launch offer.",
+    "exit.description": "Get 1 month free when you join today. Limited launch offer.",
     "exit.claimOffer": "Claim Offer",
     "exit.noThanks": "No thanks",
 
@@ -224,7 +226,7 @@ export const translations = {
     "blog.subtitle": "Fitness guides, technology insights, and training tips",
     "blog.ctaTitle": "Ready to Transform Your Training?",
     "blog.ctaDescription": "Join Flexora Fitnes and experience AI-powered coaching combined with world-class personal trainers.",
-    "blog.ctaButton": "Start Your Free Trial",
+    "blog.ctaButton": "Start Your 1 Month Free",
     "blog.readMore": "Read more →",
     "blog.backToBlog": "Back to Blog",
 
@@ -336,7 +338,7 @@ export const translations = {
     "pt.verifiedDesc": "Hver trener er verifisert. Dokumentasjon sjekket. Kun ekte, kvalifiserte PT-er på Flexora.",
 
     "pricing.mostPopular": "Mest populær",
-    "pricing.startTrial": "Start {plan} — Gratis prøve",
+    "pricing.startTrial": "Start {plan} — 1 måned gratis",
     "pricing.basis": "Basis",
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
@@ -352,14 +354,14 @@ export const translations = {
     ],
 
     "cta.title": "Klar for å transformere treningen din?",
-    "cta.subtitle": "Bli med tusenvis av kunder og verifiserte PT-er på verdens mest avanserte treningsplattform. Start reisen din i dag.",
+    "cta.subtitle": "Bli med på Flexora Fitnes — verdens mest avanserte treningsplattform. Start reisen din i dag.",
     "cta.signUpClient": "Registrer deg som kunde",
     "cta.registerPT": "Registrer deg som PT",
 
     // Landing page optimization
     "hero.joinTagline": "Bli med PT-er og kunder som bygger fremtidens trening.",
     "inline.cta.startFree": "Start gratis",
-    "pricing.launchDiscount": "Lanseringspris — 50% rabatt første 3 mnd",
+    "pricing.launchDiscount": "Lanseringstilbud — 1 måned gratis",
     "trust.verifiedPTs": " Kun verifiserte PT-er — alle diplomer sjekkes",
     "trust.securePayments": " Sikre betalinger via Stripe",
     "trust.satisfactionGuarantee": " 30-dagers tilfredshetsgaranti",
@@ -397,7 +399,7 @@ export const translations = {
     "auth.educationLocation": "Utdanningssted",
     "auth.bio": "Bio",
     "auth.bioPlaceholder": "Fortell kunder om treningsfilosofien din...",
-    "auth.startFreeTrial": "Start gratis prøve — {plan}",
+    "auth.startFreeTrial": "Start {plan} — 1 måned gratis",
     "auth.haveAccount": "Har du allerede en konto?",
     "auth.registerFailed": "Registrering feilet",
 
@@ -433,6 +435,8 @@ export const translations = {
     "dashboard.upcomingBookings": "Kommende bookinger",
     "dashboard.noBookings": "Ingen kommende bookinger",
 
+    // Trainers empty state
+    "section.trainersComingSoon": "Verifiserte PT-er kommer snart — titt innom igjen for våre første trenere.",
     // Launch banner
     "banner.launchText": "LANSERINGSTILBUD: 1 måned gratis + ingen binding. Kun for de første 100!",
     "banner.startFree": "Start gratis",
@@ -462,7 +466,7 @@ export const translations = {
 
     // Exit intent
     "exit.title": "Vent! Før du går…",
-    "exit.description": "Få 2 måneder gratis når du blir med i dag. Begrenset lanseringstilbud.",
+    "exit.description": "Få 1 måned gratis når du blir med i dag. Begrenset lanseringstilbud.",
     "exit.claimOffer": "Få tilbud",
     "exit.noThanks": "Nei takk",
 
@@ -471,7 +475,7 @@ export const translations = {
     "blog.subtitle": "Treningsguider, teknologiinnsikt og treningstips",
     "blog.ctaTitle": "Klar for å transformere treningen din?",
     "blog.ctaDescription": "Bli med i Flexora Fitnes og opplev AI-drevet coaching kombinert med personlige trenere i verdensklasse.",
-    "blog.ctaButton": "Start din gratis prøveperiode",
+    "blog.ctaButton": "Start din 1 måned gratis",
     "blog.readMore": "Les mer →",
     "blog.backToBlog": "Tilbake til bloggen",
 
@@ -573,7 +577,7 @@ export const translations = {
     "pt.verifiedDesc": "Cada entrenador está verificado. Documentación comprobada. Solo entrenadores reales y calificados en Flexora.",
 
     "pricing.mostPopular": "Más popular",
-    "pricing.startTrial": "Comenzar {plan} — Prueba gratuita",
+    "pricing.startTrial": "Comenzar {plan} — 1 mes gratis",
     "pricing.basis": "Básico",
     "pricing.hybrid": "Híbrido",
     "pricing.premium": "Premium",
@@ -589,14 +593,14 @@ export const translations = {
     ],
 
     "cta.title": "¿Listo para transformar tu fitness?",
-    "cta.subtitle": "Únete a miles de clientes y entrenadores verificados en la plataforma de fitness más avanzada del mundo. Comienza tu viaje hoy.",
+    "cta.subtitle": "Únete a Flexora Fitnes, la plataforma de fitness más avanzada del mundo. Comienza tu viaje hoy.",
     "cta.signUpClient": "Regístrate como cliente",
     "cta.registerPT": "Regístrate como entrenador",
 
     // Landing page optimization
     "hero.joinTagline": "Únete a entrenadores y clientes construyendo el futuro del fitness.",
     "inline.cta.startFree": "Empieza gratis",
-    "pricing.launchDiscount": "Precio de lanzamiento — 50% descuento primeros 3 meses",
+    "pricing.launchDiscount": "Oferta de lanzamiento — 1 mes gratis",
     "trust.verifiedPTs": " Solo entrenadores verificados — cada diploma comprobado",
     "trust.securePayments": " Pagos seguros vía Stripe",
     "trust.satisfactionGuarantee": " Garantía de satisfacción de 30 días",
@@ -634,7 +638,7 @@ export const translations = {
     "auth.educationLocation": "Lugar de educación",
     "auth.bio": "Biografía",
     "auth.bioPlaceholder": "Cuéntale a los clientes sobre tu filosofía de entrenamiento...",
-    "auth.startFreeTrial": "Comenzar prueba gratuita — {plan}",
+    "auth.startFreeTrial": "Comenzar {plan} — 1 mes gratis",
     "auth.haveAccount": "¿Ya tienes una cuenta?",
     "auth.registerFailed": "Registro fallido",
 
@@ -698,8 +702,22 @@ export const translations = {
     "auth.referredByPT": "Te estás registrando a través de una referencia de entrenador personal. ¡Obtendrás una prueba premium automáticamente!",
     "trainers.experience": "años de experiencia",
     "newsletter.emailLabel": "Dirección de correo",
-  },
 
+    // Trainers empty state
+    "section.trainersComingSoon": "Entrenadores verificados se unen pronto — vuelve pronto para conocer a nuestros primeros entrenadores.",
+    // Launch banner
+    "banner.launchText": "OFERTA DE LANZAMIENTO: 1 mes gratis + sin compromiso. ¡Solo los primeros 100!",
+    "banner.startFree": "Empezar gratis",
+    // Exit intent
+    "exit.title": "¡Espera! Antes de irte…",
+    "exit.description": "Obtén 1 mes gratis cuando te unas hoy. Oferta de lanzamiento limitada.",
+    "exit.claimOffer": "Reclamar oferta",
+    "exit.noThanks": "No, gracias",
+    // Blog
+    "blog.ctaButton": "Empieza tu 1 mes gratis",
+    // CTA free trial message
+    "cta.freeTrialMessage": "1 mes gratis — sin compromiso, cancela cuando quieras",
+  },
   fr: {
     "nav.whatIsFlexora": "Qu'est-ce que Flexora",
     "nav.forClients": "Pour les clients",
@@ -765,7 +783,7 @@ export const translations = {
     "pt.verifiedDesc": "Chaque coach est vérifié. Documentation contrôlée. Seuls de vrais coachs qualifiés sur Flexora.",
 
     "pricing.mostPopular": "Le plus populaire",
-    "pricing.startTrial": "Commencer {plan} — Essai gratuit",
+    "pricing.startTrial": "Commencer {plan} — 1 mois gratuit",
     "pricing.basis": "Basique",
     "pricing.hybrid": "Hybride",
     "pricing.premium": "Premium",
@@ -781,14 +799,14 @@ export const translations = {
     ],
 
     "cta.title": "Prêt à transformer votre fitness ?",
-    "cta.subtitle": "Rejoignez des milliers de clients et de coachs vérifiés sur la plateforme de fitness la plus avancée au monde. Commencez votre parcours aujourd'hui.",
+    "cta.subtitle": "Rejoignez Flexora Fitnes, la plateforme de fitness la plus avancée au monde. Commencez votre parcours aujourd'hui.",
     "cta.signUpClient": "S'inscrire comme client",
     "cta.registerPT": "S'inscrire comme coach",
 
     // Landing page optimization
     "hero.joinTagline": "Rejoignez les coachs et les clients qui construisent l'avenir du fitness.",
     "inline.cta.startFree": "Commencer gratuitement",
-    "pricing.launchDiscount": "Prix de lancement — 50% de réduction les 3 premiers mois",
+    "pricing.launchDiscount": "Offre de lancement — 1 mois gratuit",
     "trust.verifiedPTs": " Coachs vérifiés uniquement — chaque diplôme contrôlé",
     "trust.securePayments": " Paiements sécurisés via Stripe",
     "trust.satisfactionGuarantee": " Garantie de satisfaction de 30 jours",
@@ -826,7 +844,7 @@ export const translations = {
     "auth.educationLocation": "Lieu de formation",
     "auth.bio": "Bio",
     "auth.bioPlaceholder": "Parlez aux clients de votre philosophie d'entraînement...",
-    "auth.startFreeTrial": "Essai gratuit — {plan}",
+    "auth.startFreeTrial": "Commencer {plan} — 1 mois gratuit",
     "auth.haveAccount": "Vous avez déjà un compte ?",
     "auth.registerFailed": "Échec de l'inscription",
 
@@ -890,8 +908,22 @@ export const translations = {
     "auth.referredByPT": "Vous vous inscrivez via un parrainage de coach. Vous obtiendrez automatiquement un essai premium !",
     "trainers.experience": "ans d'expérience",
     "newsletter.emailLabel": "Adresse email",
-  },
 
+    // Trainers empty state
+    "section.trainersComingSoon": "Des coachs vérifiés arrivent bientôt — revenez découvrir nos premiers coachs.",
+    // Launch banner
+    "banner.launchText": "OFFRE DE LANCEMENT : 1 mois gratuit + sans engagement. Les 100 premiers seulement !",
+    "banner.startFree": "Commencer gratuitement",
+    // Exit intent
+    "exit.title": "Attendez ! Avant de partir…",
+    "exit.description": "Obtenez 1 mois gratuit en rejoignant aujourd'hui. Offre de lancement limitée.",
+    "exit.claimOffer": "Réclamer l'offre",
+    "exit.noThanks": "Non merci",
+    // Blog
+    "blog.ctaButton": "Commencez votre 1 mois gratuit",
+    // CTA free trial message
+    "cta.freeTrialMessage": "1 mois gratuit — sans engagement, annulez à tout moment",
+  },
   de: {
     "nav.whatIsFlexora": "Was ist Flexora",
     "nav.forClients": "Für Kunden",
@@ -957,7 +989,7 @@ export const translations = {
     "pt.verifiedDesc": "Jeder Trainer ist verifiziert. Dokumentation geprüft. Nur echte, qualifizierte Trainer auf Flexora.",
 
     "pricing.mostPopular": "Am beliebtesten",
-    "pricing.startTrial": "{plan} starten — Kostenlose Testphase",
+    "pricing.startTrial": "{plan} starten — 1 Monat gratis",
     "pricing.basis": "Basis",
     "pricing.hybrid": "Hybrid",
     "pricing.premium": "Premium",
@@ -973,14 +1005,14 @@ export const translations = {
     ],
 
     "cta.title": "Bereit, dein Fitness zu transformieren?",
-    "cta.subtitle": "Schließe dich Tausenden von Kunden und verifizierten Trainern auf der weltweit fortschrittlichsten Fitness-Plattform an. Starte deine Reise noch heute.",
+    "cta.subtitle": "Schließe dich Flexora Fitnes an, der weltweit fortschrittlichsten Fitness-Plattform. Starte deine Reise noch heute.",
     "cta.signUpClient": "Als Kunde registrieren",
     "cta.registerPT": "Als Trainer registrieren",
 
     // Landing page optimization
     "hero.joinTagline": "Gemeinsam mit Trainern und Kunden die Zukunft des Fitness gestalten.",
     "inline.cta.startFree": "Kostenlos starten",
-    "pricing.launchDiscount": "Einführungspreis — 50% Rabatt in den ersten 3 Monaten",
+    "pricing.launchDiscount": "Einführungsangebot — 1 Monat gratis",
     "trust.verifiedPTs": " Nur verifizierte Trainer — jedes Diplom geprüft",
     "trust.securePayments": " Sichere Zahlungen via Stripe",
     "trust.satisfactionGuarantee": " 30-Tage-Zufriedenheitsgarantie",
@@ -1018,7 +1050,7 @@ export const translations = {
     "auth.educationLocation": "Ausbildungsort",
     "auth.bio": "Bio",
     "auth.bioPlaceholder": "Erzähle Kunden von deiner Trainingsphilosophie...",
-    "auth.startFreeTrial": "Kostenlose Testphase starten — {plan}",
+    "auth.startFreeTrial": "{plan} starten — 1 Monat gratis",
     "auth.haveAccount": "Hast du bereits ein Konto?",
     "auth.registerFailed": "Registrierung fehlgeschlagen",
 
@@ -1082,8 +1114,22 @@ export const translations = {
     "auth.referredByPT": "Du registrierst dich über eine Trainer-Empfehlung. Du erhältst automatisch eine Premium-Testphase!",
     "trainers.experience": "Jahre Erfahrung",
     "newsletter.emailLabel": "E-Mail-Adresse",
-  },
 
+    // Trainers empty state
+    "section.trainersComingSoon": "Verifizierte Trainer kommen bald — schau bald wieder vorbei.",
+    // Launch banner
+    "banner.launchText": "EINFÜHRUNGSANGEBOT: 1 Monat gratis + ohne Verpflichtung. Nur die ersten 100!",
+    "banner.startFree": "Kostenlos starten",
+    // Exit intent
+    "exit.title": "Warte! Bevor du gehst…",
+    "exit.description": "Erhalte 1 Monat gratis, wenn du heute beitrittst. Begrenztes Einführungsangebot.",
+    "exit.claimOffer": "Angebot sichern",
+    "exit.noThanks": "Nein danke",
+    // Blog
+    "blog.ctaButton": "Starte deinen 1 Monat gratis",
+    // CTA free trial message
+    "cta.freeTrialMessage": "1 Monat gratis — ohne Verpflichtung, jederzeit kündbar",
+  },
   ar: {
     "nav.whatIsFlexora": "ما هي فليكسورا",
     "nav.forClients": "للعملاء",
@@ -1149,7 +1195,7 @@ export const translations = {
     "pt.verifiedDesc": "كل مدرب موثق. الوثائق مدققة. فقط مدربون حقيقيون ومؤهلون على فليكسورا.",
 
     "pricing.mostPopular": "الأكثر شعبية",
-    "pricing.startTrial": "ابدأ {plan} — تجربة مجانية",
+    "pricing.startTrial": "ابدأ {plan} — شهر واحد مجاناً",
     "pricing.basis": "أساسي",
     "pricing.hybrid": "هجين",
     "pricing.premium": "مميز",
@@ -1165,14 +1211,14 @@ export const translations = {
     ],
 
     "cta.title": "هل أنت مستعد لتحويل لياقتك؟",
-    "cta.subtitle": "انضم إلى آلاف العملاء والمدربين المعتمدين على منصة اللياقة الأكثر تقدماً في العالم. ابدأ رحلتك اليوم.",
+    "cta.subtitle": "انضم إلى Flexora Fitnes، منصة اللياقة الأكثر تقدماً في العالم. ابدأ رحلتك اليوم.",
     "cta.signUpClient": "سجل كعميل",
     "cta.registerPT": "سجل كمدرب",
 
     // Landing page optimization
     "hero.joinTagline": "انضم إلى المدربين والعملاء الذين يبنون مستقبل اللياقة.",
     "inline.cta.startFree": "ابدأ مجاناً",
-    "pricing.launchDiscount": "سعر الإطلاق — خصم 50% لأول 3 أشهر",
+    "pricing.launchDiscount": "عرض الإطلاق — شهر واحد مجاناً",
     "trust.verifiedPTs": " مدربون معتمدون فقط — كل شهادة مدققة",
     "trust.securePayments": " مدفوعات آمنة عبر Stripe",
     "trust.satisfactionGuarantee": " ضمان الرضا لمدة 30 يوماً",
@@ -1210,7 +1256,7 @@ export const translations = {
     "auth.educationLocation": "مكان التعليم",
     "auth.bio": "نبذة",
     "auth.bioPlaceholder": "أخبر العملاء عن فلسفتك التدريبية...",
-    "auth.startFreeTrial": "ابدأ التجربة المجانية — {plan}",
+    "auth.startFreeTrial": "ابدأ {plan} — شهر واحد مجاناً",
     "auth.haveAccount": "هل لديك حساب بالفعل؟",
     "auth.registerFailed": "فشل التسجيل",
 
@@ -1274,8 +1320,22 @@ export const translations = {
     "auth.referredByPT": "أنت تسجل عبر إحالة مدرب شخصي. ستحصل على تجربة مميزة تلقائياً!",
     "trainers.experience": "سنوات من الخبرة",
     "newsletter.emailLabel": "عنوان البريد الإلكتروني",
-  },
 
+    // Trainers empty state
+    "section.trainersComingSoon": "المدربون المعتمدون ينضمون قريباً — عد لاحقاً للتعرف على أول مدربينا.",
+    // Launch banner
+    "banner.launchText": "عرض الإطلاق: شهر واحد مجاناً + بدون التزام. أول 100 فقط!",
+    "banner.startFree": "ابدأ مجاناً",
+    // Exit intent
+    "exit.title": "انتظر! قبل أن تغادر…",
+    "exit.description": "احصل على شهر واحد مجاناً عند انضمامك اليوم. عرض إطلاق محدود.",
+    "exit.claimOffer": "احصل على العرض",
+    "exit.noThanks": "لا شكراً",
+    // Blog
+    "blog.ctaButton": "ابدأ شهرك المجاني",
+    // CTA free trial message
+    "cta.freeTrialMessage": "شهر واحد مجاناً — بدون التزام، يمكنك الإلغاء في أي وقت",
+  },
   zh: {
     "nav.whatIsFlexora": "什么是Flexora",
     "nav.forClients": "客户",
@@ -1341,7 +1401,7 @@ export const translations = {
     "pt.verifiedDesc": "每位教练都经过验证。文档已检查。Flexora上只有真实、合格的教练。",
 
     "pricing.mostPopular": "最受欢迎",
-    "pricing.startTrial": "开始{plan}——免费试用",
+    "pricing.startTrial": "开始{plan}——1个月免费",
     "pricing.basis": "基础版",
     "pricing.hybrid": "混合版",
     "pricing.premium": "高级版",
@@ -1357,14 +1417,14 @@ export const translations = {
     ],
 
     "cta.title": "准备好改变您的健身了吗？",
-    "cta.subtitle": "加入成千上万的客户和认证教练，在世界最先进的健身平台上。今天就开始您的旅程。",
+    "cta.subtitle": "加入Flexora Fitnes——世界最先进的健身平台。今天就开始您的旅程。",
     "cta.signUpClient": "注册为客户",
     "cta.registerPT": "注册为教练",
 
     // Landing page optimization
     "hero.joinTagline": "加入教练和客户，共同构建健身的未来。",
     "inline.cta.startFree": "免费开始",
-    "pricing.launchDiscount": "首发价格 — 前3个月5折优惠",
+    "pricing.launchDiscount": "发布优惠 — 1个月免费",
     "trust.verifiedPTs": " 仅限认证教练 — 每份证书已验证",
     "trust.securePayments": " 通过Stripe安全支付",
     "trust.satisfactionGuarantee": " 30天满意保证",
@@ -1402,7 +1462,7 @@ export const translations = {
     "auth.educationLocation": "教育地点",
     "auth.bio": "简介",
     "auth.bioPlaceholder": "向客户介绍您的训练理念...",
-    "auth.startFreeTrial": "开始免费试用——{plan}",
+    "auth.startFreeTrial": "开始{plan}——1个月免费",
     "auth.haveAccount": "已有账号？",
     "auth.registerFailed": "注册失败",
 
@@ -1466,5 +1526,20 @@ export const translations = {
     "auth.referredByPT": "您通过私教推荐注册。您将自动获得高级试用！",
     "trainers.experience": "年经验",
     "newsletter.emailLabel": "邮箱地址",
+
+    // Trainers empty state
+    "section.trainersComingSoon": "认证教练即将入驻——敬请期待我们的首批教练。",
+    // Launch banner
+    "banner.launchText": "发布优惠：1个月免费 + 无承诺。仅限前100名！",
+    "banner.startFree": "免费开始",
+    // Exit intent
+    "exit.title": "等等！离开之前…",
+    "exit.description": "今天加入，免费获得1个月。限时发布优惠。",
+    "exit.claimOffer": "领取优惠",
+    "exit.noThanks": "不用了",
+    // Blog
+    "blog.ctaButton": "开始您的1个月免费",
+    // CTA free trial message
+    "cta.freeTrialMessage": "1个月免费 — 无承诺，随时取消",
   },
 } as const;
