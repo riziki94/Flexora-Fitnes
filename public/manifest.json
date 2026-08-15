@@ -19,10 +19,6 @@
       "platform": "play",
       "url": "https://play.google.com/store/apps/details?id=com.flexora.fitnes",
       "id": "com.flexora.fitnes"
-    },
-    {
-      "platform": "itunes",
-      "url": "https://apps.apple.com/app/flexora-fitnes/idPLACEHOLDER_APP_ID"
     }
   ],
   "shortcuts": [

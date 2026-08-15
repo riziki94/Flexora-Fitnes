@@ -6,7 +6,22 @@ import { useTranslation } from "~/lib/i18n";
 import { BASE_PRICES } from "~/lib/currency";
 import { trackEvent } from "~/lib/pageview-tracker";
 
+// TEMP-D1: bytt tilbake til https://www.flexorafitnes.com når SSL er på plass
+// (samme mønster som __root.tsx — plattform-URL-en er den som svarer HTTP 200 nå).
+const BASE_URL = "https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app";
+
 export const Route = createFileRoute("/register")({
+  head: () => ({
+    meta: [
+      { title: "Register — Flexora Fitnes" },
+      {
+        name: "description",
+        content:
+          "Create your Flexora Fitnes account — 1 month free, no commitment, first 100. Book verified personal trainers worldwide or train with AI coaching.",
+      },
+    ],
+    links: [{ rel: "canonical", href: `${BASE_URL}/register` }],
+  }),
   component: RegisterPage,
   validateSearch: (search: Record<string, unknown>) => ({
     plan: (search.plan as string) || "",

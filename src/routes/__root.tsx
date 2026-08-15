@@ -52,8 +52,6 @@ export const Route = createRootRoute({
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Flexora" },
       { name: "theme-color", content: "#1A56DB" },
-      // Apple Smart App Banner (set app-id when iOS app is published)
-      { name: "apple-itunes-app", content: "app-id=PLACEHOLDER_APP_ID" },
     ],
     links: [
       { rel: "canonical", href: BASE_URL },

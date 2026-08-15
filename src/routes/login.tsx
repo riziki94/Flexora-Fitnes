@@ -3,7 +3,22 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { loginUser } from "~/lib/auth-actions";
 import { useTranslation } from "~/lib/i18n";
 
+// TEMP-D1: bytt tilbake til https://www.flexorafitnes.com når SSL er på plass
+// (samme mønster som __root.tsx — plattform-URL-en er den som svarer HTTP 200 nå).
+const BASE_URL = "https://4b6e74dd2d7c803e38bdf306792a9d33.ctonew.app";
+
 export const Route = createFileRoute("/login")({
+  head: () => ({
+    meta: [
+      { title: "Log in — Flexora Fitnes" },
+      {
+        name: "description",
+        content:
+          "Log in to your Flexora Fitnes account to continue your training, book personal trainers, and track your progress.",
+      },
+    ],
+    links: [{ rel: "canonical", href: `${BASE_URL}/login` }],
+  }),
   component: LoginPage,
   validateSearch: (search: Record<string, unknown>) => ({
     ref_pt: (search.ref_pt as string) || "",
