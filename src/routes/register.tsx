@@ -133,7 +133,7 @@ function RegisterPage() {
     if (newRole === "pt") {
       setPlan("pt");
     } else if (plan === "pt") {
-      setPlan("");
+      setPlan("basis");
     }
   }
 
